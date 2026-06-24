@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    name: Test and build macOS app
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Show toolchain
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Run tests
+        run: swift test
+
+      - name: Build app bundle
+        run: scripts/build-app.sh
+
+      - name: Scan for sensitive information
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          pattern = re.compile("|".join([
+              r"sk-[A-Za-z0-9_-]{10,}",
+              r"api[_-]?key\s*=",
+              r"API_KEY\s*=",
+              "Authorization:" + r"\s*Bearer",
+              r"BEGIN (RSA|OPENSSH|PRIVATE) KEY",
+              r"xox[baprs]-",
+              r"ghp_[A-Za-z0-9_]{20,}",
+              "github_" + "pat_",
+          ]))
+          excluded = {".git", ".build", "dist"}
+          matches = []
+          for path in pathlib.Path(".").rglob("*"):
+              if not path.is_file():
+                  continue
+              if any(part in excluded for part in path.parts):
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              for line_number, line in enumerate(text.splitlines(), 1):
+                  if pattern.search(line):
+                      matches.append(f"{path}:{line_number}:{line}")
+          if matches:
+              print("Sensitive-information scan found matches. Review before release.", file=sys.stderr)
+              print("\n".join(matches), file=sys.stderr)
+              sys.exit(1)
+          PY
+
+      - name: Package app artifact
+        run: scripts/package-app.sh ReadyType.app.zip
+
+      - name: Package DMG artifact
+        run: scripts/package-dmg.sh ReadyType.dmg
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ReadyType.app
+          path: ReadyType.app.zip
+          if-no-files-found: error
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ReadyType.dmg
+          path: ReadyType.dmg
+          if-no-files-found: error

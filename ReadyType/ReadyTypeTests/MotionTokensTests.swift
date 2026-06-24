@@ -1,0 +1,51 @@
+import XCTest
+@testable import ReadyType
+
+final class MotionTokensTests: XCTestCase {
+    func testStandardMotionAllowsExpressiveHUDMovement() {
+        let preferences = MotionPreferences(reduceMotion: false)
+
+        XCTAssertEqual(MotionTokens.hudEntranceOffset(for: preferences), 12)
+        XCTAssertTrue(MotionTokens.waveAnimationEnabled(for: preferences))
+        XCTAssertTrue(MotionTokens.errorShakeEnabled(for: preferences))
+        XCTAssertTrue(MotionTokens.voiceCapsuleFlowEnabled(for: .recording, preferences: preferences))
+        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 28)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 74)
+    }
+
+    func testReducedMotionDisablesLargeMovementAndWaveAnimation() {
+        let preferences = MotionPreferences(reduceMotion: true)
+
+        XCTAssertEqual(MotionTokens.hudEntranceOffset(for: preferences), 0)
+        XCTAssertFalse(MotionTokens.waveAnimationEnabled(for: preferences))
+        XCTAssertFalse(MotionTokens.errorShakeEnabled(for: preferences))
+        XCTAssertFalse(MotionTokens.voiceCapsuleFlowEnabled(for: .recording, preferences: preferences))
+        XCTAssertEqual(MotionTokens.voiceCapsuleScale(for: .pasted, preferences: preferences), 1)
+    }
+
+    func testVoiceCapsuleFlowUsesDifferentRhythmsByRuntimeState() {
+        let preferences = MotionPreferences(reduceMotion: false)
+
+        XCTAssertFalse(MotionTokens.voiceCapsuleFlowEnabled(for: .idle, preferences: preferences))
+        XCTAssertEqual(MotionTokens.voiceCapsuleFlowDuration(for: .recording), 1.55)
+        XCTAssertEqual(MotionTokens.voiceCapsuleFlowDuration(for: .transcribing), 2.05)
+        XCTAssertEqual(MotionTokens.voiceCapsuleFlowDuration(for: .processingAI), 2.35)
+        XCTAssertGreaterThan(
+            MotionTokens.voiceCapsuleFlowOpacity(for: .recording, preferences: preferences),
+            MotionTokens.voiceCapsuleFlowOpacity(for: .processingAI, preferences: preferences)
+        )
+        XCTAssertGreaterThan(
+            MotionTokens.voiceCapsuleFlowOpacity(for: .pasted, preferences: preferences),
+            MotionTokens.voiceCapsuleFlowOpacity(for: .copiedFallback, preferences: preferences)
+        )
+    }
+
+    func testVoiceCapsuleSuccessAndErrorMotionAreScoped() {
+        let preferences = MotionPreferences(reduceMotion: false)
+
+        XCTAssertEqual(MotionTokens.voiceCapsuleScale(for: .pasted, preferences: preferences), 1.018)
+        XCTAssertEqual(MotionTokens.voiceCapsuleScale(for: .recording, preferences: preferences), 1)
+        XCTAssertTrue(MotionTokens.voiceCapsuleErrorPulseEnabled(for: .error("x"), preferences: preferences))
+        XCTAssertFalse(MotionTokens.voiceCapsuleErrorPulseEnabled(for: .recording, preferences: preferences))
+    }
+}

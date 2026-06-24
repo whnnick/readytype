@@ -1,0 +1,63 @@
+{
+  "thresholds": {
+    "maxAverageCER": 0.08,
+    "maxLanguageMisclassificationRate": 0.05,
+    "fastStopToOutputP50Ms": 1200,
+    "fastStopToOutputP95Ms": 2500,
+    "highAccuracyStopToOutputP50Ms": 3000,
+    "highAccuracyStopToOutputP95Ms": 6000
+  },
+  "samples": [
+    {
+      "id": "zh-short-chat-001",
+      "category": "chat",
+      "backend": "fast",
+      "expectedLanguage": "zh-CN",
+      "reference": "张三，项目这周可能会晚两天，明天下午三点我们再沟通一次。",
+      "transcript": "",
+      "firstFeedbackLatencyMs": null,
+      "firstPreviewLatencyMs": null,
+      "stopToOutputLatencyMs": null,
+      "totalCompletionLatencyMs": null,
+      "peakCPUPercent": null,
+      "memoryMB": null,
+      "modelName": "fast-system",
+      "prewarmed": false,
+      "notes": "Replace transcript and metrics with a real microphone result before release."
+    },
+    {
+      "id": "zh-en-terms-001",
+      "category": "technicalTerms",
+      "backend": "automatic",
+      "expectedLanguage": "zh-CN",
+      "reference": "我想用 Docker Compose 部署 Redis 和 Nextcloud，顺便把 ReadyType 的配置文档整理一下。",
+      "transcript": "",
+      "firstFeedbackLatencyMs": null,
+      "firstPreviewLatencyMs": null,
+      "stopToOutputLatencyMs": null,
+      "totalCompletionLatencyMs": null,
+      "peakCPUPercent": null,
+      "memoryMB": null,
+      "modelName": null,
+      "prewarmed": null,
+      "notes": "Use this sample to catch Chinese input being recognized as mostly English."
+    },
+    {
+      "id": "zh-email-001",
+      "category": "email",
+      "backend": "highAccuracy",
+      "expectedLanguage": "zh-CN",
+      "reference": "张三你好，项目这周可能会晚两天，因为设计稿还没有完全确认。明天下午三点我们再沟通一次，请你提前准备素材，并带上预算表。",
+      "transcript": "",
+      "firstFeedbackLatencyMs": null,
+      "firstPreviewLatencyMs": null,
+      "stopToOutputLatencyMs": null,
+      "totalCompletionLatencyMs": null,
+      "peakCPUPercent": null,
+      "memoryMB": null,
+      "modelName": "CoreML high-accuracy package",
+      "prewarmed": true,
+      "notes": "Record with the local high-accuracy package installed and prewarmed."
+    }
+  ]
+}

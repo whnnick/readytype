@@ -1,0 +1,8 @@
+tmp/
+.superpowers/
+.DS_Store
+.build/
+dist/
+*.pdf
+!docs/versions/**/*.pdf
+docs/versions/**/plans/*.local.json

@@ -1,0 +1,348 @@
+import SwiftUI
+
+struct RecordingHUDView: View {
+    @ObservedObject var appState: AppState
+    let recordingStartedAt: Date
+
+    @State private var errorOffset: CGFloat = 0
+    private var preferences: MotionPreferences { .current }
+
+    var body: some View {
+        TimelineView(.periodic(from: recordingStartedAt, by: 1)) { timeline in
+            let presentation = VoiceInputHUDText.presentation(
+                for: appState.runtimeState,
+                shortcut: appState.voiceShortcut
+            )
+
+            HStack(spacing: 14) {
+                VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 8) {
+                        Text(presentation.title)
+                            .font(.system(size: 15, weight: .semibold))
+                            .lineLimit(1)
+                            .contentTransition(.opacity)
+                            .foregroundStyle(ReadyTypeTheme.ink)
+
+                        VoiceCapsuleBadge(text: appState.selectedMode.displayName, role: appState.runtimeState.readyTypeStatusRole)
+                        if let scenarioLabel = appState.scenarioSelection.hudLabel(for: appState.selectedMode) {
+                            VoiceCapsuleBadge(text: scenarioLabel, role: .neutral)
+                        }
+                    }
+
+                    Text(presentation.subtitle)
+                        .font(.system(size: 11, weight: .medium))
+                        .lineLimit(1)
+                        .foregroundStyle(ReadyTypeTheme.muted)
+                        .contentTransition(.opacity)
+                }
+
+                Spacer(minLength: 8)
+
+                Text(timerText(at: timeline.date))
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
+                    .frame(width: 48, alignment: .trailing)
+
+                WaveformView(isActive: appState.runtimeState == .recording, reduceMotion: preferences.reduceMotion)
+                    .frame(width: 104, height: 28)
+            }
+            .frame(height: MotionTokens.voiceCapsuleHeight)
+            .padding(.horizontal, 18)
+            .background {
+                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                ReadyTypeTheme.fieldStrong.opacity(0.82),
+                                ReadyTypeTheme.field.opacity(0.76)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+            .overlay(
+                VoiceCapsuleFlowBorder(
+                    state: appState.runtimeState,
+                    preferences: preferences
+                )
+            )
+            .overlay(alignment: .topLeading) {
+                Capsule()
+                    .fill(ReadyTypeTheme.ink.opacity(0.16))
+                    .frame(width: 150, height: 1)
+                    .padding(.leading, 28)
+                    .padding(.top, 1)
+            }
+            .shadow(color: Color.black.opacity(0.28), radius: 22, x: 0, y: 16)
+            .shadow(
+                color: ReadyTypeTheme.color(for: appState.runtimeState.readyTypeStatusRole).opacity(
+                    MotionTokens.voiceCapsuleGlowOpacity(for: appState.runtimeState, preferences: preferences)
+                ),
+                radius: 24,
+                x: 0,
+                y: 10
+            )
+            .scaleEffect(MotionTokens.voiceCapsuleScale(for: appState.runtimeState, preferences: preferences))
+            .offset(x: errorOffset)
+            .animation(MotionTokens.crossfadeAnimation(for: preferences), value: presentation)
+            .animation(MotionTokens.statusAnimation(for: preferences), value: appState.runtimeState)
+            .onChange(of: appState.runtimeState) { _, state in
+                guard case .error = state,
+                      MotionTokens.errorShakeEnabled(for: preferences)
+                else {
+                    return
+                }
+
+                withAnimation(.linear(duration: 0.055).repeatCount(5, autoreverses: true)) {
+                    errorOffset = 7
+                }
+
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(330))
+                    errorOffset = 0
+                }
+            }
+        }
+    }
+
+    private func timerText(at date: Date) -> String {
+        guard appState.runtimeState == .recording else {
+            return "00:00"
+        }
+
+        let elapsed = max(0, Int(date.timeIntervalSince(recordingStartedAt)))
+        return String(format: "%02d:%02d", elapsed / 60, elapsed % 60)
+    }
+}
+
+private struct VoiceCapsuleFlowBorder: View {
+    let state: RuntimeState
+    let preferences: MotionPreferences
+
+    @State private var sweepPhase = false
+    @State private var errorPulse = false
+
+    private var role: StatusRole {
+        state.readyTypeStatusRole
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                baseBorder
+
+                if MotionTokens.voiceCapsuleFlowEnabled(for: state, preferences: preferences) {
+                    horizontalSweep(in: proxy.size)
+                }
+
+                if MotionTokens.voiceCapsuleErrorPulseEnabled(for: state, preferences: preferences) {
+                    errorPulseBorder
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .allowsHitTesting(false)
+        .onAppear {
+            restartMotion()
+        }
+        .onChange(of: state) { _, _ in
+            restartMotion()
+        }
+    }
+
+    private var baseBorder: some View {
+        RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+            .stroke(
+                LinearGradient(
+                    colors: [
+                        ReadyTypeTheme.ink.opacity(0.20),
+                        ReadyTypeTheme.color(for: role).opacity(0.34),
+                        ReadyTypeTheme.strokeSoft.opacity(0.42)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1
+            )
+    }
+
+    private var errorPulseBorder: some View {
+        RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+            .stroke(
+                ReadyTypeTheme.warning.opacity(errorPulse ? 0.54 : 0.16),
+                lineWidth: errorPulse ? 2.2 : 1.1
+            )
+            .shadow(
+                color: ReadyTypeTheme.warning.opacity(errorPulse ? 0.24 : 0.08),
+                radius: errorPulse ? 16 : 8,
+                x: 0,
+                y: 0
+            )
+            .animation(.easeOut(duration: 0.24).repeatCount(2, autoreverses: true), value: errorPulse)
+    }
+
+    private func horizontalSweep(in size: CGSize) -> some View {
+        let tint = ReadyTypeTheme.color(for: role)
+        let opacity = MotionTokens.voiceCapsuleFlowOpacity(for: state, preferences: preferences)
+        let sweepWidth = max(size.width * 0.42, 148)
+        let startX = -sweepWidth * 1.15
+        let endX = size.width + sweepWidth * 0.65
+
+        return Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        tint.opacity(opacity * 0.12),
+                        ReadyTypeTheme.ink.opacity(opacity * 0.34),
+                        tint.opacity(opacity),
+                        ReadyTypeTheme.info.opacity(opacity * 0.45),
+                        .clear
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .frame(width: sweepWidth, height: size.height + 20)
+            .blur(radius: 2.2)
+            .offset(x: sweepPhase ? endX : startX)
+            .mask(
+                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius + 4, style: .continuous)
+                    .stroke(lineWidth: 4.2)
+                    .frame(width: size.width + 8, height: size.height + 8)
+            )
+            .shadow(
+                color: tint.opacity(MotionTokens.voiceCapsuleGlowOpacity(for: state, preferences: preferences)),
+                radius: 15,
+                x: 0,
+                y: 0
+            )
+            .animation(
+                .linear(duration: MotionTokens.voiceCapsuleFlowDuration(for: state))
+                .repeatForever(autoreverses: false),
+                value: sweepPhase
+            )
+    }
+
+    private func restartMotion() {
+        guard !preferences.reduceMotion else {
+            sweepPhase = false
+            errorPulse = false
+            return
+        }
+
+        sweepPhase = false
+        errorPulse = false
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(24))
+            sweepPhase = true
+            if MotionTokens.voiceCapsuleErrorPulseEnabled(for: state, preferences: preferences) {
+                errorPulse = true
+            }
+        }
+    }
+}
+
+private struct VoiceCapsuleStatusLight: View {
+    let role: StatusRole
+
+    @State private var pulse = false
+    private var preferences: MotionPreferences { .current }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0.10 : 0.20))
+                .frame(width: 34, height: 34)
+                .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.12 : 1)
+
+            Circle()
+                .stroke(ReadyTypeTheme.color(for: role).opacity(0.26), lineWidth: 1)
+                .frame(width: 26, height: 26)
+
+            Circle()
+                .fill(ReadyTypeTheme.color(for: role))
+                .frame(width: 9, height: 9)
+                .shadow(color: ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0 : 0.70), radius: 7, x: 0, y: 0)
+                .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.34 : 1)
+        }
+        .animation(
+            role == .recording && !preferences.reduceMotion
+            ? .easeInOut(duration: 0.92).repeatForever(autoreverses: true)
+            : .default,
+            value: pulse
+        )
+        .onAppear { pulse = true }
+    }
+}
+
+private struct VoiceCapsuleBadge: View {
+    let text: String
+    let role: StatusRole
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 10, weight: .semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(ReadyTypeTheme.field.opacity(0.82), in: Capsule())
+            .foregroundStyle(role == .neutral ? ReadyTypeTheme.muted : ReadyTypeTheme.color(for: role))
+            .overlay(
+                Capsule()
+                    .stroke(ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0.18 : 0.30), lineWidth: 1)
+            )
+    }
+}
+
+private struct WaveformView: View {
+    let isActive: Bool
+    let reduceMotion: Bool
+    @State private var phase = false
+
+    private let barCount = 10
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 4) {
+            ForEach(0..<barCount, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                ReadyTypeTheme.info.opacity(0.82),
+                                ReadyTypeTheme.accentStrong,
+                                ReadyTypeTheme.accent.opacity(0.72)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 4, height: height(for: index))
+                    .opacity(isActive ? 0.95 : 0.30)
+                    .animation(
+                        isActive && !reduceMotion
+                        ? .easeInOut(duration: 0.46 + Double(index) * 0.032).repeatForever(autoreverses: true)
+                        : .default,
+                        value: phase
+                    )
+            }
+        }
+        .onAppear { phase = true }
+    }
+
+    private func height(for index: Int) -> CGFloat {
+        guard isActive, !reduceMotion, MotionTokens.waveAnimationEnabled(for: MotionPreferences(reduceMotion: reduceMotion)) else {
+            return 7
+        }
+
+        let low: CGFloat = [7, 12, 17, 10, 23, 15, 9, 20, 13, 8][index]
+        let high: CGFloat = [18, 8, 12, 24, 11, 21, 16, 9, 22, 13][index]
+        return phase ? high : low
+    }
+}
