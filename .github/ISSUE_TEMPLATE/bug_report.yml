@@ -1,0 +1,96 @@
+name: Bug report
+description: Report install, launch, permission, shortcut, paste, or crash issues.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing ReadyType. Please do not include API keys, private chats, private emails, or sensitive screenshots.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the issue clearly.
+      placeholder: ReadyType did not paste into WeChat after I finished speaking.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Install or first launch
+        - Permissions
+        - Shortcut
+        - Speech recognition
+        - AI output
+        - Paste or clipboard
+        - High-accuracy speech package
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ReadyType version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "macOS 14.6 / macOS 15.5"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ReadyType.
+        2. Put the cursor in ...
+        3. Double-press Option.
+        4. Speak ...
+        5. Double-press Option again.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      placeholder: The text should be pasted into the current input field.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      placeholder: ReadyType showed success, but no text appeared.
+    validations:
+      required: true
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Permissions granted
+      options:
+        - label: Microphone
+        - label: Speech Recognition
+        - label: Accessibility
+        - label: System Events automation prompt was allowed when macOS asked
+  - type: dropdown
+    id: high_accuracy
+    attributes:
+      label: High-accuracy speech package
+      options:
+        - Not installed
+        - Installed but not ready
+        - Ready
+        - Failed
+        - I do not know
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Add non-sensitive logs, screenshots, or context if useful.

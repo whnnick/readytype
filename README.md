@@ -33,6 +33,10 @@ This build is unsigned and not notarized. On first launch, macOS may show a warn
 
 Do not disable macOS security settings.
 
+## Feedback
+
+Please report install, permission, shortcut, paste, recognition-quality, and output-tone issues through [GitHub Issues](https://github.com/whnnick/readytype/issues). Remove API keys, private chats, private emails, and sensitive business content before posting.
+
 ## Requirements
 
 - macOS 14 or later

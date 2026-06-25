@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: ReadyType releases
+    url: https://github.com/whnnick/readytype/releases
+    about: Download the latest ReadyType build.

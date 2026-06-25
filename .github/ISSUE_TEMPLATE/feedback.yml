@@ -1,0 +1,68 @@
+name: Product feedback
+description: Share recognition quality, output tone, scenario, or usability feedback.
+title: "[Feedback]: "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please remove private names, API keys, chats, emails, and sensitive business content before posting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feedback summary
+      placeholder: Chat output sounds too formal in WeChat.
+    validations:
+      required: true
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Scenario
+      options:
+        - Direct dictation
+        - Polished writing
+        - Chinese to English
+        - Write for AI
+        - Email
+        - Chat
+        - Notes
+        - Documents
+        - Technical terms
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: App where you used ReadyType
+      placeholder: WeChat / Feishu / Chrome / TextEdit / Cursor / Notion
+  - type: textarea
+    id: spoken
+    attributes:
+      label: What you said
+      description: Use a sanitized or approximate version if the content is private.
+      placeholder: Tell Zhang San the design draft is delayed by two days...
+  - type: textarea
+    id: output
+    attributes:
+      label: What ReadyType produced
+      description: Use a sanitized or approximate version if the content is private.
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      placeholder: It should sound more casual and should not add "thank you" at the end.
+  - type: dropdown
+    id: recognition
+    attributes:
+      label: Recognition mode
+      options:
+        - Automatic
+        - Fast recognition
+        - High-accuracy recognition
+        - I do not know
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      placeholder: Was the input short or long? Were there English words or product terms?

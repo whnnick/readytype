@@ -6,6 +6,7 @@ Initial public release candidate for ReadyType.
 
 ### Added
 
+- GitHub issue templates and README feedback links for install, permission, shortcut, paste, recognition-quality, and output-tone reports.
 - Chinese-first macOS voice input with double-press `Option` to start and finish.
 - `Esc` cancellation during active voice input.
 - Direct dictation, polished writing, Chinese-to-English translation, and AI-instruction output methods.
