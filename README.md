@@ -47,6 +47,8 @@ Please report install, permission, shortcut, paste, recognition-quality, and out
 
 If ReadyType does not open, record, paste, or connect to DeepSeek as expected, see [Troubleshooting](./docs/TROUBLESHOOTING.md).
 
+First-time testers can follow the [Testing Guide](./docs/TESTING.md). Upcoming work is tracked in the [Roadmap](./docs/ROADMAP.md).
+
 ## Requirements
 
 - macOS 14 or later
