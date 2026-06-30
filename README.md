@@ -37,6 +37,8 @@ Do not disable macOS security settings.
 
 Please report install, permission, shortcut, paste, recognition-quality, and output-tone issues through [GitHub Issues](https://github.com/whnnick/readytype/issues). Remove API keys, private chats, private emails, and sensitive business content before posting.
 
+If ReadyType does not open, record, paste, or connect to DeepSeek as expected, see [Troubleshooting](./docs/TROUBLESHOOTING.md).
+
 ## Requirements
 
 - macOS 14 or later

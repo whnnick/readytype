@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added troubleshooting documentation for unsigned launch, permissions, shortcuts, paste fallback, DeepSeek connection checks, high-accuracy speech package readiness, and feedback reporting.
+
 ## 1.0.0 - 2026-06-24
 
 Initial public release candidate for ReadyType.
