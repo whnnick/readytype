@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  AI output uses DeepSeek V4 Flash by default; with current official API pricing, everyday voice-writing usage is typically extremely low-cost.
+</p>
+
+<p align="center">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%2014%2B-blue">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-green">
@@ -24,6 +28,10 @@ ReadyType lets you double-press `Option`, speak naturally, and send the result t
 - `翻译成英文`: turns spoken Chinese into natural English.
 - `写给 AI`: turns spoken intent into a clear instruction for AI tools.
 - `自动选择`: keeps short input fast and uses higher-accuracy local recognition when it is ready and useful.
+
+## Very Low AI Cost
+
+ReadyType uses `deepseek-v4-flash` by default for AI output. DeepSeek's current official API pricing is $0.14 per 1M input tokens and $0.28 per 1M output tokens; for everyday voice cleanup, translation, and AI-instruction usage, the cost is typically tiny. Actual cost depends on your usage and DeepSeek's current pricing.
 
 ## Download
 

@@ -4,6 +4,7 @@
 
 ### Added
 
+- Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.
 - Added troubleshooting documentation for unsigned launch, permissions, shortcuts, paste fallback, DeepSeek connection checks, high-accuracy speech package readiness, and feedback reporting.
 
 ## 1.0.0 - 2026-06-24
