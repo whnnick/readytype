@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added a Chinese tester invite template that can be shared directly with first-time testers.
 - Added a public roadmap and testing guide so testers can understand the current scope, feedback path, and upcoming work.
 - Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.
 - Added troubleshooting documentation for unsigned launch, permissions, shortcuts, paste fallback, DeepSeek connection checks, high-accuracy speech package readiness, and feedback reporting.

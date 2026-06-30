@@ -2,6 +2,8 @@
 
 这份说明适合发给第一次试用 ReadyType 的用户。
 
+如果你需要直接转发给测试用户，可以使用 [测试邀请文案](./TESTER_INVITE.zh-CN.md)。
+
 ## 安装
 
 1. 从 Releases 下载 `ReadyType.dmg`。
