@@ -14,6 +14,8 @@ ReadyType 1.0.0 is available as a public testing build. The next goal is to make
 
 ## Next Focus Areas
 
+The detailed 1.1.0 plan is available in [ReadyType 1.1.0 Plan](./versions/1.1.0/PLAN.md).
+
 ### Common Words
 
 Let users maintain their own words, such as names, projects, products, technical terms, and company names. The goal is to reduce recognition errors for domain-specific terms, capitalization, and mixed Chinese/English input.
