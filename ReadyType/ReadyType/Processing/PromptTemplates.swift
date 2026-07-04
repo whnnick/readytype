@@ -243,8 +243,12 @@ enum PromptTemplates {
 
             Scenario: English email.
             Format the result as the email content itself when the transcript asks to write or send an email.
+            If the transcript names a recipient, use that recipient in the greeting. Do not omit the recipient.
+            If no recipient is provided, use a neutral greeting.
             Preserve recipients, greetings, numbered points, attachments, dates, and sign-offs only when the user provided them.
+            If the user asks for 1/2/3, first/second/third, or numbered points, format those points as a numbered list with each item on its own line.
             Use readable paragraphs and a polite professional tone. Do not add facts.
+            Do not add a subject line unless the transcript explicitly asks for a subject.
             """
         case .message:
             return """

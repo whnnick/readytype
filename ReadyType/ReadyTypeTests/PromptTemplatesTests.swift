@@ -88,6 +88,9 @@ final class PromptTemplatesTests: XCTestCase {
         XCTAssertTrue(prompt.contains("Do not add facts"))
         XCTAssertTrue(prompt.contains("email"))
         XCTAssertTrue(prompt.contains("Preserve"))
+        XCTAssertTrue(prompt.contains("If the transcript names a recipient, use that recipient in the greeting"))
+        XCTAssertTrue(prompt.contains("Do not add a subject line unless the transcript explicitly asks for a subject"))
+        XCTAssertTrue(prompt.contains("numbered list"))
     }
 
     func testModePromptsUseUserFacingIntentNames() {

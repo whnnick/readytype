@@ -16,6 +16,7 @@
 ### Changed
 
 - Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.
+- Tightened English email translation output so explicit recipients are preserved, requested numbered lists are kept, and subject lines are not added unless requested.
 - Confirmed common-word suggestions now filter overlong candidates and spoken stop words, avoiding full sentences, private body text, and noise such as "OK", "好了", or "完成".
 - Reworded common-word suggestion copy to avoid implying silent memory or training.
 - Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.

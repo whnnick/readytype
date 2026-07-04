@@ -18,6 +18,7 @@ ReadyType 1.0.0 already includes part of the foundation: common-word storage, im
 - Reworded common-word suggestion copy to avoid implying silent memory or training.
 - Common-word suggestions now filter overlong candidates and spoken stop words to avoid saving full sentences, private body text, or noise such as "OK", "好了", or "完成".
 - Added personal-chat and work-chat tone rules so WeChat/chat output does not add unsupported overly polite endings.
+- Tightened English email output constraints for recipients, numbered lists, and subject lines: when the user says to email a named person, the greeting must preserve the recipient, and subjects are not added unless requested.
 - Reviewed custom shortcuts: double-press `Option` remains the default, custom triggers apply immediately, and `Esc` cancellation remains independent.
 - Added a separate high-accuracy speech-package update status covering not checked, checking, missing, up to date, update available, and temporarily unable to check.
 - `dist/ReadyType.dmg` can be generated and passes `hdiutil verify`; `hdiutil create` must run outside the sandbox.
@@ -38,10 +39,12 @@ Verification:
 - `scripts/verify-1.2-textedit-paste.sh`: passed.
 - `scripts/verify-1.0.0-common-words-ui.sh`: passed.
 - `scripts/verify-1.0.0-visual-acceptance.sh`: passed; screenshots were written to `tmp/readytype-1.0.0-visual-acceptance/20260704-170909`.
+- `scripts/verify-1.2-real-ai-output.sh`: passed; covered real DeepSeek output for English email, English chat, personal chat, and work chat.
+- `scripts/verify-1.2-api-error-paths.sh`: passed; covered invalid key, invalid model, timeout, and unreachable base URL.
+- After the English-email prompt fix, `swift test`: 320 tests passed, 10 tests skipped.
+- After the English-email prompt fix, `scripts/build-app.sh`, `scripts/package-app.sh`, `scripts/package-dmg.sh`, and `hdiutil verify dist/ReadyType.dmg`: passed.
 
 Real-environment gates not covered yet:
-- `RUN_REAL_AI=1 scripts/verify-1.0.0-release-local.sh`: requires a real DeepSeek key.
-- `RUN_API_FAILURES=1 scripts/verify-1.0.0-release-local.sh`: requires a separate real error-path acceptance run.
 - `RUN_LOCAL_SPEECH_MODEL=1 scripts/verify-1.0.0-release-local.sh`: requires downloading or reusing the real high-accuracy speech package.
 - `RUN_ASR_METRICS=1 scripts/verify-1.0.0-release-local.sh`: requires a real microphone ASR metrics file.
 - Real-app regression in WeChat, browsers, email/document tools, and AI tools still needs a final sample pass before release.
