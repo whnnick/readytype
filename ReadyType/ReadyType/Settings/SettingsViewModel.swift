@@ -21,7 +21,9 @@ final class SettingsViewModel: ObservableObject {
     @Published private(set) var apiConnectionTestState: APIConnectionTestState
     @Published private(set) var isTestingAPIConnection: Bool
     @Published private(set) var localSpeechModelState: LocalSpeechModelState
+    @Published private(set) var localSpeechModelUpdateStatus: LocalSpeechModelUpdateStatus
     @Published private(set) var isDownloadingSpeechModel: Bool
+    @Published private(set) var isCheckingSpeechModelUpdate: Bool
     @Published private(set) var userVocabularyEntries: [UserVocabularyEntry]
     @Published var newVocabularyText: String
     @Published var importVocabularyText: String
@@ -32,6 +34,7 @@ final class SettingsViewModel: ObservableObject {
     private let apiConnectionTester: APIConnectionTester
     private let localSpeechModelManager: LocalSpeechModelManager
     private let localSpeechModelInstaller: LocalSpeechModelInstalling
+    private let localSpeechModelUpdateChecker: LocalSpeechModelUpdateChecking
     private let userVocabularyStore: UserVocabularyStore
     private let postDownloadPrewarm: PostDownloadPrewarm?
     private let onVoiceShortcutChange: VoiceShortcutChangeHandler?
@@ -43,6 +46,7 @@ final class SettingsViewModel: ObservableObject {
         apiConnectionTester: APIConnectionTester = APIConnectionTester(),
         localSpeechModelManager: LocalSpeechModelManager = LocalSpeechModelManager(),
         localSpeechModelInstaller: LocalSpeechModelInstalling = CoreMLSpeechModelInstaller(),
+        localSpeechModelUpdateChecker: LocalSpeechModelUpdateChecking? = nil,
         userVocabularyStore: UserVocabularyStore = UserVocabularyStore(),
         postDownloadPrewarm: PostDownloadPrewarm? = nil,
         onVoiceShortcutChange: VoiceShortcutChangeHandler? = nil
@@ -52,6 +56,9 @@ final class SettingsViewModel: ObservableObject {
         self.apiConnectionTester = apiConnectionTester
         self.localSpeechModelManager = localSpeechModelManager
         self.localSpeechModelInstaller = localSpeechModelInstaller
+        self.localSpeechModelUpdateChecker = localSpeechModelUpdateChecker ?? LocalSpeechModelUpdateChecker(
+            manager: localSpeechModelManager
+        )
         self.userVocabularyStore = userVocabularyStore
         self.postDownloadPrewarm = postDownloadPrewarm
         self.onVoiceShortcutChange = onVoiceShortcutChange
@@ -71,8 +78,11 @@ final class SettingsViewModel: ObservableObject {
         self.statusMessage = nil
         self.apiConnectionTestState = .notTested
         self.isTestingAPIConnection = false
-        self.localSpeechModelState = localSpeechModelManager.state()
+        let initialLocalSpeechModelState = localSpeechModelManager.state()
+        self.localSpeechModelState = initialLocalSpeechModelState
+        self.localSpeechModelUpdateStatus = initialLocalSpeechModelState == .notInstalled ? .notInstalled : .notChecked
         self.isDownloadingSpeechModel = false
+        self.isCheckingSpeechModelUpdate = false
         self.userVocabularyEntries = (try? userVocabularyStore.load()) ?? []
         self.newVocabularyText = ""
         self.importVocabularyText = ""
@@ -218,6 +228,7 @@ final class SettingsViewModel: ObservableObject {
 
         switch finalState {
         case .downloadedCold, .warm:
+            localSpeechModelUpdateStatus = .notChecked
             await prewarmAfterDownloadIfAllowed(from: finalState)
         case .failed:
             statusMessage = finalState.readyTypeDisplayMessage(isHighAccuracyEnabled: true)
@@ -226,9 +237,24 @@ final class SettingsViewModel: ObservableObject {
         }
     }
 
+    func checkHighAccuracySpeechModelUpdate() async {
+        guard !isCheckingSpeechModelUpdate else {
+            return
+        }
+
+        isCheckingSpeechModelUpdate = true
+        localSpeechModelUpdateStatus = .checking
+        defer { isCheckingSpeechModelUpdate = false }
+
+        let status = await localSpeechModelUpdateChecker.checkForUpdates()
+        localSpeechModelUpdateStatus = status
+        statusMessage = status.readyTypeDisplayMessage
+    }
+
     func deleteHighAccuracySpeechModel() throws {
         try localSpeechModelManager.deleteInstalledModels()
         localSpeechModelState = localSpeechModelManager.state()
+        localSpeechModelUpdateStatus = .notInstalled
         statusMessage = "高精度语音包已删除"
     }
 

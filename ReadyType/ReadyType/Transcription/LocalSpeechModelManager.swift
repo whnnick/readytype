@@ -12,18 +12,21 @@ enum LocalSpeechModelState: Equatable {
 
 struct LocalSpeechModelManifest: Equatable {
     let fileName: String
+    let version: String
     let expectedChecksum: LocalSpeechModelChecksum?
     let downloadURL: URL?
     let sizeDescription: String?
 
     init(
         fileName: String,
+        version: String? = nil,
         expectedSHA256: String? = nil,
         expectedSHA1: String? = nil,
         downloadURL: URL? = nil,
         sizeDescription: String? = nil
     ) {
         self.fileName = fileName
+        self.version = version ?? Self.derivedVersion(from: fileName)
         if let expectedSHA256 {
             self.expectedChecksum = LocalSpeechModelChecksum(algorithm: .sha256, value: expectedSHA256)
         } else if let expectedSHA1 {
@@ -33,6 +36,29 @@ struct LocalSpeechModelManifest: Equatable {
         }
         self.downloadURL = downloadURL
         self.sizeDescription = sizeDescription
+    }
+
+    private static func derivedVersion(from fileName: String) -> String {
+        let pattern = #"v(\d{8})"#
+        let range = NSRange(fileName.startIndex..<fileName.endIndex, in: fileName)
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: fileName, range: range),
+              let versionRange = Range(match.range(at: 1), in: fileName)
+        else {
+            return fileName
+        }
+
+        let rawVersion = String(fileName[versionRange])
+        guard rawVersion.count == 8 else {
+            return rawVersion
+        }
+
+        let year = rawVersion.prefix(4)
+        let monthStart = rawVersion.index(rawVersion.startIndex, offsetBy: 4)
+        let dayStart = rawVersion.index(rawVersion.startIndex, offsetBy: 6)
+        let month = rawVersion[monthStart..<dayStart]
+        let day = rawVersion[dayStart..<rawVersion.endIndex]
+        return "\(year)-\(month)-\(day)"
     }
 }
 
@@ -58,6 +84,7 @@ final class LocalSpeechModelManager {
     static let defaultManifests = [
         LocalSpeechModelManifest(
             fileName: defaultWhisperKitModelFolderName,
+            version: "2024-09-30",
             sizeDescription: "约 626 MiB"
         )
     ]
@@ -123,7 +150,7 @@ final class LocalSpeechModelManager {
         }
     }
 
-    private func installedManifest() -> LocalSpeechModelManifest? {
+    func installedManifest() -> LocalSpeechModelManifest? {
         manifests.first { manifest in
             let url = modelsDirectory.appendingPathComponent(manifest.fileName)
             return fileManager.fileExists(atPath: url.path)

@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added high-accuracy speech-package update status checks covering not checked, checking, missing, up to date, update available, and temporarily unable to check states.
 - Added a "Companies / Organizations" common-word category and changed the default category label from a generic wording to "Other".
 - Added bilingual ReadyType 1.1.0 requirements documents and version indexes separating existing foundations, current gaps, acceptance criteria, and non-goals.
 - Added bilingual ReadyType 1.1.0 planning documents covering common words, confirmed learning suggestions, app-aware tone, custom shortcuts, and high-accuracy speech package update prompts.
@@ -13,6 +14,7 @@
 
 ### Changed
 
+- Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.
 - Confirmed common-word suggestions now filter overlong candidates and spoken stop words, avoiding full sentences, private body text, and noise such as "OK", "好了", or "完成".
 - Reworded common-word suggestion copy to avoid implying silent memory or training.
 - Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.

@@ -113,10 +113,12 @@ Requirements:
 Implementation:
 - Extend `LocalSpeechModelManager`, `LocalSpeechModelReadiness`, and `LocalSpeechModelDownloadService`.
 - Track local package version or manifest version.
+- Keep update status separate from readiness status.
+- Use a bundled manifest by default; future remote manifests should only replace the manifest fetcher.
 - If update checking fails, show "unable to check right now" instead of a false failure.
 
 Acceptance:
-- Missing, downloading, preparing, ready, and check-failed states are distinguishable.
+- Missing, downloading, preparing, ready, check-failed, and update-available states are distinguishable.
 - Ready state does not regress unless files are missing or damaged.
 - Deleting the package immediately changes state to missing.
 

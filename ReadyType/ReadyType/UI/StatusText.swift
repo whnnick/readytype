@@ -164,3 +164,38 @@ extension SpeechRecognitionRouteDecision {
         }
     }
 }
+
+extension LocalSpeechModelUpdateStatus {
+    var readyTypeStatusRole: StatusRole {
+        switch self {
+        case .notChecked, .notInstalled:
+            return .neutral
+        case .checking:
+            return .progress
+        case .upToDate:
+            return .success
+        case .updateAvailable, .unableToCheck:
+            return .warning
+        }
+    }
+
+    var readyTypeDisplayMessage: String {
+        switch self {
+        case .notChecked:
+            return "尚未检查高精度语音包更新"
+        case .checking:
+            return "正在检查高精度语音包更新"
+        case .notInstalled:
+            return "安装高精度语音包后可检查更新"
+        case .upToDate(let version):
+            return "高精度语音包已是最新版本（\(version)）"
+        case .updateAvailable(_, let latestVersion, let sizeDescription):
+            if let sizeDescription, !sizeDescription.isEmpty {
+                return "发现新版高精度语音包（\(latestVersion)，\(sizeDescription)）"
+            }
+            return "发现新版高精度语音包（\(latestVersion)）"
+        case .unableToCheck(let reason):
+            return reason
+        }
+    }
+}

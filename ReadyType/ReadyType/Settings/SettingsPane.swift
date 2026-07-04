@@ -69,6 +69,29 @@ struct SettingsPane: View {
                     )
 
                     HStack(spacing: 10) {
+                        StatusDot(role: viewModel.localSpeechModelUpdateStatus.readyTypeStatusRole)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("更新状态")
+                                .font(.callout.weight(.medium))
+                                .foregroundStyle(ReadyTypeTheme.ink)
+                            Text(viewModel.localSpeechModelUpdateStatus.readyTypeDisplayMessage)
+                                .font(.footnote)
+                                .foregroundStyle(ReadyTypeTheme.muted)
+                        }
+                        Spacer()
+                        Button(speechModelUpdateButtonTitle) {
+                            checkHighAccuracySpeechModelUpdate()
+                        }
+                        .disabled(!canCheckSpeechModelUpdate)
+                    }
+                    .padding(12)
+                    .background(ReadyTypeTheme.fieldStrong, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(ReadyTypeTheme.strokeSoft, lineWidth: 1)
+                    )
+
+                    HStack(spacing: 10) {
                         Button(downloadSpeechModelButtonTitle) {
                             downloadHighAccuracySpeechModel()
                         }
@@ -400,6 +423,22 @@ struct SettingsPane: View {
         }
     }
 
+    private var canCheckSpeechModelUpdate: Bool {
+        guard viewModel.isHighAccuracyRecognitionEnabled,
+              !viewModel.isDownloadingSpeechModel,
+              !viewModel.isCheckingSpeechModelUpdate
+        else {
+            return false
+        }
+
+        switch localSpeechModelState {
+        case .downloadedCold, .warm:
+            return true
+        case .notInstalled, .downloading, .warming, .failed:
+            return false
+        }
+    }
+
     private var downloadSpeechModelButtonTitle: String {
         if viewModel.isDownloadingSpeechModel {
             return "下载中..."
@@ -411,6 +450,10 @@ struct SettingsPane: View {
         default:
             return "下载语音包"
         }
+    }
+
+    private var speechModelUpdateButtonTitle: String {
+        viewModel.isCheckingSpeechModelUpdate ? "检查中..." : "检查更新"
     }
 
     private var apiConnectionStatus: some View {
@@ -455,6 +498,13 @@ struct SettingsPane: View {
         Task {
             await viewModel.downloadHighAccuracySpeechModel()
             appState.localSpeechModelState = localSpeechModelState
+        }
+    }
+
+    private func checkHighAccuracySpeechModelUpdate() {
+        errorMessage = nil
+        Task {
+            await viewModel.checkHighAccuracySpeechModelUpdate()
         }
     }
 

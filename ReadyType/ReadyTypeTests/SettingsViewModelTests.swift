@@ -310,6 +310,48 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertNil(manager.installedModelURL())
     }
 
+    func testCheckHighAccuracySpeechModelUpdatePublishesStatusAndMessage() async {
+        let context = makeContext()
+        defer { context.cleanup() }
+
+        let updateChecker = MockSpeechModelUpdateChecker(
+            status: .upToDate(version: "2024-09-30")
+        )
+        let viewModel = SettingsViewModel(
+            settingsStore: SettingsStore(defaults: context.defaults),
+            keychainService: context.keychain,
+            localSpeechModelUpdateChecker: updateChecker
+        )
+
+        await viewModel.checkHighAccuracySpeechModelUpdate()
+
+        XCTAssertEqual(updateChecker.checkCallCount, 1)
+        XCTAssertEqual(viewModel.localSpeechModelUpdateStatus, .upToDate(version: "2024-09-30"))
+        XCTAssertFalse(viewModel.isCheckingSpeechModelUpdate)
+        XCTAssertEqual(viewModel.statusMessage, "高精度语音包已是最新版本（2024-09-30）")
+    }
+
+    func testDeleteHighAccuracySpeechModelResetsUpdateStatus() throws {
+        let context = makeContext()
+        defer { context.cleanup() }
+
+        let manager = context.makeLocalSpeechModelManager()
+        try context.writeSpeechModelDirectory()
+        let updateChecker = MockSpeechModelUpdateChecker(
+            status: .upToDate(version: "2024-09-30")
+        )
+        let viewModel = SettingsViewModel(
+            settingsStore: SettingsStore(defaults: context.defaults),
+            keychainService: context.keychain,
+            localSpeechModelManager: manager,
+            localSpeechModelUpdateChecker: updateChecker
+        )
+
+        try viewModel.deleteHighAccuracySpeechModel()
+
+        XCTAssertEqual(viewModel.localSpeechModelUpdateStatus, .notInstalled)
+    }
+
     func testLoadReflectsSavedUserVocabularyEntries() throws {
         let context = makeContext()
         defer { context.cleanup() }
@@ -465,6 +507,20 @@ private final class InMemoryAPIKeyStore: APIKeyStoring {
 
     func deleteAPIKey(account: String) throws {
         values.removeValue(forKey: account)
+    }
+}
+
+private final class MockSpeechModelUpdateChecker: LocalSpeechModelUpdateChecking {
+    private let status: LocalSpeechModelUpdateStatus
+    private(set) var checkCallCount = 0
+
+    init(status: LocalSpeechModelUpdateStatus) {
+        self.status = status
+    }
+
+    func checkForUpdates() async -> LocalSpeechModelUpdateStatus {
+        checkCallCount += 1
+        return status
     }
 }
 
