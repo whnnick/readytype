@@ -33,6 +33,18 @@ Verification:
 - `swift test`: 320 tests passed, 10 tests skipped.
 - `scripts/build-app.sh`: passed.
 - `scripts/package-dmg.sh`: passed and generated `dist/ReadyType.dmg`.
+- `scripts/verify-1.0.0-release-local.sh`: passed, including unit tests, contextual-vocabulary performance, build, zip, DMG, `plutil`, `git diff --check`, user-facing recognition wording scan, and sensitive-information scan.
+- `scripts/verify-1.0.0-ui.sh`: passed.
+- `scripts/verify-1.2-textedit-paste.sh`: passed.
+- `scripts/verify-1.0.0-common-words-ui.sh`: passed.
+- `scripts/verify-1.0.0-visual-acceptance.sh`: passed; screenshots were written to `tmp/readytype-1.0.0-visual-acceptance/20260704-170909`.
+
+Real-environment gates not covered yet:
+- `RUN_REAL_AI=1 scripts/verify-1.0.0-release-local.sh`: requires a real DeepSeek key.
+- `RUN_API_FAILURES=1 scripts/verify-1.0.0-release-local.sh`: requires a separate real error-path acceptance run.
+- `RUN_LOCAL_SPEECH_MODEL=1 scripts/verify-1.0.0-release-local.sh`: requires downloading or reusing the real high-accuracy speech package.
+- `RUN_ASR_METRICS=1 scripts/verify-1.0.0-release-local.sh`: requires a real microphone ASR metrics file.
+- Real-app regression in WeChat, browsers, email/document tools, and AI tools still needs a final sample pass before release.
 
 ## Development Order
 
@@ -41,4 +53,4 @@ Verification:
 3. Improve app-aware tone: covered by automated tests, pending real-app regression.
 4. Review custom shortcut experience: covered by automated tests, pending real-app regression.
 5. Improve high-accuracy speech-package status and update prompts: covered by automated tests, pending real-app regression.
-6. Update docs, tests, and release preparation: in progress.
+6. Update docs, tests, and release preparation: local release gate passed; pending real-environment gates and final release decision.
