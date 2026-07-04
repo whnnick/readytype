@@ -568,7 +568,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 confidence: confidence
             )
             removeVocabularySuggestion(value: value)
-            appState.lastMessage = entry == nil ? "常用词已存在" : "已记住这个写法"
+            appState.lastMessage = entry == nil ? "常用词已存在" : "已加入常用词"
         } catch {
             appState.lastMessage = "常用词保存失败"
         }

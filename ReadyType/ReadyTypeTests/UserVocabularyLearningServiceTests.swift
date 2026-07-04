@@ -65,4 +65,42 @@ final class UserVocabularyLearningServiceTests: XCTestCase {
 
         XCTAssertEqual(suggestions, [])
     }
+
+    func testDoesNotSuggestOverlongPrivateTextAsVocabulary() {
+        let service = UserVocabularyLearningService()
+
+        let suggestions = service.suggestions(
+            transcript: "请把 Reddit Tab 的 README 和 GitHub Actions 更新日志整理一下",
+            finalText: "请把 ReadyType 这个产品今天和客户沟通的详细邮件正文完整保存下来并作为以后固定写法 的 README 和 GitHub Actions 更新日志整理一下",
+            scenario: .document,
+            existingEntries: [],
+            correctionCandidates: [
+                TermCorrectionSuggestion(
+                    original: "Reddit Tab",
+                    replacement: "ReadyType 这个产品今天和客户沟通的详细邮件正文完整保存下来并作为以后固定写法",
+                    confidence: 0.9
+                )
+            ]
+        )
+
+        XCTAssertEqual(suggestions, [])
+    }
+
+    func testDoesNotSuggestSpokenStopWordsAsAliases() {
+        let service = UserVocabularyLearningService()
+
+        let suggestions = service.suggestions(
+            transcript: "OK README GitHub Actions DeepSeek",
+            finalText: "ReadyType README GitHub Actions DeepSeek",
+            scenario: .document,
+            existingEntries: [],
+            correctionCandidates: [
+                TermCorrectionSuggestion(original: "OK", replacement: "ReadyType", confidence: 0.9),
+                TermCorrectionSuggestion(original: "好了", replacement: "ReadyType", confidence: 0.9),
+                TermCorrectionSuggestion(original: "完成", replacement: "ReadyType", confidence: 0.9)
+            ]
+        )
+
+        XCTAssertEqual(suggestions, [])
+    }
 }

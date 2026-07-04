@@ -25,14 +25,14 @@ Current gaps:
 
 Already available:
 - The console can show suggestions to add common words.
-- Users can ignore or remember a spelling.
+- Users can ignore or add a suggestion to common words.
 - `UserVocabularySuggestionService` and `UserVocabularyLearningService` exist.
 - Settings already has a learning-suggestion toggle.
 
 Current gaps:
 - Memory-related wording has been changed to common-word suggestion language; remaining work is to review whether the console and Settings copy are clear enough.
-- Rejection cooldown, deduplication, length limits, and spoken-noise filtering need product validation.
-- The privacy rule must be explicit: no full private text is saved.
+- Length limits and spoken-stop-word filtering have been added to avoid suggesting full sentences, private body text, or noise such as "OK", "好了", or "完成".
+- Rejection cooldown and deduplication still need product validation.
 
 ### App-Aware Tone
 

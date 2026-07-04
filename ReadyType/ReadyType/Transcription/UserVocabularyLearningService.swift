@@ -15,6 +15,16 @@ struct UserVocabularyLearningSuggestion: Equatable, Identifiable {
 
 struct UserVocabularyLearningService {
     private let minimumConfidence: Double
+    private static let maxVocabularyValueLength = 32
+    private static let maxVocabularyAliasLength = 32
+    private static let spokenStopWords: Set<String> = [
+        "ok",
+        "好了",
+        "就这样",
+        "完成",
+        "结束",
+        "先这样"
+    ]
 
     init(minimumConfidence: Double = 0.82) {
         self.minimumConfidence = minimumConfidence
@@ -35,6 +45,10 @@ struct UserVocabularyLearningService {
                   let alias = Self.cleaned(candidate.original),
                   candidate.confidence >= minimumConfidence,
                   value.normalizedSmartTermKey != alias.normalizedSmartTermKey,
+                  Self.isReasonableVocabularyCandidate(value, maxLength: Self.maxVocabularyValueLength),
+                  Self.isReasonableVocabularyCandidate(alias, maxLength: Self.maxVocabularyAliasLength),
+                  !Self.isSpokenStopWord(value),
+                  !Self.isSpokenStopWord(alias),
                   !Self.isAlreadySavedOrIgnored(value: value, alias: alias, in: existingEntries),
                   Self.contextSupportsLearning(value: value, alias: alias, sourceText: sourceText, scenario: scenario) else {
                 return nil
@@ -60,6 +74,24 @@ struct UserVocabularyLearningService {
     private static func cleaned(_ value: String) -> String? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private static func isReasonableVocabularyCandidate(_ value: String, maxLength: Int) -> Bool {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.count <= maxLength else {
+            return false
+        }
+
+        let punctuationScalars = CharacterSet.punctuationCharacters
+        let punctuationCount = trimmed.unicodeScalars.filter { punctuationScalars.contains($0) }.count
+        return punctuationCount <= 2
+    }
+
+    private static func isSpokenStopWord(_ value: String) -> Bool {
+        let normalized = value
+            .trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
+            .lowercased()
+        return spokenStopWords.contains(normalized)
     }
 
     private static func isAlreadySavedOrIgnored(

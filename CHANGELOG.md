@@ -6,15 +6,16 @@
 
 - Added a "Companies / Organizations" common-word category and changed the default category label from a generic wording to "Other".
 - Added bilingual ReadyType 1.1.0 requirements documents and version indexes separating existing foundations, current gaps, acceptance criteria, and non-goals.
-
-### Changed
-
-- Reworded common-word suggestion copy to avoid implying silent memory or training.
 - Added bilingual ReadyType 1.1.0 planning documents covering common words, confirmed learning suggestions, app-aware tone, custom shortcuts, and high-accuracy speech package update prompts.
 - Added a Chinese tester invite template that can be shared directly with first-time testers.
 - Added a public roadmap and testing guide so testers can understand the current scope, feedback path, and upcoming work.
-- Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.
 - Added troubleshooting documentation for unsigned launch, permissions, shortcuts, paste fallback, DeepSeek connection checks, high-accuracy speech package readiness, and feedback reporting.
+
+### Changed
+
+- Confirmed common-word suggestions now filter overlong candidates and spoken stop words, avoiding full sentences, private body text, and noise such as "OK", "好了", or "完成".
+- Reworded common-word suggestion copy to avoid implying silent memory or training.
+- Highlighted that AI output uses DeepSeek V4 Flash by default and is typically very low-cost for everyday usage under current official API pricing.
 
 ## 1.0.0 - 2026-06-24
 

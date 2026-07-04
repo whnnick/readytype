@@ -14,7 +14,8 @@ final class SettingsUserFacingCopyTests: XCTestCase {
             "词库",
             "术语库",
             "记忆建议",
-            "记住写法"
+            "记住写法",
+            "记住这个写法"
         ]
 
         for term in bannedVisibleTerms {
@@ -37,6 +38,7 @@ final class SettingsUserFacingCopyTests: XCTestCase {
             "ReadyType/ReadyType/Settings/APIConnectionTester.swift",
             "ReadyType/ReadyType/Permissions/PermissionsPane.swift",
             "ReadyType/ReadyType/App/AboutPane.swift",
+            "ReadyType/ReadyType/App/AppDelegate.swift",
             "ReadyType/ReadyType/App/ConsoleView.swift"
         ]
 
