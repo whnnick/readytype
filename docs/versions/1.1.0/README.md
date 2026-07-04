@@ -11,8 +11,14 @@ ReadyType 1.1.0 focuses on productizing real-world input quality: common words, 
 
 ReadyType 1.0.0 already includes part of the foundation: common-word storage, import, confirmed suggestions, shortcut configuration, and high-accuracy speech-package status display. Version 1.1.0 should not rebuild these foundations. It should make them clearer, more stable, and easier for regular users to understand.
 
+## Current Progress
+
+- Added a Companies / Organizations common-word category.
+- Changed the default category label from a generic wording to "Other".
+- Reworded common-word suggestion copy to avoid implying silent memory or training.
+
 Baseline checks:
-- `swift test --filter UserVocabularyStoreTests`: 9 tests passed.
+- `swift test --filter UserVocabularyStoreTests`: 11 tests passed.
 - `swift test --filter SettingsViewModelTests`: 18 tests passed.
 
 ## Development Order

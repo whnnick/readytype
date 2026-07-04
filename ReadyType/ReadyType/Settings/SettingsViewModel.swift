@@ -131,7 +131,7 @@ final class SettingsViewModel: ObservableObject {
         var settings = settingsStore.load()
         settings.isVocabularyLearningSuggestionsEnabled = enabled
         settingsStore.save(settings)
-        statusMessage = enabled ? "已开启记忆建议" : "已关闭记忆建议"
+        statusMessage = enabled ? "已开启常用词建议" : "已关闭常用词建议"
     }
 
     func clearAPIKey() throws {

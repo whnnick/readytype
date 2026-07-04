@@ -84,13 +84,13 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertFalse(viewModel.isVocabularyLearningSuggestionsEnabled)
         XCTAssertFalse(store.load().isVocabularyLearningSuggestionsEnabled)
-        XCTAssertEqual(viewModel.statusMessage, "已关闭记忆建议")
+        XCTAssertEqual(viewModel.statusMessage, "已关闭常用词建议")
 
         viewModel.setVocabularyLearningSuggestionsEnabled(true)
 
         XCTAssertTrue(viewModel.isVocabularyLearningSuggestionsEnabled)
         XCTAssertTrue(store.load().isVocabularyLearningSuggestionsEnabled)
-        XCTAssertEqual(viewModel.statusMessage, "已开启记忆建议")
+        XCTAssertEqual(viewModel.statusMessage, "已开启常用词建议")
     }
 
     func testSaveNotifiesWhenVoiceShortcutChanges() throws {

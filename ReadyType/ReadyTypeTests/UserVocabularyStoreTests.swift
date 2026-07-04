@@ -41,6 +41,23 @@ final class UserVocabularyStoreTests: XCTestCase {
         XCTAssertEqual(try context.store.load().map(\.value), ["张三", "ReadyType"])
     }
 
+    func testProductizedKindsUseUserFacingCategories() throws {
+        XCTAssertEqual(
+            UserVocabularyKind.allCases.map(\.displayName),
+            ["其他", "人名", "产品", "项目", "技术词", "公司/组织", "常用短语"]
+        )
+    }
+
+    func testCompanyKindPersistsForOrganizations() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+
+        let entry = try XCTUnwrap(context.store.add(value: "DeepSeek", kind: .company))
+
+        XCTAssertEqual(entry.kind, .company)
+        XCTAssertEqual(try context.store.load().first?.kind, .company)
+    }
+
     func testDeleteRemovesEntry() throws {
         let context = try makeContext()
         defer { context.cleanup() }

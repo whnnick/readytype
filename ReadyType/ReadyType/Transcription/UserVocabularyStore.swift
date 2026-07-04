@@ -84,6 +84,7 @@ enum UserVocabularyKind: String, Codable, CaseIterable, Identifiable {
     case product
     case project
     case technical
+    case company
     case phrase
 
     var id: String { rawValue }
@@ -91,7 +92,7 @@ enum UserVocabularyKind: String, Codable, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .general:
-            return "通用"
+            return "其他"
         case .person:
             return "人名"
         case .product:
@@ -100,6 +101,8 @@ enum UserVocabularyKind: String, Codable, CaseIterable, Identifiable {
             return "项目"
         case .technical:
             return "技术词"
+        case .company:
+            return "公司/组织"
         case .phrase:
             return "常用短语"
         }
@@ -109,7 +112,7 @@ enum UserVocabularyKind: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .person:
             return 130
-        case .product, .project:
+        case .product, .project, .company:
             return 125
         case .technical:
             return 120

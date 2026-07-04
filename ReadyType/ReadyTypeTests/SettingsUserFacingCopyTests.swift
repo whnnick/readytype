@@ -12,7 +12,9 @@ final class SettingsUserFacingCopyTests: XCTestCase {
             "准确率增强包",
             "本机语音包",
             "词库",
-            "术语库"
+            "术语库",
+            "记忆建议",
+            "记住写法"
         ]
 
         for term in bannedVisibleTerms {
@@ -34,7 +36,8 @@ final class SettingsUserFacingCopyTests: XCTestCase {
             "ReadyType/ReadyType/Settings/APIConnectionTestState.swift",
             "ReadyType/ReadyType/Settings/APIConnectionTester.swift",
             "ReadyType/ReadyType/Permissions/PermissionsPane.swift",
-            "ReadyType/ReadyType/App/AboutPane.swift"
+            "ReadyType/ReadyType/App/AboutPane.swift",
+            "ReadyType/ReadyType/App/ConsoleView.swift"
         ]
 
         return try relativePaths.map { path in

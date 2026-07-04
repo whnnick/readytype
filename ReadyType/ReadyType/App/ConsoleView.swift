@@ -282,7 +282,7 @@ struct ConsoleView: View {
             .buttonStyle(.plain)
             .foregroundStyle(ReadyTypeTheme.muted)
 
-            Button("记住写法") {
+            Button("加入常用词") {
                 NotificationCenter.default.post(
                     name: .readyTypeAddVocabularySuggestionRequested,
                     object: nil,

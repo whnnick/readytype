@@ -18,7 +18,7 @@ Already available:
 
 Current gaps:
 - The Settings experience needs to be reviewed for clarity.
-- Categories need product-language alignment. The code currently has general, person, product, project, technical, and phrase; the plan also mentions companies and other.
+- The Companies / Organizations category has been added, and the default category label now uses "Other"; remaining work is to validate whether the category wording is clear for regular users.
 - User-facing explanations such as possible aliases and scopes need to be understandable.
 
 ### Confirmed Learning Suggestions
@@ -30,7 +30,7 @@ Already available:
 - Settings already has a learning-suggestion toggle.
 
 Current gaps:
-- The wording around memory or learning may be too technical.
+- Memory-related wording has been changed to common-word suggestion language; remaining work is to review whether the console and Settings copy are clear enough.
 - Rejection cooldown, deduplication, length limits, and spoken-noise filtering need product validation.
 - The privacy rule must be explicit: no full private text is saved.
 

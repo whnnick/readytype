@@ -91,9 +91,9 @@ struct SettingsPane: View {
                         .foregroundStyle(ReadyTypeTheme.muted)
                 }
 
-                ReadyTypePanel("常用词", subtitle: "添加人名、产品名、项目名和常用短语，帮助 ReadyType 更稳定地保留原词。") {
+                ReadyTypePanel("常用词", subtitle: "添加人名、产品名、项目名、公司名和常用短语，帮助 ReadyType 更稳定地保留原词。") {
                     Toggle(
-                        "完成输入后给出记忆建议",
+                        "完成输入后提示可加入的常用词",
                         isOn: Binding(
                             get: { viewModel.isVocabularyLearningSuggestionsEnabled },
                             set: { viewModel.setVocabularyLearningSuggestionsEnabled($0) }
@@ -101,7 +101,7 @@ struct SettingsPane: View {
                     )
                         .toggleStyle(.checkbox)
 
-                    Text("开启后，ReadyType 会在最近结果里提示是否记住可能的固定写法；只有点击“记住写法”才会保存。关闭后，已保存常用词仍会继续生效。")
+                    Text("开启后，ReadyType 会在最近结果里提示是否加入可能的固定写法；只有点击“加入常用词”才会保存。关闭后，已保存常用词仍会继续生效。")
                         .font(.footnote)
                         .foregroundStyle(ReadyTypeTheme.muted)
 
