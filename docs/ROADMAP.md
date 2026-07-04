@@ -14,7 +14,7 @@ ReadyType 1.0.0 is available as a public testing build. The next goal is to make
 
 ## Next Focus Areas
 
-The detailed 1.1.0 plan is available in [ReadyType 1.1.0 Plan](./versions/1.1.0/PLAN.md).
+The 1.1.0 scope is defined in [Requirements](./versions/1.1.0/REQUIREMENTS.md), and the detailed plan is available in [ReadyType 1.1.0 Plan](./versions/1.1.0/PLAN.md).
 
 ### Common Words
 

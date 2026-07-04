@@ -2,6 +2,8 @@
 
 ReadyType 1.1.0 focuses on real-world input quality: better common-word recognition, more natural app-aware tone, clearer shortcut configuration, and clearer high-accuracy speech-package status.
 
+See [Requirements](./REQUIREMENTS.md) for scope boundaries. The current code already has foundations for common words, confirmed suggestions, shortcut configuration, and high-accuracy speech-package status. This plan focuses on productizing and tightening those capabilities, not rebuilding them from scratch.
+
 ## Goals
 
 - Let users maintain common words for names, projects, products, technical terms, and companies.

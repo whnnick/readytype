@@ -47,7 +47,7 @@ Please report install, permission, shortcut, paste, recognition-quality, and out
 
 If ReadyType does not open, record, paste, or connect to DeepSeek as expected, see [Troubleshooting](./docs/TROUBLESHOOTING.md).
 
-First-time testers can follow the [Testing Guide](./docs/TESTING.md). Upcoming work is tracked in the [Roadmap](./docs/ROADMAP.md) and [ReadyType 1.1.0 Plan](./docs/versions/1.1.0/PLAN.md).
+First-time testers can follow the [Testing Guide](./docs/TESTING.md). Upcoming work is tracked in the [Roadmap](./docs/ROADMAP.md) and [ReadyType 1.1.0](./docs/versions/1.1.0/README.md).
 
 ## Requirements
 

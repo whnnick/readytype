@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added bilingual ReadyType 1.1.0 requirements documents and version indexes separating existing foundations, current gaps, acceptance criteria, and non-goals.
 - Added bilingual ReadyType 1.1.0 planning documents covering common words, confirmed learning suggestions, app-aware tone, custom shortcuts, and high-accuracy speech package update prompts.
 - Added a Chinese tester invite template that can be shared directly with first-time testers.
 - Added a public roadmap and testing guide so testers can understand the current scope, feedback path, and upcoming work.
