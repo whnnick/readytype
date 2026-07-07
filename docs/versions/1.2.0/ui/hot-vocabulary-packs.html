@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReadyType 1.2.0 热门词包 UI</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --canvas: #0e100f;
+      --sidebar: #0b0d0c;
+      --panel: rgba(26, 30, 27, 0.96);
+      --panel-strong: #222720;
+      --field: #20251f;
+      --field-soft: rgba(32, 37, 31, 0.64);
+      --stroke: #404a43;
+      --stroke-soft: #2f3731;
+      --ink: #edf2eb;
+      --muted: #a5b1a6;
+      --dim: #748074;
+      --accent: #82be8b;
+      --accent-strong: #91d29a;
+      --accent-soft: #263d2a;
+      --info: #70a9da;
+      --warning: #f2a444;
+      --danger: #f26054;
+      --blue: #1787f7;
+      --shadow: rgba(0, 0, 0, 0.38);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(130, 190, 139, 0.10), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(112, 169, 218, 0.08), transparent 28%),
+        var(--canvas);
+      color: var(--ink);
+      padding: 28px;
+    }
+
+    .window {
+      width: min(1120px, 100%);
+      min-height: 720px;
+      display: grid;
+      grid-template-columns: 236px 1fr;
+      overflow: hidden;
+      border: 1px solid rgba(97, 112, 100, 0.48);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(19, 23, 20, 0.98), rgba(12, 15, 13, 0.98));
+      box-shadow: 0 28px 80px var(--shadow);
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(13, 16, 14, 0.98), rgba(8, 10, 9, 0.98));
+      border-right: 1px solid rgba(64, 74, 67, 0.6);
+      padding: 18px 14px;
+    }
+
+    .traffic {
+      display: flex;
+      gap: 8px;
+      padding: 0 0 22px 4px;
+    }
+
+    .traffic span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .red { background: #ff5f57; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #28c840; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 8px 18px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: #f5f7f0;
+      color: #17201b;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px #d9dfd2;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-item.active {
+      color: #ffffff;
+      background: linear-gradient(180deg, rgba(34, 40, 35, 0.95), rgba(28, 33, 29, 0.95));
+      box-shadow: inset 0 0 0 1px rgba(76, 88, 80, 0.72);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      color: inherit;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 34px 38px 38px;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .health {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      height: 36px;
+      padding: 0 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(130, 190, 139, 0.26);
+      background: rgba(38, 61, 42, 0.58);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(130, 190, 139, 0.5);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border-radius: 16px;
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid rgba(64, 74, 67, 0.88);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel + .panel { margin-top: 18px; }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 17px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .panel-copy {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 520px;
+    }
+
+    .switch {
+      width: 44px;
+      height: 26px;
+      border-radius: 13px;
+      padding: 3px;
+      flex: 0 0 auto;
+      background: var(--blue);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    .switch::after {
+      content: "";
+      display: block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-left: 18px;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.32);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--field);
+      border: 1px solid var(--stroke-soft);
+    }
+
+    .status-main {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .status-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .status-detail {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+    }
+
+    button {
+      height: 34px;
+      border: 0;
+      border-radius: 9px;
+      padding: 0 13px;
+      color: var(--ink);
+      background: #30362f;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    button.primary {
+      color: #ffffff;
+      background: var(--blue);
+    }
+
+    button.danger {
+      color: #ffd9d5;
+      background: rgba(242, 96, 84, 0.16);
+      box-shadow: inset 0 0 0 1px rgba(242, 96, 84, 0.28);
+    }
+
+    .pack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pack {
+      min-height: 112px;
+      padding: 14px;
+      border-radius: 13px;
+      background: linear-gradient(180deg, rgba(34, 39, 33, 0.98), rgba(29, 34, 29, 0.98));
+      border: 1px solid var(--stroke-soft);
+    }
+
+    .pack-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pack-name {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .pack-badge {
+      height: 22px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 11px;
+      background: rgba(130, 190, 139, 0.13);
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .pack-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .meter {
+      height: 6px;
+      margin-top: 12px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--info));
+    }
+
+    .list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .term {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 11px;
+      border-radius: 11px;
+      background: var(--field-soft);
+      border: 1px solid rgba(64, 74, 67, 0.62);
+    }
+
+    .term strong {
+      font-size: 14px;
+      display: block;
+    }
+
+    .term span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tag {
+      height: 24px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 12px;
+      color: var(--info);
+      background: rgba(112, 169, 218, 0.12);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .privacy {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(130, 190, 139, 0.08);
+      border: 1px solid rgba(130, 190, 139, 0.18);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .lock {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--accent-strong);
+      border-radius: 8px;
+      background: rgba(130, 190, 139, 0.11);
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .mini-title {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .priority {
+      display: grid;
+      gap: 9px;
+    }
+
+    .priority-item {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rank {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: #30362f;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .rank.top {
+      color: #102014;
+      background: var(--accent-strong);
+    }
+
+    .hud {
+      position: relative;
+      min-height: 126px;
+      overflow: hidden;
+    }
+
+    .hud-pill {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 17px;
+      border-radius: 27px;
+      background: rgba(25, 29, 26, 0.72);
+      border: 1px solid rgba(150, 166, 151, 0.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 12px 34px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(18px);
+    }
+
+    .waves {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 26px;
+    }
+
+    .waves span {
+      width: 4px;
+      border-radius: 2px;
+      background: var(--accent-strong);
+    }
+
+    .waves span:nth-child(1) { height: 12px; }
+    .waves span:nth-child(2) { height: 20px; }
+    .waves span:nth-child(3) { height: 15px; }
+    .waves span:nth-child(4) { height: 24px; }
+    .waves span:nth-child(5) { height: 17px; }
+
+    .hud-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .hud-text strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .hud-text span {
+      color: var(--muted);
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 12px; }
+      .window {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .sidebar { display: none; }
+      .content { padding: 24px; }
+      .layout { grid-template-columns: 1fr; }
+      .pack-grid { grid-template-columns: 1fr; }
+      .status-row { grid-template-columns: 1fr; }
+      .actions { justify-content: flex-start; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main class="window">
+    <aside class="sidebar">
+      <div class="traffic">
+        <span class="red"></span>
+        <span class="yellow"></span>
+        <span class="green"></span>
+      </div>
+      <div class="brand">
+        <div class="mark">R</div>
+        <div class="brand-title">ReadyType</div>
+      </div>
+      <nav class="nav" aria-label="ReadyType">
+        <div class="nav-item"><span class="nav-icon">⌘</span>控制台</div>
+        <div class="nav-item active"><span class="nav-icon">⌥</span>设置</div>
+        <div class="nav-item"><span class="nav-icon">◎</span>权限</div>
+        <div class="nav-item"><span class="nav-icon">i</span>关于</div>
+      </nav>
+    </aside>
+
+    <section class="content">
+      <header class="header">
+        <div>
+          <h1>设置</h1>
+          <div class="subtitle">识别方式、DeepSeek、输出方式与词库。</div>
+        </div>
+        <div class="health">
+          <span class="dot"></span>
+          热门词包已更新
+        </div>
+      </header>
+
+      <div class="layout">
+        <div>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>热门词包</h2>
+                <div class="panel-copy">自动更新近期常用词，帮助识别电影名、产品名和赛事名。</div>
+              </div>
+              <div class="switch" aria-label="自动更新热门词已开启"></div>
+            </div>
+
+            <div class="status-row">
+              <div class="status-main">
+                <span class="dot"></span>
+                <div>
+                  <div class="status-title">已更新</div>
+                  <div class="status-detail">上次更新：今天 09:18 · 124 个近期词条</div>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="primary">立即更新</button>
+                <button class="danger">删除词包</button>
+              </div>
+            </div>
+
+            <div class="pack-grid">
+              <article class="pack">
+                <div class="pack-top">
+                  <div class="pack-name">影视娱乐</div>
+                  <div class="pack-badge">已启用</div>
+                </div>
+                <div class="pack-meta">电影、剧集、综艺与近期角色名</div>
+                <div class="meter"><span style="width: 78%"></span></div>
+              </article>
+              <article class="pack">
+                <div class="pack-top">
+                  <div class="pack-name">科技产品</div>
+                  <div class="pack-badge">已启用</div>
+                </div>
+                <div class="pack-meta">产品、模型、应用和常见英文名</div>
+                <div class="meter"><span style="width: 62%"></span></div>
+              </article>
+              <article class="pack">
+                <div class="pack-top">
+                  <div class="pack-name">体育赛事</div>
+                  <div class="pack-badge">已启用</div>
+                </div>
+                <div class="pack-meta">赛事、队名、运动员和缩写</div>
+                <div class="meter"><span style="width: 46%"></span></div>
+              </article>
+            </div>
+
+            <div class="privacy">
+              <div class="lock">⌁</div>
+              <div>热门词包只下载公开来源整理的词条，不上传你的语音、转写、聊天内容或常用词。</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>常用词</h2>
+                <div class="panel-copy">你添加或确认过的词会优先于热门词包。</div>
+              </div>
+            </div>
+            <div class="list">
+              <div class="term">
+                <div><strong>ReadyType</strong><span>产品 · 用户添加</span></div>
+                <div class="tag">最高优先级</div>
+              </div>
+              <div class="term">
+                <div><strong>DeepSeek V4 Flash</strong><span>技术词 · 用户确认</span></div>
+                <div class="tag">最高优先级</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="side-stack">
+          <section class="panel">
+            <div class="mini-title">候选优先级</div>
+            <div class="priority">
+              <div class="priority-item"><span class="rank top">1</span><span>用户常用词</span></div>
+              <div class="priority-item"><span class="rank top">2</span><span>确认式建议</span></div>
+              <div class="priority-item"><span class="rank">3</span><span>ReadyType 内置词</span></div>
+              <div class="priority-item"><span class="rank">4</span><span>当前场景词</span></div>
+              <div class="priority-item"><span class="rank">5</span><span>热门词包</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="mini-title">输入浮层</div>
+            <div class="hud">
+              <div class="hud-pill">
+                <div class="waves" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <div class="hud-text">
+                  <strong>正在听</strong>
+                  <span>整理成文 · 自动选择</span>
+                </div>
+                <div class="tag">00:06</div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
