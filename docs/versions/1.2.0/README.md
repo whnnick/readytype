@@ -7,7 +7,7 @@ ReadyType 1.2.0 candidate direction is Trending Vocabulary Packs: using the laye
 - [Requirements](./REQUIREMENTS.md)
 - [Implementation Plan](./PLAN.md)
 - [Interaction Flow](./INTERACTION_FLOW.md)
-- [UI Prototype](./ui/hot-vocabulary-packs.html)
+- [UI Prototype](./ui/hot-vocabulary-packs.html): Typeless-inspired light glass direction with light/dark theme switching.
 
 ## Current Assessment
 

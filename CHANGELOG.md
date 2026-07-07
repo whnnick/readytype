@@ -18,6 +18,7 @@
 
 ### Changed
 
+- Updated the 1.2.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
 - Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.
 - Tightened English email translation output so explicit recipients are preserved, requested numbered lists are kept, and subject lines are not added unless requested.
 - Confirmed common-word suggestions now filter overlong candidates and spoken stop words, avoiding full sentences, private body text, and noise such as "OK", "好了", or "完成".
