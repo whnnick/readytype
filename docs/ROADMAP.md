@@ -16,6 +16,8 @@ ReadyType 1.0.0 is available as a public testing build. The next goal is to make
 
 The 1.1.0 scope is defined in [Requirements](./versions/1.1.0/REQUIREMENTS.md), and the detailed plan is available in [ReadyType 1.1.0 Plan](./versions/1.1.0/PLAN.md).
 
+The 1.2.0 candidate direction is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns such as layered vocabulary and supplemental cloud candidates, so recent movies, technology products, and sports terms can update in the background and participate as low-priority recognition candidates.
+
 ### Common Words
 
 Let users maintain their own words, such as names, projects, products, technical terms, and company names. The goal is to reduce recognition errors for domain-specific terms, capitalization, and mixed Chinese/English input.
@@ -35,6 +37,10 @@ Allow users to replace the default double-press `Option` trigger with another sh
 ### High-Accuracy Speech Package Updates
 
 Provide clearer status, version, update prompts, and re-download controls so users know whether the package is ready and when it should be updated.
+
+### Trending Vocabulary Packs
+
+Update publicly curated recent terms in the background to improve recognition of movie names, product names, sports events, and similar proper nouns. This must be locally cached, optional, deletable, expiring, and must not upload user input.
 
 ### Voice Input HUD
 

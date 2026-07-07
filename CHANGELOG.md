@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added bilingual ReadyType 1.2.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
 - Added high-accuracy speech-package update status checks covering not checked, checking, missing, up to date, update available, and temporarily unable to check states.
 - Added 1.1.0 local release-gate records covering unit tests, build, zip, DMG, UI wording, TextEdit paste, Common Words UI, visual screenshots, and sensitive-information checks.
 - Added a "Companies / Organizations" common-word category and changed the default category label from a generic wording to "Other".
