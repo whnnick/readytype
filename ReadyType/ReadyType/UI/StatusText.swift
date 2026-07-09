@@ -188,7 +188,7 @@ extension LocalSpeechModelUpdateStatus {
         case .notInstalled:
             return "安装高精度语音包后可检查更新"
         case .upToDate(let version):
-            return "高精度语音包已是最新版本（\(version)）"
+            return "高精度语音包已是当前内置版本（\(version)）"
         case .updateAvailable(_, let latestVersion, let sizeDescription):
             if let sizeDescription, !sizeDescription.isEmpty {
                 return "发现新版高精度语音包（\(latestVersion)，\(sizeDescription)）"

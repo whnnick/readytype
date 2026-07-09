@@ -165,7 +165,7 @@ final class UserVocabularyStore {
         }
 
         let data = try Data(contentsOf: fileURL)
-        return try decoder.decode([UserVocabularyEntry].self, from: data)
+        return Self.normalizedEntries(try decoder.decode([UserVocabularyEntry].self, from: data))
     }
 
     func save(_ entries: [UserVocabularyEntry]) throws {
@@ -330,6 +330,10 @@ final class UserVocabularyStore {
                 continue
             }
 
+            guard !isInternalDiagnosticEntry(entry, cleanValue: cleanValue) else {
+                continue
+            }
+
             let key = cleanValue.normalizedSmartTermKey
             guard !seen.contains(key) else {
                 continue
@@ -346,6 +350,11 @@ final class UserVocabularyStore {
         }
 
         return normalized
+    }
+
+    private static func isInternalDiagnosticEntry(_ entry: UserVocabularyEntry, cleanValue: String) -> Bool {
+        cleanValue.hasPrefix("ReadyTypeUITestTerm") &&
+            entry.aliases.contains { $0.caseInsensitiveCompare("ReadyType UI Gate") == .orderedSame }
     }
 
     private static func cleanedValue(_ value: String) -> String? {

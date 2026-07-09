@@ -20,7 +20,7 @@ ReadyType 1.0.0 already includes part of the foundation: common-word storage, im
 - Added personal-chat and work-chat tone rules so WeChat/chat output does not add unsupported overly polite endings.
 - Tightened English email output constraints for recipients, numbered lists, and subject lines: when the user says to email a named person, the greeting must preserve the recipient, and subjects are not added unless requested.
 - Reviewed custom shortcuts: double-press `Option` remains the default, custom triggers apply immediately, and `Esc` cancellation remains independent.
-- Added a separate high-accuracy speech-package update status covering not checked, checking, missing, up to date, update available, and temporarily unable to check.
+- Added a separate high-accuracy speech-package version status covering not checked, checking, missing, current bundled version, update available, and temporarily unable to check.
 - `dist/ReadyType.dmg` can be generated and passes `hdiutil verify`; `hdiutil create` must run outside the sandbox.
 
 Verification:

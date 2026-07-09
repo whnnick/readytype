@@ -69,6 +69,33 @@ final class UserVocabularyStoreTests: XCTestCase {
         XCTAssertEqual(try context.store.load(), [])
     }
 
+    func testLoadFiltersInternalDiagnosticVocabularyEntries() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+        let now = Date(timeIntervalSince1970: 1_780_000_000)
+        try context.store.save([
+            UserVocabularyEntry(
+                value: "ReadyTypeUITestTerm1781424784",
+                kind: .product,
+                aliases: ["ReadyType UI Gate"],
+                createdAt: now,
+                updatedAt: now
+            ),
+            UserVocabularyEntry(
+                value: "ReadyType",
+                kind: .technical,
+                aliases: ["Reddit Tab"],
+                createdAt: now,
+                updatedAt: now
+            )
+        ])
+
+        let entries = try context.store.load()
+
+        XCTAssertEqual(entries.map(\.value), ["ReadyType"])
+        XCTAssertEqual(entries.first?.aliases, ["Reddit Tab"])
+    }
+
     func testLoadMigratesLegacyEntriesWithLearningDefaults() throws {
         let context = try makeContext()
         defer { context.cleanup() }
