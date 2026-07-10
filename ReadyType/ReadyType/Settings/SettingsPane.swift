@@ -402,6 +402,10 @@ struct SettingsPane: View {
             return false
         }
 
+        if case .updateAvailable = viewModel.localSpeechModelUpdateStatus {
+            return true
+        }
+
         switch localSpeechModelState {
         case .notInstalled, .failed:
             return true
@@ -442,6 +446,10 @@ struct SettingsPane: View {
     private var downloadSpeechModelButtonTitle: String {
         if viewModel.isDownloadingSpeechModel {
             return "下载中..."
+        }
+
+        if case .updateAvailable = viewModel.localSpeechModelUpdateStatus {
+            return "更新语音包"
         }
 
         switch localSpeechModelState {

@@ -328,7 +328,40 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertEqual(updateChecker.checkCallCount, 1)
         XCTAssertEqual(viewModel.localSpeechModelUpdateStatus, .upToDate(version: "2024-09-30"))
         XCTAssertFalse(viewModel.isCheckingSpeechModelUpdate)
-        XCTAssertEqual(viewModel.statusMessage, "高精度语音包已是当前内置版本（2024-09-30）")
+        XCTAssertEqual(viewModel.statusMessage, "高精度语音包已是当前推荐版本（2024-09-30）")
+    }
+
+    func testAvailableSpeechModelUpdateDownloadsRecommendedManifest() async throws {
+        let context = makeContext()
+        defer { context.cleanup() }
+
+        let manager = context.makeLocalSpeechModelManager()
+        try context.writeSpeechModelDirectory()
+        let latestManifest = LocalSpeechModelManifest(
+            fileName: "openai_whisper-large-v3-v20250101_626MB",
+            modelName: "large-v3-v20250101_626MB",
+            version: "2025-01-01",
+            sizeDescription: "约 626 MiB"
+        )
+        let installer = MockSettingsModelInstaller(progressValues: [1])
+        let updateChecker = MockSpeechModelUpdateChecker(
+            status: .updateAvailable(currentVersion: "2024-09-30", latestManifest: latestManifest)
+        )
+        let viewModel = SettingsViewModel(
+            settingsStore: SettingsStore(defaults: context.defaults),
+            keychainService: context.keychain,
+            localSpeechModelManager: manager,
+            localSpeechModelInstaller: installer,
+            localSpeechModelUpdateChecker: updateChecker
+        )
+        viewModel.isIdlePrewarmEnabled = false
+
+        await viewModel.checkHighAccuracySpeechModelUpdate()
+        await viewModel.downloadHighAccuracySpeechModel()
+
+        XCTAssertEqual(installer.lastInstalledManifest, latestManifest)
+        XCTAssertEqual(manager.installedManifest(), latestManifest)
+        XCTAssertEqual(viewModel.localSpeechModelUpdateStatus, .upToDate(version: "2025-01-01"))
     }
 
     func testDeleteHighAccuracySpeechModelResetsUpdateStatus() throws {
@@ -470,21 +503,24 @@ private final class MockSettingsConnectionProvider: ChatCompletionProvider {
 private final class MockSettingsModelInstaller: LocalSpeechModelInstalling {
     private let progressValues: [Double]
     private(set) var installCallCount = 0
+    private(set) var lastInstalledManifest: LocalSpeechModelManifest?
 
     init(progressValues: [Double]) {
         self.progressValues = progressValues
     }
 
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws {
         installCallCount += 1
+        lastInstalledManifest = manifest
         for value in progressValues {
             progress(value)
         }
 
-        let destinationURL = manager.destinationURL(for: LocalSpeechModelManifest(fileName: LocalSpeechModelManager.defaultWhisperKitModelFolderName))
+        let destinationURL = manager.destinationURL(for: manifest)
         try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: true)
         try Data("model".utf8).write(to: destinationURL.appendingPathComponent("TextDecoder.mlmodelc"))
     }

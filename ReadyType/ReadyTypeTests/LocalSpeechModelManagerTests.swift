@@ -97,6 +97,22 @@ final class LocalSpeechModelManagerTests: XCTestCase {
         XCTAssertNil(manager.installedModelURL())
     }
 
+    func testRecordedInstalledManifestSurvivesManagerRecreation() throws {
+        let manifest = LocalSpeechModelManifest(
+            fileName: "openai_whisper-large-v3-v20250101_626MB",
+            modelName: "large-v3-v20250101_626MB",
+            version: "2025-01-01"
+        )
+        try writeModelDirectory(named: manifest.fileName)
+        let firstManager = LocalSpeechModelManager(modelsDirectory: temporaryDirectory)
+        try firstManager.recordInstalledManifest(manifest)
+
+        let relaunchedManager = LocalSpeechModelManager(modelsDirectory: temporaryDirectory)
+
+        XCTAssertEqual(relaunchedManager.installedManifest(), manifest)
+        XCTAssertEqual(relaunchedManager.state(), .downloadedCold)
+    }
+
     private func writeModelDirectory(named fileName: String) throws {
         let url = temporaryDirectory.appendingPathComponent(fileName, isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

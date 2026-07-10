@@ -10,7 +10,8 @@ enum LocalSpeechModelState: Equatable {
     case failed(reason: String)
 }
 
-struct LocalSpeechModelManifest: Equatable {
+struct LocalSpeechModelManifest: Codable, Equatable {
+    let modelName: String
     let fileName: String
     let version: String
     let expectedChecksum: LocalSpeechModelChecksum?
@@ -19,12 +20,14 @@ struct LocalSpeechModelManifest: Equatable {
 
     init(
         fileName: String,
+        modelName: String? = nil,
         version: String? = nil,
         expectedSHA256: String? = nil,
         expectedSHA1: String? = nil,
         downloadURL: URL? = nil,
         sizeDescription: String? = nil
     ) {
+        self.modelName = modelName ?? Self.derivedModelName(from: fileName)
         self.fileName = fileName
         self.version = version ?? Self.derivedVersion(from: fileName)
         if let expectedSHA256 {
@@ -36,6 +39,14 @@ struct LocalSpeechModelManifest: Equatable {
         }
         self.downloadURL = downloadURL
         self.sizeDescription = sizeDescription
+    }
+
+    private static func derivedModelName(from fileName: String) -> String {
+        let prefix = "openai_whisper-"
+        guard fileName.hasPrefix(prefix) else {
+            return fileName
+        }
+        return String(fileName.dropFirst(prefix.count))
     }
 
     private static func derivedVersion(from fileName: String) -> String {
@@ -62,7 +73,7 @@ struct LocalSpeechModelManifest: Equatable {
     }
 }
 
-struct LocalSpeechModelChecksum: Equatable {
+struct LocalSpeechModelChecksum: Codable, Equatable {
     let algorithm: LocalSpeechModelChecksumAlgorithm
     let value: String
 
@@ -72,12 +83,13 @@ struct LocalSpeechModelChecksum: Equatable {
     }
 }
 
-enum LocalSpeechModelChecksumAlgorithm: String, Equatable {
+enum LocalSpeechModelChecksumAlgorithm: String, Codable, Equatable {
     case sha1
     case sha256
 }
 
 final class LocalSpeechModelManager {
+    private static let installedManifestFileName = "installed-model.json"
     static let defaultWhisperKitModelName = "large-v3-v20240930_626MB"
     static let defaultWhisperKitModelFolderName = "openai_whisper-large-v3-v20240930_626MB"
 
@@ -142,18 +154,46 @@ final class LocalSpeechModelManager {
     }
 
     func deleteInstalledModels() throws {
-        for manifest in manifests {
+        var installedManifests = manifests
+        if let recordedManifest = recordedInstalledManifest(),
+           !installedManifests.contains(recordedManifest) {
+            installedManifests.append(recordedManifest)
+        }
+
+        for manifest in installedManifests {
             let url = modelsDirectory.appendingPathComponent(manifest.fileName)
             if fileManager.fileExists(atPath: url.path) {
                 try fileManager.removeItem(at: url)
             }
         }
+
+        if fileManager.fileExists(atPath: installedManifestMetadataURL.path) {
+            try fileManager.removeItem(at: installedManifestMetadataURL)
+        }
     }
 
     func installedManifest() -> LocalSpeechModelManifest? {
-        manifests.first { manifest in
+        if let recordedManifest = recordedInstalledManifest(),
+           fileManager.fileExists(atPath: destinationURL(for: recordedManifest).path) {
+            return recordedManifest
+        }
+
+        return manifests.first { manifest in
             let url = modelsDirectory.appendingPathComponent(manifest.fileName)
             return fileManager.fileExists(atPath: url.path)
+        }
+    }
+
+    func recordInstalledManifest(_ manifest: LocalSpeechModelManifest) throws {
+        try fileManager.createDirectory(at: modelsDirectory, withIntermediateDirectories: true)
+        let data = try JSONEncoder().encode(manifest)
+        try data.write(to: installedManifestMetadataURL, options: .atomic)
+    }
+
+    func removeModel(_ manifest: LocalSpeechModelManifest) throws {
+        let url = destinationURL(for: manifest)
+        if fileManager.fileExists(atPath: url.path) {
+            try fileManager.removeItem(at: url)
         }
     }
 
@@ -166,7 +206,7 @@ final class LocalSpeechModelManager {
         return url
     }
 
-    private func isUsableModel(at url: URL) -> Bool {
+    func isUsableModel(at url: URL) -> Bool {
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
             return false
@@ -191,6 +231,17 @@ final class LocalSpeechModelManager {
         }
 
         return false
+    }
+
+    private var installedManifestMetadataURL: URL {
+        modelsDirectory.appendingPathComponent(Self.installedManifestFileName)
+    }
+
+    private func recordedInstalledManifest() -> LocalSpeechModelManifest? {
+        guard let data = try? Data(contentsOf: installedManifestMetadataURL) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(LocalSpeechModelManifest.self, from: data)
     }
 
     private func checksumHex(for url: URL, algorithm: LocalSpeechModelChecksumAlgorithm) -> String? {

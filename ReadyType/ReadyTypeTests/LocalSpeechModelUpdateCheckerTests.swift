@@ -70,8 +70,7 @@ final class LocalSpeechModelUpdateCheckerTests: XCTestCase {
             status,
             .updateAvailable(
                 currentVersion: currentManifest.version,
-                latestVersion: latestManifest.version,
-                sizeDescription: latestManifest.sizeDescription
+                latestManifest: latestManifest
             )
         )
     }
@@ -89,6 +88,32 @@ final class LocalSpeechModelUpdateCheckerTests: XCTestCase {
         let status = await checker.checkForUpdates()
 
         XCTAssertEqual(status, .unableToCheck(reason: "暂时无法检查更新"))
+    }
+
+    func testRemoteManifestDecoderAcceptsVerifiedWhisperKitVariant() throws {
+        let data = Data(#"{"schemaVersion":1,"recommendedModel":{"variant":"large-v3-v20240930_626MB","folderName":"openai_whisper-large-v3-v20240930_626MB","version":"2024-09-30","sizeDescription":"约 626 MiB"}}"#.utf8)
+
+        let manifest = try RemoteLocalSpeechModelManifestDecoder().decode(data)
+
+        XCTAssertEqual(manifest.modelName, "large-v3-v20240930_626MB")
+        XCTAssertEqual(manifest.fileName, "openai_whisper-large-v3-v20240930_626MB")
+        XCTAssertEqual(manifest.version, "2024-09-30")
+    }
+
+    func testRemoteManifestDecoderRejectsUnknownSchema() {
+        let data = Data(#"{"schemaVersion":2,"recommendedModel":{"variant":"large-v3-v20240930_626MB","folderName":"openai_whisper-large-v3-v20240930_626MB","version":"2024-09-30"}}"#.utf8)
+
+        XCTAssertThrowsError(try RemoteLocalSpeechModelManifestDecoder().decode(data)) { error in
+            XCTAssertEqual(error as? RemoteLocalSpeechModelManifestError, .unsupportedSchema)
+        }
+    }
+
+    func testRemoteManifestDecoderRejectsArbitraryFolder() {
+        let data = Data(#"{"schemaVersion":1,"recommendedModel":{"variant":"large-v3-v20240930_626MB","folderName":"../../OtherModel","version":"2024-09-30"}}"#.utf8)
+
+        XCTAssertThrowsError(try RemoteLocalSpeechModelManifestDecoder().decode(data)) { error in
+            XCTAssertEqual(error as? RemoteLocalSpeechModelManifestError, .invalidModel)
+        }
     }
 
     private func writeModelDirectory(

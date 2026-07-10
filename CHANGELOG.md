@@ -7,7 +7,8 @@
 - Added bilingual ReadyType 1.2.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
 - Added bilingual ReadyType 1.2.0 interaction flow diagrams for Trending Vocabulary Packs, covering visible Settings interaction, background updates, voice-input candidate decisions, and Settings information structure.
 - Added a ReadyType 1.2.0 Trending Vocabulary Packs HTML UI prototype as a reference for the future SwiftUI Settings implementation.
-- Added high-accuracy speech-package version status checks covering not checked, checking, missing, current bundled version, update available, and temporarily unable to check states.
+- Added live high-accuracy speech-package update checks backed by a controlled manifest in the public ReadyType repository, covering not checked, checking, missing, current recommended version, update available, and temporarily unable to check states.
+- Added a safe speech-package update flow that installs only manifest-selected official WhisperKit variants, persists the installed version, removes the previous package after success, and retains the working package on failure.
 - Added 1.1.0 local release-gate records covering unit tests, build, zip, DMG, UI wording, TextEdit paste, Common Words UI, visual screenshots, and sensitive-information checks.
 - Added a "Companies / Organizations" common-word category and changed the default category label from a generic wording to "Other".
 - Added bilingual ReadyType 1.1.0 requirements documents and version indexes separating existing foundations, current gaps, acceptance criteria, and non-goals.
@@ -20,7 +21,7 @@
 
 - Updated the 1.2.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
 - Filtered internal Common Words UI acceptance-test data so diagnostic terms cannot remain visible in real user vocabulary lists.
-- Reworded the high-accuracy speech-package status from "latest version" to "current bundled version" so the bundled manifest check is not presented as a live upstream update check.
+- Changed the speech-package status to "current recommended version", shown only when the remote manifest matches the installed version.
 - Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.
 - Tightened English email translation output so explicit recipients are preserved, requested numbered lists are kept, and subject lines are not added unless requested.
 - Confirmed common-word suggestions now filter overlong candidates and spoken stop words, avoiding full sentences, private body text, and noise such as "OK", "好了", or "完成".

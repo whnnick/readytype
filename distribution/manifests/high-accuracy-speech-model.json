@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "recommendedModel": {
+    "variant": "large-v3-v20240930_626MB",
+    "folderName": "openai_whisper-large-v3-v20240930_626MB",
+    "version": "2024-09-30",
+    "sizeDescription": "约 626 MiB"
+  }
+}

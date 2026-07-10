@@ -96,7 +96,8 @@ final class RealLocalSpeechModelAcceptanceTests: XCTestCase {
 
 @MainActor
 private final class FailingAcceptanceModelInstaller: LocalSpeechModelInstalling {
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws {

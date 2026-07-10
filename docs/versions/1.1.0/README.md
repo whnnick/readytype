@@ -6,6 +6,7 @@ ReadyType 1.1.0 focuses on productizing real-world input quality: common words, 
 
 - [Requirements](./REQUIREMENTS.md)
 - [Implementation Plan](./PLAN.md)
+- [High-Accuracy Speech Package Update Design](./SPEECH_MODEL_UPDATES.md)
 
 ## Current Assessment
 
@@ -20,7 +21,8 @@ ReadyType 1.0.0 already includes part of the foundation: common-word storage, im
 - Added personal-chat and work-chat tone rules so WeChat/chat output does not add unsupported overly polite endings.
 - Tightened English email output constraints for recipients, numbered lists, and subject lines: when the user says to email a named person, the greeting must preserve the recipient, and subjects are not added unless requested.
 - Reviewed custom shortcuts: double-press `Option` remains the default, custom triggers apply immediately, and `Esc` cancellation remains independent.
-- Added a separate high-accuracy speech-package version status covering not checked, checking, missing, current bundled version, update available, and temporarily unable to check.
+- Connected the high-accuracy speech package to a public ReadyType remote manifest, covering not checked, checking, missing, current recommended version, update available, and temporarily unable to check.
+- Updates install only manifest-selected official WhisperKit models; the previous package is removed only after the replacement is validated, and failures retain the working version.
 - `dist/ReadyType.dmg` can be generated and passes `hdiutil verify`; `hdiutil create` must run outside the sandbox.
 
 Verification:
@@ -29,9 +31,11 @@ Verification:
 - `swift test --filter PromptTemplatesTests`: 15 tests passed.
 - `swift test --filter OutputScenarioTests`: 11 tests passed.
 - `swift test --filter GlobalShortcutServiceTests`: 17 tests passed.
-- `swift test --filter SettingsViewModelTests`: 20 tests passed.
-- `swift test --filter LocalSpeechModelUpdateCheckerTests`: 4 tests passed.
-- `swift test`: 320 tests passed, 10 tests skipped.
+- `swift test --filter SettingsViewModelTests`: 21 tests passed.
+- `swift test --filter LocalSpeechModelUpdateCheckerTests`: 7 tests passed.
+- `swift test --filter LocalSpeechModelDownloadServiceTests`: 5 tests passed.
+- `swift test --filter LocalSpeechModelManagerTests`: 8 tests passed.
+- `swift test`: 328 tests passed, 13 tests skipped.
 - `scripts/build-app.sh`: passed.
 - `scripts/package-dmg.sh`: passed and generated `dist/ReadyType.dmg`.
 - `scripts/verify-1.0.0-release-local.sh`: passed, including unit tests, contextual-vocabulary performance, build, zip, DMG, `plutil`, `git diff --check`, user-facing recognition wording scan, and sensitive-information scan.

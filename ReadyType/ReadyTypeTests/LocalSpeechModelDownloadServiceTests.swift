@@ -70,6 +70,56 @@ final class LocalSpeechModelDownloadServiceTests: XCTestCase {
         XCTAssertEqual(finalState, .downloadedCold)
         XCTAssertEqual(service.state, .downloadedCold)
     }
+
+    @MainActor
+    func testModelUpdatePersistsNewManifestAndRemovesPreviousModelAfterSuccess() async throws {
+        let manager = LocalSpeechModelManager(modelsDirectory: temporaryDirectory)
+        let currentManifest = LocalSpeechModelManager.defaultManifests[0]
+        let currentURL = manager.destinationURL(for: currentManifest)
+        try FileManager.default.createDirectory(at: currentURL, withIntermediateDirectories: true)
+        try Data("old".utf8).write(to: currentURL.appendingPathComponent("TextDecoder.mlmodelc"))
+        let updatedManifest = LocalSpeechModelManifest(
+            fileName: "openai_whisper-large-v3-v20250101_626MB",
+            modelName: "large-v3-v20250101_626MB",
+            version: "2025-01-01"
+        )
+        let service = LocalSpeechModelDownloadService(
+            manager: manager,
+            installer: FakeModelInstaller(progressValues: [1])
+        )
+
+        let finalState = await service.downloadModel(updatedManifest)
+
+        XCTAssertEqual(finalState, .downloadedCold)
+        XCTAssertEqual(manager.installedManifest(), updatedManifest)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: currentURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: manager.destinationURL(for: updatedManifest).path))
+    }
+
+    @MainActor
+    func testModelUpdateFailureKeepsPreviousModelAvailable() async throws {
+        let manager = LocalSpeechModelManager(modelsDirectory: temporaryDirectory)
+        let currentManifest = LocalSpeechModelManager.defaultManifests[0]
+        let currentURL = manager.destinationURL(for: currentManifest)
+        try FileManager.default.createDirectory(at: currentURL, withIntermediateDirectories: true)
+        try Data("old".utf8).write(to: currentURL.appendingPathComponent("TextDecoder.mlmodelc"))
+        let updatedManifest = LocalSpeechModelManifest(
+            fileName: "openai_whisper-large-v3-v20250101_626MB",
+            modelName: "large-v3-v20250101_626MB",
+            version: "2025-01-01"
+        )
+        let installer = FakeModelInstaller(
+            progressValues: [0.5],
+            error: LocalSpeechModelDownloadError.downloadDidNotProduceModel
+        )
+        let service = LocalSpeechModelDownloadService(manager: manager, installer: installer)
+
+        let finalState = await service.downloadModel(updatedManifest)
+
+        XCTAssertEqual(finalState, .failed(reason: "高精度语音包下载失败：未生成模型目录"))
+        XCTAssertEqual(manager.installedManifest(), currentManifest)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: currentURL.path))
+    }
 }
 
 @MainActor
@@ -83,7 +133,8 @@ private final class FakeModelInstaller: LocalSpeechModelInstalling {
         self.error = error
     }
 
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws {
@@ -96,7 +147,6 @@ private final class FakeModelInstaller: LocalSpeechModelInstalling {
             throw error
         }
 
-        let manifest = LocalSpeechModelManifest(fileName: LocalSpeechModelManager.defaultWhisperKitModelFolderName)
         let destinationURL = manager.destinationURL(for: manifest)
         try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: true)
         try Data("model".utf8).write(to: destinationURL.appendingPathComponent("TextDecoder.mlmodelc"))
@@ -107,12 +157,12 @@ private final class FakeModelInstaller: LocalSpeechModelInstalling {
 private final class LateProgressModelInstaller: LocalSpeechModelInstalling {
     private var progress: ((Double) -> Void)?
 
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws {
         self.progress = progress
-        let manifest = LocalSpeechModelManifest(fileName: LocalSpeechModelManager.defaultWhisperKitModelFolderName)
         let destinationURL = manager.destinationURL(for: manifest)
         try FileManager.default.createDirectory(at: destinationURL, withIntermediateDirectories: true)
         try Data("model".utf8).write(to: destinationURL.appendingPathComponent("TextDecoder.mlmodelc"))

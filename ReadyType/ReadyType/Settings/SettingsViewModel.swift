@@ -223,12 +223,24 @@ final class SettingsViewModel: ObservableObject {
             }
         )
 
-        let finalState = await service.downloadDefaultModel()
+        let targetManifest: LocalSpeechModelManifest?
+        if case let .updateAvailable(_, latestManifest) = localSpeechModelUpdateStatus {
+            targetManifest = latestManifest
+        } else {
+            targetManifest = localSpeechModelManager.defaultDownloadManifest()
+        }
+
+        guard let targetManifest else {
+            localSpeechModelState = .failed(reason: "高精度语音包下载失败：缺少安装信息")
+            return
+        }
+
+        let finalState = await service.downloadModel(targetManifest)
         localSpeechModelState = finalState
 
         switch finalState {
         case .downloadedCold, .warm:
-            localSpeechModelUpdateStatus = .notChecked
+            localSpeechModelUpdateStatus = .upToDate(version: targetManifest.version)
             await prewarmAfterDownloadIfAllowed(from: finalState)
         case .failed:
             statusMessage = finalState.readyTypeDisplayMessage(isHighAccuracyEnabled: true)

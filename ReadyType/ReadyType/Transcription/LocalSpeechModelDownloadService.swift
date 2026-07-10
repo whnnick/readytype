@@ -3,7 +3,8 @@ import Foundation
 
 @MainActor
 protocol LocalSpeechModelInstalling: AnyObject {
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws
@@ -30,16 +31,37 @@ final class LocalSpeechModelDownloadService {
 
     @discardableResult
     func downloadDefaultModel() async -> LocalSpeechModelState {
+        guard let manifest = manager.defaultDownloadManifest() else {
+            updateState(.failed(reason: "高精度语音包下载失败：缺少安装信息"))
+            return state
+        }
+        return await downloadModel(manifest)
+    }
+
+    @discardableResult
+    func downloadModel(_ manifest: LocalSpeechModelManifest) async -> LocalSpeechModelState {
+        let previouslyInstalledManifest = manager.installedManifest()
         updateState(.downloading(progress: 0))
 
         do {
-            try await installer.installDefaultModel(using: manager) { [weak self] progress in
+            try await installer.installModel(manifest, using: manager) { [weak self] progress in
                 guard case .downloading = self?.state else {
                     return
                 }
 
                 self?.updateState(.downloading(progress: progress.clampedModelDownloadProgress))
             }
+
+            guard manager.isUsableModel(at: manager.destinationURL(for: manifest)) else {
+                throw LocalSpeechModelDownloadError.downloadDidNotProduceModel
+            }
+
+            try manager.recordInstalledManifest(manifest)
+            if let previouslyInstalledManifest,
+               previouslyInstalledManifest.fileName != manifest.fileName {
+                try? manager.removeModel(previouslyInstalledManifest)
+            }
+
             let installedState = manager.state()
             updateState(installedState)
             return installedState
@@ -81,13 +103,14 @@ final class CoreMLSpeechModelInstaller: LocalSpeechModelInstalling {
         self.fileManager = fileManager
     }
 
-    func installDefaultModel(
+    func installModel(
+        _ manifest: LocalSpeechModelManifest,
         using manager: LocalSpeechModelManager,
         progress: @escaping (Double) -> Void
     ) async throws {
         let progressReporter = ModelInstallProgressReporter(progress: progress)
         let downloadedModelURL = try await WhisperKit.download(
-            variant: LocalSpeechModelManager.defaultWhisperKitModelName
+            variant: manifest.modelName
         ) { downloadProgress in
             Task { @MainActor in
                 progressReporter.report(downloadProgress.fractionCompleted)
@@ -95,17 +118,37 @@ final class CoreMLSpeechModelInstaller: LocalSpeechModelInstalling {
         }
 
         try fileManager.createDirectory(at: manager.modelsDirectory, withIntermediateDirectories: true)
-        let destinationURL = manager.destinationURL(for: LocalSpeechModelManifest(fileName: LocalSpeechModelManager.defaultWhisperKitModelFolderName))
-
-        if fileManager.fileExists(atPath: destinationURL.path) {
-            try fileManager.removeItem(at: destinationURL)
-        }
+        let destinationURL = manager.destinationURL(for: manifest)
+        let stagingURL = manager.modelsDirectory
+            .appendingPathComponent(".\(manifest.fileName).installing-\(UUID().uuidString)")
 
         guard fileManager.fileExists(atPath: downloadedModelURL.path) else {
             throw LocalSpeechModelDownloadError.downloadDidNotProduceModel
         }
 
-        try fileManager.copyItem(at: downloadedModelURL, to: destinationURL)
+        try fileManager.copyItem(at: downloadedModelURL, to: stagingURL)
+        guard manager.isUsableModel(at: stagingURL) else {
+            try? fileManager.removeItem(at: stagingURL)
+            throw LocalSpeechModelDownloadError.downloadDidNotProduceModel
+        }
+
+        guard fileManager.fileExists(atPath: destinationURL.path) else {
+            try fileManager.moveItem(at: stagingURL, to: destinationURL)
+            return
+        }
+
+        let backupURL = manager.modelsDirectory
+            .appendingPathComponent(".\(manifest.fileName).backup-\(UUID().uuidString)")
+        try fileManager.moveItem(at: destinationURL, to: backupURL)
+        do {
+            try fileManager.moveItem(at: stagingURL, to: destinationURL)
+            try? fileManager.removeItem(at: backupURL)
+        } catch {
+            if !fileManager.fileExists(atPath: destinationURL.path) {
+                try? fileManager.moveItem(at: backupURL, to: destinationURL)
+            }
+            throw error
+        }
     }
 }
 
