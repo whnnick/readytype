@@ -7,6 +7,7 @@ ReadyType 1.1.0 focuses on productizing real-world input quality: common words, 
 - [Requirements](./REQUIREMENTS.md)
 - [Implementation Plan](./PLAN.md)
 - [High-Accuracy Speech Package Update Design](./SPEECH_MODEL_UPDATES.md)
+- [Black-Box Functional Check](./BLACK_BOX_TESTS.md)
 
 ## Current Assessment
 
