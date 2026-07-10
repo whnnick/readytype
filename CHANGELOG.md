@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-07-11
+
 ### Added
 
 - Added bilingual ReadyType 1.2.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
@@ -19,6 +21,8 @@
 
 ### Changed
 
+- Isolated the Common Words UI acceptance gate from user vocabulary data and removed its timing-sensitive notification injection.
+- Non-email cleanup and English translation no longer add unsupported greetings, thanks, acknowledgements, sign-offs, or closings; email keeps its appropriate polite-closing behavior.
 - Updated the 1.2.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
 - Filtered internal Common Words UI acceptance-test data so diagnostic terms cannot remain visible in real user vocabulary lists.
 - Changed the speech-package status to "current recommended version", shown only when the remote manifest matches the installed version.

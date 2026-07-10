@@ -15,7 +15,7 @@
 <p align="center">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%2014%2B-blue">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-green">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-green">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 

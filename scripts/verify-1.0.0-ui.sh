@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="$ROOT_DIR/dist/ReadyType.app"
+APP_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeInfo.plist")"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-1.0.0-ui-check.XXXXXX")"
 CHECK_APP_DIR="$TMP_DIR/ReadyType.app"
 
@@ -212,9 +213,9 @@ sleep 0.3
 dump_scroll_area "$ABOUT_DUMP"
 
 require_text "$ABOUT_DUMP" "关于 ReadyType"
-require_text "$ABOUT_DUMP" "版本 1.0.0"
+require_text "$ABOUT_DUMP" "版本 $APP_VERSION"
 require_text "$ABOUT_DUMP" "高精度语音包保存在"
 require_text "$ABOUT_DUMP" "以后需要更新时可重新下载"
 require_text "$ABOUT_DUMP" "下载后会在后台准备"
 
-echo "ReadyType 1.0.0 UI text check passed."
+echo "ReadyType $APP_VERSION UI text check passed."

@@ -20,6 +20,7 @@ ReadyType 1.0.0 already includes part of the foundation: common-word storage, im
 - Reworded common-word suggestion copy to avoid implying silent memory or training.
 - Common-word suggestions now filter overlong candidates and spoken stop words to avoid saving full sentences, private body text, or noise such as "OK", "好了", or "完成".
 - Added personal-chat and work-chat tone rules so WeChat/chat output does not add unsupported overly polite endings.
+- Added a shared non-email output-fidelity rule so generic, chat, note, document, and English translation output does not invent greetings, thanks, acknowledgements, sign-offs, or closings.
 - Tightened English email output constraints for recipients, numbered lists, and subject lines: when the user says to email a named person, the greeting must preserve the recipient, and subjects are not added unless requested.
 - Reviewed custom shortcuts: double-press `Option` remains the default, custom triggers apply immediately, and `Esc` cancellation remains independent.
 - Connected the high-accuracy speech package to a public ReadyType remote manifest, covering not checked, checking, missing, current recommended version, update available, and temporarily unable to check.
@@ -36,7 +37,7 @@ Verification:
 - `swift test --filter LocalSpeechModelUpdateCheckerTests`: 7 tests passed.
 - `swift test --filter LocalSpeechModelDownloadServiceTests`: 5 tests passed.
 - `swift test --filter LocalSpeechModelManagerTests`: 8 tests passed.
-- `swift test`: 328 tests passed, 13 tests skipped.
+- `swift test`: 331 tests passed, 11 tests skipped.
 - `scripts/build-app.sh`: passed.
 - `scripts/package-dmg.sh`: passed and generated `dist/ReadyType.dmg`.
 - `scripts/verify-1.0.0-release-local.sh`: passed, including unit tests, contextual-vocabulary performance, build, zip, DMG, `plutil`, `git diff --check`, user-facing recognition wording scan, and sensitive-information scan.
@@ -53,13 +54,13 @@ Verification:
 Real-environment gates not covered yet:
 - `RUN_LOCAL_SPEECH_MODEL=1 scripts/verify-1.0.0-release-local.sh`: requires downloading or reusing the real high-accuracy speech package.
 - `RUN_ASR_METRICS=1 scripts/verify-1.0.0-release-local.sh`: requires a real microphone ASR metrics file.
-- Real-app regression in WeChat, browsers, email/document tools, and AI tools still needs a final sample pass before release.
+- Real WeChat, TextEdit, double-press `Option`, `Esc` cancellation, and automatic-paste samples pass; browser, email, and AI-tool checks remain useful post-release expansion samples.
 
 ## Development Order
 
 1. Productize Common Words: complete.
 2. Tighten confirmed learning suggestions: complete.
-3. Improve app-aware tone: covered by automated tests, pending real-app regression.
-4. Review custom shortcut experience: covered by automated tests, pending real-app regression.
-5. Improve high-accuracy speech-package status and update prompts: covered by automated tests, pending real-app regression.
-6. Update docs, tests, and release preparation: local release gate passed; pending real-environment gates and final release decision.
+3. Improve app-aware tone: automated and real WeChat/TextEdit regression complete.
+4. Review custom shortcut experience: automated coverage complete; real double-press `Option` and `Esc` cancellation pass.
+5. Improve high-accuracy speech-package status and updates: automated, online, and real-app checks complete.
+6. Update docs, tests, and release preparation: entering the final `1.1.0 (68)` release gate.

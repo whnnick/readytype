@@ -1,38 +1,48 @@
 # ReadyType 1.1.0 Black-Box Functional Check
 
-Last updated: 2026-07-10. Current build: `1.0.0 (67)`; `1.1.0` is not released yet.
+Last updated: 2026-07-11. Current release candidate: `1.1.0 (68)`.
 
 ## Requirement Mapping and Evidence
 
 | Product area | Current status | Verification evidence |
 | --- | --- | --- |
-| Common words and confirmed suggestions | Complete | `UserVocabularyStoreTests` and `UserVocabularyLearningServiceTests` pass; Settings retains only explicitly added content. |
-| Chat, email, and English output | Automated acceptance complete | Four real DeepSeek checks pass: English chat, English email, natural personal chat, and concise work chat. |
-| Custom shortcuts and Esc | Automated acceptance complete | `GlobalShortcutServiceTests` passes 17/17; real modifier-only key presses still need manual confirmation. |
+| Common words and confirmed suggestions | Complete | Store and learning tests pass; the isolated Common Words UI refresh gate passes without writing diagnostic entries to user data. |
+| Chat, email, document, and English output | Automated acceptance complete | Five real DeepSeek checks pass: English chat, English email, natural personal chat, concise work chat, and document output without an unsupported closing. |
+| Custom shortcuts and Esc | Complete | `GlobalShortcutServiceTests` passes 17/17; real double-press `Option` and `Esc` cancellation samples pass. |
 | Automatic paste and clipboard fallback | Automated acceptance complete | `scripts/verify-1.2-textedit-paste.sh` passes. |
-| High-accuracy speech-package state | Complete | Build 67 Settings verifies that Ready and Current Recommended Version are displayed independently. |
+| High-accuracy speech-package state | Complete | Build 67 Settings verifies that Ready and Current Recommended Version are displayed independently; build 68 continues to pass real input. |
 | High-accuracy speech-package updates | Automated and online checks complete | GitHub Raw manifest is reachable; online check succeeds; transaction tests cover persistence, rollback, and retaining the old package on failure. |
 
 ## Completed Verification
 
-- `swift test`: 328 passed, 13 conditionally skipped, 0 failures.
-- `scripts/build-app.sh`: passed; artifact is `1.0.0 (67)`.
-- `scripts/package-app.sh`, `scripts/package-dmg.sh`, and `hdiutil verify dist/ReadyType.dmg`: passed.
-- `scripts/verify-1.0.0-ui.sh`: passed on build 66; build 67's online speech-package check was retested in the real UI.
+- `swift test`: 331 passed, 11 conditionally skipped, 0 failures.
+- `scripts/build-app.sh`: passed; the release-candidate artifact is `1.1.0 (68)`.
+- `scripts/package-app.sh`, `scripts/package-dmg.sh`, and `hdiutil verify dist/ReadyType.dmg`: passed; App, ZIP, and DMG all contain `1.1.0 (68)`.
+- `scripts/verify-1.0.0-ui.sh`: passed on the final `1.1.0 (68)` build.
+- `scripts/verify-1.0.0-common-words-ui.sh`: passed with an explicit temporary vocabulary file; user vocabulary remains untouched.
 - `scripts/verify-1.2-textedit-paste.sh`: passed.
 - `scripts/verify-1.2-real-ai-output.sh`: passed.
 - `scripts/verify-1.2-api-error-paths.sh`: passed.
 - Sensitive-information scan: passed; project `AGENTS.md` is not Git-tracked.
 
-## Real-Environment Acceptance Still Required
+## Finding and Resolution in This Pass
 
-- In WeChat, Notes, a browser, and an email or document tool, use real microphone input to sample double-press `Option` start/finish, `Esc` cancellation, and automatic paste.
-- Confirm that WeChat chat output remains natural and concise, without unsupported polite endings such as "thanks" or "please".
-- With the real high-accuracy speech package, test one long sentence and one mixed Chinese-English sentence, recording first-use and post-prewarm wait time.
+- Real TextEdit input on build 67 showed an unsupported "谢谢大家" closing in document output.
+- Cause: the non-email document prompt did not explicitly prohibit unsupported thanks, sign-offs, and closing language.
+- Resolution: a shared non-email output-fidelity rule now covers generic, chat, note, document, and English translation output while preserving appropriate email closings.
+- Recheck: the new real DeepSeek document case passes without an added closing.
+- Build 68 real TextEdit recheck passes: automatic paste succeeded, technical terms were preserved, and "谢谢大家" was not added.
+
+## Real-App Sample Results
+
+- WeChat: polished output was natural and concise without an unsupported polite closing.
+- `Esc`: active recording cancelled immediately and inserted no text.
+- TextEdit: mixed Chinese-English input pasted automatically and no longer gained an unsupported closing.
+
+## Non-Blocking Future Acceptance
+
 - When ReadyType later recommends a different model, complete a real approximately 626 MiB update test. The remote recommendation currently matches the installed version, so no large download was artificially triggered.
 
 ## Release Blockers
 
-1. Complete and record the real microphone multi-app sample pass above.
-2. Bump the short version from `1.0.0` to `1.1.0`, then rebuild the DMG and ZIP.
-3. Complete final sensitive-information, remote Release artifact, and download-link checks.
+1. Create and verify the GitHub `v1.1.0` Release, assets, and download links.

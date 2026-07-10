@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
+APP_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' ReadyType/ReadyType/Resources/ReadyTypeInfo.plist)"
 
 SWIFTPM_CACHE_DIR="$ROOT_DIR/.build/swiftpm-cache"
 SWIFTPM_CONFIG_DIR="$ROOT_DIR/.build/swiftpm-config"
@@ -42,7 +43,7 @@ log_step "scripts/build-app.sh"
 scripts/build-app.sh
 
 log_step "strict app bundle code-signing check"
-TMP_APP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-1.0.0-codesign.XXXXXX")"
+TMP_APP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-codesign.XXXXXX")"
 trap 'rm -rf "$TMP_APP_DIR"' EXIT
 ditto --norsrc dist/ReadyType.app "$TMP_APP_DIR/ReadyType.app"
 xattr -cr "$TMP_APP_DIR/ReadyType.app"
@@ -161,4 +162,4 @@ else
   echo "Set RUN_ASR_METRICS=1 and ASR_METRICS_FILE=... to evaluate real microphone CER, language, latency, and resource metrics."
 fi
 
-printf "\nReadyType 1.0.0 local release gate passed.\n"
+printf "\nReadyType %s local release gate passed.\n" "$APP_VERSION"

@@ -17,11 +17,13 @@ enum PromptTemplates {
             return cleanupPrompt
                 + sharedTermPreservationPrompt
                 + scenarioCleanupInstructions(for: context.scenario)
+                + nonEmailCompletionInstructions(for: context.scenario)
                 + chatToneInstructions(for: context.chatTone)
         case .translationToEnglish:
             return translationPrompt
                 + sharedTermPreservationPrompt
                 + scenarioTranslationInstructions(for: context.scenario)
+                + nonEmailCompletionInstructions(for: context.scenario)
                 + chatToneInstructions(for: context.chatTone)
         case .promptOutput:
             return promptWritingPrompt
@@ -181,6 +183,18 @@ enum PromptTemplates {
             Do not add greetings, thanks, or sign-offs unless the user said them.
             """
         }
+    }
+
+    private static func nonEmailCompletionInstructions(for scenario: OutputScenario) -> String {
+        guard scenario != .email else {
+            return ""
+        }
+
+        return """
+
+        Output fidelity:
+        Do not add greetings, thanks, acknowledgements, sign-offs, or closing phrases unless the user said them.
+        """
     }
 
     private static func scenarioPromptInstructions(for scenario: OutputScenario) -> String {

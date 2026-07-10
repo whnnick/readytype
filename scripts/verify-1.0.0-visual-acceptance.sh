@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_PATH="$ROOT_DIR/dist/ReadyType.app"
+APP_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeInfo.plist")"
 OUT_DIR="${READYTYPE_VISUAL_ACCEPTANCE_DIR:-$ROOT_DIR/tmp/readytype-1.0.0-visual-acceptance/$(date +%Y%m%d-%H%M%S)}"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-visual-acceptance.XXXXXX")"
 CHECK_APP_DIR="$TMP_DIR/ReadyType.app"
@@ -308,4 +309,4 @@ else
     exit 1
 fi
 
-echo "ReadyType 1.0.0 visual acceptance screenshots written to $OUT_DIR"
+echo "ReadyType $APP_VERSION visual acceptance screenshots written to $OUT_DIR"

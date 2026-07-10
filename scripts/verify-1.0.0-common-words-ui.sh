@@ -4,12 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_PATH="$ROOT_DIR/dist/ReadyType.app"
 APP_EXECUTABLE="$APP_PATH/Contents/MacOS/ReadyType"
+APP_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeInfo.plist")"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-common-words-ui.XXXXXX")"
-TMP_HOME="$TMP_DIR/home"
-POSTER_FILE="$TMP_DIR/post-readytype-debug-vocabulary.swift"
+VOCABULARY_FILE="$TMP_DIR/UserVocabulary.json"
 READYTYPE_PID=""
 OSASCRIPT_TIMEOUT_SECONDS="${OSASCRIPT_TIMEOUT_SECONDS:-8}"
-MARKER="ReadyTypeUITestTerm$(date +%s)"
+MARKER="ReadyTypeAcceptanceTerm$(date +%s)"
 
 quit_readytype_instances() {
     /usr/bin/osascript -e 'tell application "ReadyType" to quit' >/dev/null 2>&1 || true
@@ -122,10 +122,12 @@ if [[ ! -x "$APP_EXECUTABLE" ]]; then
     exit 1
 fi
 
-mkdir -p "$TMP_HOME"
 quit_readytype_instances
 
-HOME="$TMP_HOME" READYTYPE_ENABLE_DEBUG_VOCABULARY=1 "$APP_EXECUTABLE" \
+READYTYPE_ENABLE_DEBUG_VOCABULARY=1 \
+READYTYPE_DEBUG_VOCABULARY_FILE="$VOCABULARY_FILE" \
+READYTYPE_DEBUG_VOCABULARY_VALUE="$MARKER" \
+"$APP_EXECUTABLE" \
     -voiceShortcutTrigger doubleOption \
     -voiceShortcutDoublePressInterval 0.45 \
     > "$TMP_DIR/readytype.log" 2>&1 &
@@ -140,32 +142,11 @@ fi
 click_sidebar_button 2
 sleep 0.4
 
-cat > "$POSTER_FILE" <<'SWIFT'
-import Foundation
-
-guard CommandLine.arguments.count == 2 else {
-    fatalError("Expected one vocabulary value argument.")
-}
-
-DistributedNotificationCenter.default().postNotificationName(
-    Notification.Name("readyTypeDebugVocabularyRequested"),
-    object: nil,
-    userInfo: [
-        "value": CommandLine.arguments[1],
-        "kind": "product",
-        "aliases": ["ReadyType UI Gate"]
-    ],
-    deliverImmediately: true
-)
-SWIFT
-
-swift "$POSTER_FILE" "$MARKER"
-
 SETTINGS_DUMP="$TMP_DIR/settings.txt"
 for _ in {1..30}; do
     dump_scroll_area "$SETTINGS_DUMP"
     if grep -Fq "$MARKER" "$SETTINGS_DUMP"; then
-        echo "ReadyType 1.0.0 Common Words UI refresh check passed."
+        echo "ReadyType $APP_VERSION Common Words UI refresh check passed."
         exit 0
     fi
     sleep 0.2

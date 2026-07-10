@@ -44,6 +44,30 @@ final class AppDiagnosticsTests: XCTestCase {
         ]))
     }
 
+    func testDebugVocabularyFileAndValueRequireOptIn() {
+        let environment = [
+            AppDiagnostics.debugVocabularyFileEnvironmentKey: "/tmp/readytype-vocabulary.json",
+            AppDiagnostics.debugVocabularyValueEnvironmentKey: " ReadyType Test "
+        ]
+
+        XCTAssertNil(AppDiagnostics.debugVocabularyFileURL(environment: environment))
+        XCTAssertNil(AppDiagnostics.debugVocabularyValue(environment: environment))
+    }
+
+    func testDebugVocabularyFileAndValueUseExplicitDiagnosticEnvironment() {
+        let environment = [
+            AppDiagnostics.debugVocabularyEnvironmentKey: "1",
+            AppDiagnostics.debugVocabularyFileEnvironmentKey: "/tmp/readytype-vocabulary.json",
+            AppDiagnostics.debugVocabularyValueEnvironmentKey: " ReadyType Test "
+        ]
+
+        XCTAssertEqual(
+            AppDiagnostics.debugVocabularyFileURL(environment: environment)?.path,
+            "/tmp/readytype-vocabulary.json"
+        )
+        XCTAssertEqual(AppDiagnostics.debugVocabularyValue(environment: environment), "ReadyType Test")
+    }
+
     func testLaunchWindowSuppressionIsDisabledByDefault() {
         XCTAssertFalse(AppDiagnostics.shouldSuppressLaunchWindow(environment: [:]))
     }

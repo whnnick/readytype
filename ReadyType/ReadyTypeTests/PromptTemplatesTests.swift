@@ -57,6 +57,7 @@ final class PromptTemplatesTests: XCTestCase {
         XCTAssertTrue(prompt.contains("paragraphs"))
         XCTAssertTrue(prompt.contains("heading"))
         XCTAssertTrue(prompt.contains("Do not add facts"))
+        XCTAssertTrue(prompt.contains("Do not add greetings, thanks, acknowledgements, sign-offs, or closing phrases"))
     }
 
     func testPromptOutputAIToolScenarioRequestsStructuredPrompt() {

@@ -74,6 +74,22 @@ final class RealDeepSeekOutputAcceptanceTests: XCTestCase {
         XCTAssertLessThanOrEqual(result.finalText.nonEmptyLineCount, 4, result.finalText)
     }
 
+    func testDocumentCleanupDoesNotAddUnsupportedClosing() async throws {
+        let processor = try makeRealProcessor()
+
+        let result = try await processor.process(
+            "今天下午三点和 ReadyType 项目组开会，重点确认 GitHub Release、DeepSeek V4 Flash 的成本，还有 iPhone 端的计划。",
+            mode: .aiCleanup,
+            scenario: .document
+        )
+
+        XCTAssertTrue(result.usedAI)
+        XCTAssertFalse(result.usedFallback, String(describing: result.warning))
+        XCTAssertTrue(result.finalText.contains("ReadyType"), result.finalText)
+        XCTAssertTrue(result.finalText.localizedCaseInsensitiveContains("GitHub Release"), result.finalText)
+        XCTAssertFalse(result.finalText.containsOverPoliteChineseChatPhrases, result.finalText)
+    }
+
     private func makeRealProcessor() throws -> OutputProcessor {
         guard ProcessInfo.processInfo.environment["READYTYPE_RUN_REAL_DEEPSEEK_ACCEPTANCE"] == "1" else {
             throw XCTSkip("Set READYTYPE_RUN_REAL_DEEPSEEK_ACCEPTANCE=1 to run real DeepSeek output acceptance tests.")

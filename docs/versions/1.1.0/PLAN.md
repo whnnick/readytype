@@ -79,6 +79,7 @@ Implementation:
 
 Acceptance:
 - Chat output does not add unsupported "thanks" or overly formal endings.
+- Generic, note, and document output does not add unsupported greetings, thanks, acknowledgements, sign-offs, or closings.
 - Email intent produces email format.
 - AI-tool scenarios produce task instructions instead of casual chat text.
 

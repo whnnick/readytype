@@ -4,6 +4,8 @@ enum AppDiagnostics {
     static let debugInsertEnvironmentKey = "READYTYPE_ENABLE_DEBUG_INSERT"
     static let debugHUDEnvironmentKey = "READYTYPE_ENABLE_DEBUG_HUD"
     static let debugVocabularyEnvironmentKey = "READYTYPE_ENABLE_DEBUG_VOCABULARY"
+    static let debugVocabularyFileEnvironmentKey = "READYTYPE_DEBUG_VOCABULARY_FILE"
+    static let debugVocabularyValueEnvironmentKey = "READYTYPE_DEBUG_VOCABULARY_VALUE"
     static let suppressLaunchWindowEnvironmentKey = "READYTYPE_SUPPRESS_LAUNCH_WINDOW"
 
     static func isDebugInsertEnabled(
@@ -22,6 +24,31 @@ enum AppDiagnostics {
         environment: [String: String] = ProcessInfo.processInfo.environment
     ) -> Bool {
         environment[debugVocabularyEnvironmentKey] == "1"
+    }
+
+    static func debugVocabularyFileURL(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> URL? {
+        guard isDebugVocabularyEnabled(environment: environment),
+              let path = environment[debugVocabularyFileEnvironmentKey],
+              path.hasPrefix("/")
+        else {
+            return nil
+        }
+
+        return URL(fileURLWithPath: path)
+    }
+
+    static func debugVocabularyValue(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> String? {
+        guard isDebugVocabularyEnabled(environment: environment) else {
+            return nil
+        }
+
+        let value = environment[debugVocabularyValueEnvironmentKey]?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return value?.isEmpty == false ? value : nil
     }
 
     static func shouldSuppressLaunchWindow(

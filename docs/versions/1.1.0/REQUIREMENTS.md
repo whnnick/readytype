@@ -101,6 +101,7 @@ Acceptance:
 - WeChat/chat: natural and concise; no unsupported polite endings such as "thanks" or "please".
 - Email: when email intent is clear, output greeting, body paragraphs, and an appropriate ending.
 - Notes: structured for capture.
+- Generic text, notes, and documents: do not add unsupported greetings, thanks, acknowledgements, sign-offs, or closings.
 - AI tools: clear task instructions, not casual chat.
 
 ### P1: Review Custom Shortcut Experience

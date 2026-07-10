@@ -21,7 +21,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let maximumRecordingDuration = RecordingPolicy.defaultMaximumDuration
     private let pasteTargetActivator = SystemPasteTargetActivator()
     private let localSpeechModelManager = LocalSpeechModelManager()
-    private let userVocabularyStore = UserVocabularyStore()
+    private let userVocabularyStore = UserVocabularyStore(
+        fileURL: AppDiagnostics.debugVocabularyFileURL() ?? UserVocabularyStore.defaultFileURL()
+    )
     private lazy var highAccuracySpeechEngine = CoreMLHighAccuracySpeechEngine(modelManager: localSpeechModelManager)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -43,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if AppDiagnostics.isDebugVocabularyEnabled() {
             observeDebugVocabularyCommand()
+            seedDebugVocabularyIfRequested()
         }
         observeRuntimeStateForHUD()
         if !AppDiagnostics.shouldSuppressLaunchWindow() {
@@ -328,6 +331,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             name: .readyTypeDebugVocabularyRequested,
             object: nil,
             suspensionBehavior: .deliverImmediately
+        )
+    }
+
+    private func seedDebugVocabularyIfRequested() {
+        guard let value = AppDiagnostics.debugVocabularyValue() else {
+            return
+        }
+
+        addVocabularySuggestion(
+            value: value,
+            kind: UserVocabularyKind.product.rawValue,
+            aliases: ["ReadyType UI Gate"]
         )
     }
 
