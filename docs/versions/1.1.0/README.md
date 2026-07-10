@@ -42,6 +42,7 @@ Verification:
 - `scripts/verify-1.0.0-ui.sh`: passed.
 - `scripts/verify-1.2-textedit-paste.sh`: passed.
 - `scripts/verify-1.0.0-common-words-ui.sh`: passed.
+- Remote-manifest end-to-end acceptance: the GitHub Raw manifest was reachable; build 67 moved from Checking to Current Recommended Version (2024-09-30) without overwriting the Ready recognition state.
 - `scripts/verify-1.0.0-visual-acceptance.sh`: passed; screenshots were written to `tmp/readytype-1.0.0-visual-acceptance/20260704-170909`.
 - `scripts/verify-1.2-real-ai-output.sh`: passed; covered real DeepSeek output for English email, English chat, personal chat, and work chat.
 - `scripts/verify-1.2-api-error-paths.sh`: passed; covered invalid key, invalid model, timeout, and unreachable base URL.
