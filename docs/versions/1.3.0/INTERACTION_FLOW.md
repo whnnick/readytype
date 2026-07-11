@@ -1,4 +1,4 @@
-# ReadyType 1.2.0 Interaction Flow: Trending Vocabulary Packs
+# ReadyType 1.3.0 Interaction Flow: Trending Vocabulary Packs
 
 ## 1. User-Visible Interaction
 

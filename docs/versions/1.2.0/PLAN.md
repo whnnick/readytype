@@ -1,134 +1,46 @@
-# ReadyType 1.2.0 Plan: Trending Vocabulary Packs
+# ReadyType 1.2.0 Implementation Plan: UI/UX Refresh
 
-## Design Principles
+## Principles
 
-1. Silent for users: background updates, quiet failures, no input waiting.
-2. User-controlled: Settings can disable, update now, and delete packs.
-3. Local-first: voice input must work without network access.
-4. Layered vocabulary: user terms always win; trending terms are low-priority supplements.
-5. Small candidate sets: select relevant Top N terms, never pass whole packs to recognition.
-6. Expiration: trending terms must expire to avoid long-term candidate pollution.
+1. Freeze interaction before writing SwiftUI.
+2. Establish the design system before replacing screens.
+3. Do not rewrite the business pipeline during the UI refresh.
+4. Keep a runnable build and matching regression gate at every stage.
 
-## Mature Input Method Pattern
+## Phases
 
-- Fcitx CloudPinyin publicly describes a web-backed extra candidate for Pinyin input; this is the right pattern for cloud/trending terms as supplemental candidates.
-- Fcitx5 Chinese input uses local input method backends such as libime, showing that stable input depends on local models/dictionaries rather than network requests per input.
-- Rime/librime is centered on local dictionaries, user data, and configurable schemes, which is the right reference for local-first and user-vocabulary behavior.
+### 1. High-Fidelity Prototype
 
-ReadyType should borrow these patterns without copying Pinyin IME internals. ReadyType is speech-first, so trending terms mainly feed:
+Design Home, Common Words, Language and Output, Speech Recognition, Permissions and Privacy, and every HUD state in Figma/Open Design. Include Light, Dark, theme switching, a clickable primary flow, and motion annotations.
 
-- Apple Speech `contextualStrings`.
-- Conservative post-recognition term correction.
-- DeepSeek terminology hints for AI output modes.
+### 2. Design System
 
-## Technical Architecture
+Refactor semantic colors, materials, spacing, typography, and component states in `DesignSystem.swift`. Refactor HUD timing and Reduce Motion behavior in `MotionTokens.swift`. Add a persisted appearance preference that defaults to Follow System.
 
-```text
-ReadyType built-in vocabulary
-+ user common words
-+ confirmed learning terms
-+ local trending vocabulary cache
-        ↓
-SmartTermDictionary merge
-        ↓
-ContextualVocabularyProvider rank and cap
-        ↓
-Apple Speech contextualStrings / post-processing / DeepSeek terminology hints
-```
+### 3. HUD
 
-## New Modules
+Refactor `RecordingHUDView` and window sizing first. Validate entrance, listening, recognizing, polishing, outputting, success, copied fallback, cancellation, and error in real apps while preserving Esc and paste behavior.
 
-- `HotVocabularyTerm`: trending term model.
-- `HotVocabularyManifest`: pack manifest with version, generation time, category, and hash.
-- `HotVocabularyStore`: local read/write, expiration cleanup, and pack deletion.
-- `HotVocabularyUpdater`: background download, ETag/hash checks, and failure state.
-- `HotVocabularyProvider`: selects Top N terms based on app, scenario, and weight.
-- `HotVocabularySettingsViewModel`: Settings state, toggle, and manual update action.
+### 4. Main Window and Menu Bar
 
-## Data Format Draft
+Replace Console with a Home summary, split the oversized Settings surface, and keep only frequent actions and status in the menu-bar popover.
 
-```json
-{
-  "schemaVersion": 1,
-  "generatedAt": "2026-07-07T00:00:00Z",
-  "packs": [
-    {
-      "id": "entertainment-cn",
-      "displayName": "Entertainment",
-      "version": "2026.07.07",
-      "terms": [
-        {
-          "value": "Example Movie Title",
-          "aliases": ["example movie"],
-          "category": "movie",
-          "scopes": ["chat", "document"],
-          "source": "public-curated",
-          "weight": 70,
-          "expiresAt": "2026-08-07T00:00:00Z"
-        }
-      ]
-    }
-  ]
-}
-```
+### 5. App Awareness
 
-## Update Strategy
+Reuse existing foreground-app and scenario capabilities to expose user-readable context labels. Uncertain cases use generic cleanup and retain current output-safety constraints.
 
-- Check after app launch with a delay; never block first paint.
-- Update only while idle, not while recording or outputting text.
-- Check at most once per day by default.
-- Keep the old pack if download fails; show missing only if no local pack exists.
-- Network failures do not show alerts; Settings shows "Unable to update right now".
-- If a server exists later, the server aggregates TMDb, Wikidata, public lists, or manual curation. The client must not call third-party APIs directly.
+### 6. Acceptance and Release
 
-## Ranking Strategy
+Add unit tests for appearance preferences, state presentation, and automatic context mapping. Cover Light, Dark, Reduce Motion, multiple display sizes, and real input in chat, document/email, and AI-tool apps. Produce bilingual 1.2.0 black-box acceptance documents.
 
-Base priority:
+## Gates
 
-- User-added words: highest.
-- User-confirmed suggestions: high.
-- Built-in terms: medium-high.
-- Scenario terms: medium.
-- Trending terms: low.
-
-Trending-term adjustments:
-
-- Boost matching scenarios, such as entertainment in chat contexts.
-- Filter expired terms.
-- Prefer fresh terms.
-- If the user confirms a trending term as a common word, move it into user vocabulary and stop treating it as trending-only.
-
-## Performance Budget
-
-- Parse local packs in the background.
-- Before recognition, only filter in memory; no network call.
-- Candidate selection should stay within the existing `ContextualVocabularyProvider` budget.
-- Apple Speech contextual terms must stay under 100 total terms.
-- Chat scenarios should use a lower cap to reduce false corrections.
-
-## Implementation Steps
-
-1. Add 1.2.0 documents and scope boundaries.
-2. Add local data models and store tests without networking.
-3. Merge packs into `SmartTermDictionary` as a low-priority `SmartTermSource`.
-4. Extend `ContextualVocabularyProvider` and test ranking/capping.
-5. Add Settings toggle, status, and deletion action.
-6. Add background updater, starting with local or GitHub-hosted manifests.
-7. Add sample packs and performance tests.
-8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
-
-## Verification Commands
-
-- `swift test --filter HotVocabulary`
-- `swift test --filter ContextualVocabularyProviderTests`
-- `swift test --filter ContextualVocabularyLatencyBudgetTests`
 - `swift test`
 - `scripts/build-app.sh`
+- UI text and screenshot gates
+- Real WeChat, Mail/TextEdit, and AI-tool input
+- Esc, automatic paste, clipboard fallback, high-accuracy recognition, and DeepSeek regression
 
-## Real Acceptance
+## Definition of Done
 
-- Voice input still works offline.
-- Update failures do not interrupt input.
-- User vocabulary outranks same-name or near-sound trending terms.
-- Entertainment terms help in relevant contexts but do not pollute technical documents.
-- Deleting packs removes their candidates immediately.
+Version 1.2.0 is releasable only after the high-fidelity prototype is approved, all three appearance choices work, every HUD state passes, the main window is simplified, and the core input pipeline has no regression.

@@ -1,6 +1,6 @@
 # Roadmap
 
-ReadyType 1.0.0 is available as a public testing build. The next goal is to make the voice-input experience more stable, more context-aware, and less intrusive.
+ReadyType 1.1.0 is publicly available. The next goal is to make the complete voice-input experience quieter, more context-aware, and less decision-heavy.
 
 ## Current Version
 
@@ -14,9 +14,13 @@ ReadyType 1.0.0 is available as a public testing build. The next goal is to make
 
 ## Next Focus Areas
 
-The 1.1.0 scope is defined in [Requirements](./versions/1.1.0/REQUIREMENTS.md), and the detailed plan is available in [ReadyType 1.1.0 Plan](./versions/1.1.0/PLAN.md).
+Version 1.2.0 is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): refresh the UI and interaction model so the HUD becomes the primary experience, the main window becomes a management surface, and Follow System, Light, and Dark appearances are supported.
 
-The 1.2.0 candidate direction is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns such as layered vocabulary and supplemental cloud candidates, so recent movies, technology products, and sports terms can update in the background and participate as low-priority recognition candidates.
+Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
+
+### UI and Interaction Refresh
+
+Automatically understand the current app and intent by default, reducing the number of output-mode, writing-scenario, and recognition choices shown together. The voice HUD provides stable, low-distraction, and explainable state feedback.
 
 ### Common Words
 
@@ -44,7 +48,7 @@ Update publicly curated recent terms in the background to improve recognition of
 
 ### Voice Input HUD
 
-Continue refining the HUD visuals and motion, with a direction closer to macOS Liquid Glass and low-distraction system overlays.
+Complete the HUD state refresh in 1.2.0 using native material, local edge-light motion, stable layout, Light and Dark themes, and Reduce Motion support.
 
 ## Not Prioritized
 

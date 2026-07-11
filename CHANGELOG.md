@@ -2,13 +2,21 @@
 
 ## Unreleased
 
+### Added
+
+- Added bilingual ReadyType 1.2.0 UI/UX Refresh requirements, interaction architecture, visual and motion guidance, and implementation plans.
+
+### Changed
+
+- Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.3.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
+
 ## 1.1.0 - 2026-07-11
 
 ### Added
 
-- Added bilingual ReadyType 1.2.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
-- Added bilingual ReadyType 1.2.0 interaction flow diagrams for Trending Vocabulary Packs, covering visible Settings interaction, background updates, voice-input candidate decisions, and Settings information structure.
-- Added a ReadyType 1.2.0 Trending Vocabulary Packs HTML UI prototype as a reference for the future SwiftUI Settings implementation.
+- Added bilingual ReadyType 1.3.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
+- Added bilingual ReadyType 1.3.0 interaction flow diagrams for Trending Vocabulary Packs, covering visible Settings interaction, background updates, voice-input candidate decisions, and Settings information structure.
+- Added a ReadyType 1.3.0 Trending Vocabulary Packs HTML UI prototype as a reference for the future SwiftUI Settings implementation.
 - Added live high-accuracy speech-package update checks backed by a controlled manifest in the public ReadyType repository, covering not checked, checking, missing, current recommended version, update available, and temporarily unable to check states.
 - Added a safe speech-package update flow that installs only manifest-selected official WhisperKit variants, persists the installed version, removes the previous package after success, and retains the working package on failure.
 - Added 1.1.0 local release-gate records covering unit tests, build, zip, DMG, UI wording, TextEdit paste, Common Words UI, visual screenshots, and sensitive-information checks.
@@ -23,7 +31,7 @@
 
 - Isolated the Common Words UI acceptance gate from user vocabulary data and removed its timing-sensitive notification injection.
 - Non-email cleanup and English translation no longer add unsupported greetings, thanks, acknowledgements, sign-offs, or closings; email keeps its appropriate polite-closing behavior.
-- Updated the 1.2.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
+- Updated the 1.3.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
 - Filtered internal Common Words UI acceptance-test data so diagnostic terms cannot remain visible in real user vocabulary lists.
 - Changed the speech-package status to "current recommended version", shown only when the remote manifest matches the installed version.
 - Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.

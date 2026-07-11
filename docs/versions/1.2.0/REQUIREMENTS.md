@@ -1,101 +1,52 @@
-# ReadyType 1.2.0 Requirements: Trending Vocabulary Packs
+# ReadyType 1.2.0 Requirements: UI/UX Refresh
 
 ## Background
 
-Users expect ReadyType to follow recent common terms like mature input methods do: newly released movie names, popular technology products, sports events, and internet phrases should work without manual import, visible friction, or degraded latency.
-
-Publicly verifiable input-method designs point to layered vocabulary: built-in vocabulary, user vocabulary, extension dictionaries, and cloud candidates. Cloud or trending terms should supplement local candidates, not override local results.
+ReadyType 1.1.0 has the core voice-input pipeline, but the main window exposes output mode, writing scenario, recognition mode, and speech-package state at the same level. Version 1.2.0 reduces decisions and technical language so the product feels like a simple trigger-speak-output workflow.
 
 ## Product Goals
 
-- Users should not need to manually import recent popular terms.
-- Voice input must not show extra waiting, popovers, or setup burden.
-- Recent proper nouns should be recognized better, especially entertainment, technology, and sports terms.
-- Trending terms must not override user common words or aggressively rewrite ordinary text.
-- Users can disable automatic updates, delete downloaded packs, and inspect the last update time.
+1. Show perceptible feedback within 100 ms of the shortcut trigger.
+2. Require no output-mode or writing-scenario selection by default.
+3. Adapt output to chat, email, document, and AI-tool contexts.
+4. Keep every state understandable: Listening, Recognizing, Polishing, Outputting, Complete, Cancelled, and Error.
+5. Maintain readable contrast in Light, Dark, and Follow System appearances.
+6. Respect Reduce Motion by replacing movement, sweep, and shake with fades.
 
-## User-Facing Copy
+## Information Architecture
 
-Use "Trending Vocabulary Packs", not "cloud dictionary", "training", "model sync", or "hotword injection".
+The main navigation becomes Home, Common Words, Language and Output, Shortcuts, Speech Recognition, Permissions and Privacy, and About. Home only shows readiness, the active shortcut, high-accuracy recognition status, the latest result, and required user actions.
 
-Suggested Settings copy:
+## Automation and Control
 
-- Title: Trending Vocabulary Packs
-- Description: ReadyType updates recently common public terms in the background to improve recognition and cleanup. Your input content is not uploaded.
-- Status: Updated / Updating / Unable to update right now / Off
-- Actions: Auto-update trending terms, Update now, Delete packs
+- App and semantic context determine the default output automatically.
+- Direct Dictation, Translate to English, and Ask AI remain explicit secondary actions.
+- HUD context labels such as “WeChat · Natural chat” make automation explainable.
+- Uncertain cases fall back to generic cleanup without inventing facts, recipients, tone, or formatting.
+- Advanced defaults remain available under Language and Output.
 
-## Scope
+## HUD Contract
 
-### 1. Layered Vocabulary
+The HUD keeps stable dimensions across Ready, Listening, Recognizing, Polishing, Outputting, Complete, Copied, Cancelled, and Error states. Voice-reactive waveform motion is limited to active listening. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
 
-Priority from high to low:
+## Appearance
 
-1. User-added common words.
-2. User-confirmed common-word suggestions.
-3. ReadyType built-in product, technical, and work phrase terms.
-4. Current app / scenario terms.
-5. Trending vocabulary packs.
-
-Trending packs must never outrank user vocabulary.
-
-### 2. Background Updates
-
-- Update automatically while idle.
-- Failed updates must not show blocking alerts or affect current voice input.
-- Settings keeps status and a manual update action.
-- Default update frequency is at most once per day.
-- Use ETag, version, or content hash to avoid redundant downloads.
-
-### 3. Local Cache
-
-Store packs under:
-
-`~/Library/Application Support/ReadyType/HotVocabulary/`
-
-Do not write packs to the repository, logs, or any upload path.
-
-### 4. Term Metadata
-
-Each term should include:
-
-- `value`: display term.
-- `aliases`: common aliases or mixed Chinese/English forms.
-- `category`: entertainment, technology, sports, internet phrases, etc.
-- `scopes`: applicable scenarios such as chat, document, or AI tool.
-- `source`: public source identifier.
-- `weight`: ranking weight.
-- `expiresAt`: expiration time.
-
-### 5. Dynamic Candidate Selection
-
-Before each voice input, select only a small relevant subset:
-
-- Apple Speech contextual strings: include at most 20-60 trending terms, while respecting the existing 100 total candidate cap.
-- AI cleanup and translation: pass only highly relevant terms as terminology hints.
-- Direct dictation: use only conservative post-processing, without aggressive replacement.
-
-### 6. Privacy and Safety
-
-- Do not upload transcripts, final output, app names, window titles, or personal vocabulary.
-- Do not embed third-party private API keys in the client.
-- ReadyType-maintained generation should prepare the manifest; the client only downloads prepared packs.
-- Packs need schema versioning and content hashes; signing can be added later.
+- Follow System is the default, with explicit Light and Dark choices.
+- Use native material, edge highlights, and restrained color.
+- Do not use large gradient backgrounds or a continuously rotating border.
+- Keep the main window dense and native to macOS rather than marketing-like.
 
 ## Non-Goals
 
-- No real-time whole-web trending crawler.
-- No scraping unauthorized pages or private trending APIs.
-- No automatic insertion of trending terms into user common words.
-- No user-input upload or training.
-- No complex vocabulary marketplace in this phase.
-- No promise that local WhisperKit supports real-time trending-term biasing; the first phase focuses on Apple Speech contextual strings and post-processing.
+- No pixel-level Typeless clone.
+- No changes to ASR routing, DeepSeek protocol, paste strategy, or permissions.
+- No full transcript history, account system, or cloud sync.
+- No 1.3.0 Trending Vocabulary Packs implementation.
 
 ## Acceptance Criteria
 
-- Voice input still works normally when offline.
-- Failed updates only show "Unable to update right now" in Settings.
-- User vocabulary and confirmed learning terms outrank trending terms.
-- Expired trending terms no longer participate in candidates.
-- Candidate selection stays within the existing contextual vocabulary latency budget.
-- Chat scenarios do not rewrite ordinary phrases into movie or product names because of trending packs.
+- First-time users complete input without understanding mode or scenario terminology.
+- WeChat, email, document, and AI-tool contexts have clear low-distraction feedback.
+- All HUD states keep stable layout with no clipping or jumps.
+- Light, Dark, and Follow System pass screenshot and real-app acceptance.
+- Esc, paste fallback, high-accuracy recognition, and DeepSeek behavior do not regress.

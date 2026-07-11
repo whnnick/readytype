@@ -1,24 +1,22 @@
 # ReadyType 1.2.0
 
-ReadyType 1.2.0 candidate direction is Trending Vocabulary Packs: using the layered vocabulary and cloud-candidate patterns common in mature input methods to improve recognition and cleanup quality for recent movie names, technology products, sports events, and other high-frequency terms without interrupting users.
+ReadyType 1.2.0 focuses on a UI and interaction refresh: moving from a mode-heavy control panel toward a quiet system-level voice-input experience with clear feedback only when needed.
 
 ## Documents
 
 - [Requirements](./REQUIREMENTS.md)
+- [Interaction Architecture](./INTERACTION_ARCHITECTURE.md)
+- [Visual and Motion System](./VISUAL_SYSTEM.md)
 - [Implementation Plan](./PLAN.md)
-- [Interaction Flow](./INTERACTION_FLOW.md)
-- [UI Prototype](./ui/hot-vocabulary-packs.html): Typeless-inspired light glass direction with light/dark theme switching.
 
-## Current Assessment
+## Direction
 
-This should not be implemented as live hot-list scraping or by pushing a large trending list directly into the recognizer. The safer direction is:
-
-- Keep built-in terms and user common words at the highest priority.
-- Treat trending vocabulary as low-priority supplemental candidates.
-- Update in the background without blocking voice input.
-- Store source, category, weight, and expiration metadata for every term.
-- Make the experience silent by default while still allowing users to disable, delete, and inspect update time in Settings.
+- The voice HUD is the primary experience; the main window becomes a management surface.
+- App, tone, and writing context are automatic by default.
+- Follow System, Light, and Dark appearances are supported.
+- Borrow Typeless-style low-distraction principles without copying its brand assets or interface.
+- Preserve the recording, recognition, DeepSeek, paste, vocabulary, and permission pipelines.
 
 ## Release Boundary
 
-Version 1.2.0 should implement the vocabulary-pack architecture and the first stable packs. It should not promise real-time whole-web trending terms, upload user input, add complex cloud services, or expose multiple third-party API configurations.
+This release does not also add Trending Vocabulary Packs, a new recognition engine, multiple AI providers, or complete transcription history. Trending Vocabulary Packs move to [1.3.0](../1.3.0/README.md).
