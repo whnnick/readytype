@@ -28,6 +28,7 @@ Users can teach ReadyType the correct spelling of names, brands, products, proje
 - One canonical spelling is one independent record, such as `ChatGPT`, `Codex`, or `GitHub Actions`.
 - Spaces inside a term are content and are never separators.
 - Each record contains a canonical spelling, category, applicable scopes, and optional known misrecognitions.
+- Manual add never asks users to choose a scope. Terms are globally available, while ReadyType adjusts priority automatically from the current app, category, and context.
 - Deduplication ignores case and surrounding whitespace but does not merge different complete terms.
 
 ### Add Flows

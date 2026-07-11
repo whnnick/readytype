@@ -133,6 +133,17 @@ enum UserVocabularyScope: String, Codable, CaseIterable, Identifiable {
     case aiTool
 
     var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .all: "所有场景"
+        case .chat: "聊天"
+        case .email: "邮件"
+        case .document: "文档"
+        case .technical: "技术内容"
+        case .aiTool: "AI 工具"
+        }
+    }
 }
 
 enum UserVocabularySource: String, Codable {

@@ -161,7 +161,7 @@ struct SettingsPane: View {
 
                     Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
                         GridRow {
-                            Text("分类")
+                            Text("分类（可选）")
                                 .foregroundStyle(ReadyTypeTheme.muted)
                             Picker("分类", selection: $viewModel.selectedVocabularyKind) {
                                 ForEach(UserVocabularyKind.allCases) { kind in
@@ -234,10 +234,12 @@ struct SettingsPane: View {
                                                 .font(.footnote)
                                                 .foregroundStyle(ReadyTypeTheme.muted)
                                         }
-                                        Text(vocabularyEntryDetail(entry))
-                                            .font(.footnote)
-                                            .foregroundStyle(ReadyTypeTheme.muted)
-                                            .lineLimit(2)
+                                        if let detail = vocabularyEntryDetail(entry) {
+                                            Text(detail)
+                                                .font(.footnote)
+                                                .foregroundStyle(ReadyTypeTheme.muted)
+                                                .lineLimit(2)
+                                        }
                                     }
                                     Spacer()
                                     Button("删除") {
@@ -413,13 +415,16 @@ struct SettingsPane: View {
         return "关闭提前准备后，第一次使用更准确的识别可能需要短暂等待。"
     }
 
-    private func vocabularyEntryDetail(_ entry: UserVocabularyEntry) -> String {
-        let scopeText = "适用于：\(vocabularyScopeText(entry.scopes))"
-        guard !entry.aliases.isEmpty else {
-            return scopeText
+    private func vocabularyEntryDetail(_ entry: UserVocabularyEntry) -> String? {
+        var details: [String] = []
+        if !entry.scopes.contains(.all) {
+            details.append("优先用于：\(vocabularyScopeText(entry.scopes))")
+        }
+        if !entry.aliases.isEmpty {
+            details.append("常见误识别：\(entry.aliases.joined(separator: "、"))")
         }
 
-        return "\(scopeText) · 常见误识别：\(entry.aliases.joined(separator: "、"))"
+        return details.isEmpty ? nil : details.joined(separator: " · ")
     }
 
     private func vocabularyScopeText(_ scopes: [UserVocabularyScope]) -> String {
@@ -427,23 +432,7 @@ struct SettingsPane: View {
             return "所有场景"
         }
 
-        return scopes.map { scope in
-            switch scope {
-            case .all:
-                return "所有场景"
-            case .chat:
-                return "聊天"
-            case .email:
-                return "邮件"
-            case .document:
-                return "文档"
-            case .technical:
-                return "技术内容"
-            case .aiTool:
-                return "AI 工具"
-            }
-        }
-        .joined(separator: "、")
+        return scopes.map(\.displayName).joined(separator: "、")
     }
 
     private var canDownloadSpeechModel: Bool {

@@ -18,6 +18,7 @@
 - Clarified the no-update speech-package status so users are told that the latest package is installed and no action is needed.
 - Rewrote Common Words guidance with a concrete misrecognition example, clearer reminder and save boundaries, and user-facing bulk-add wording.
 - Common Words bulk add now accepts newlines, Chinese/English commas, enumeration commas, and semicolons, deduplicates and stores each term independently, and migrates previously combined comma entries.
+- Common Words manual add does not ask users to configure a scope; ReadyType adjusts usage priority automatically from the current app, category, and context.
 - Fixed Follow System updating only the title bar in some transitions, unified AppKit and SwiftUI appearance resolution, added layered off-white surfaces, animated theme changes, and aligned sidebar labels with a fixed icon column.
 
 ## 1.1.0 - 2026-07-11
