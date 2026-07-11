@@ -17,7 +17,7 @@ enum SettingsPaneSection: Equatable {
 
     var subtitle: String {
         switch self {
-        case .vocabulary: "管理希望 ReadyType 准确保留的人名、产品和专业词。"
+        case .vocabulary: "添加容易识别错的人名、品牌和专业词，让下次输入更准确。"
         case .languageOutput: "选择输出方式，并管理 DeepSeek 连接。"
         case .shortcuts: "设置开始、完成和取消语音输入的操作。"
         case .speechRecognition: "管理识别方式和高精度语音包。"
@@ -145,9 +145,9 @@ struct SettingsPane: View {
                 }
 
                 if section == .vocabulary {
-                ReadyTypePanel("常用词", subtitle: "添加人名、产品名、项目名、公司名和常用短语，帮助 ReadyType 更稳定地保留原词。") {
+                ReadyTypePanel("常用词有什么用？", subtitle: "提前告诉 ReadyType 正确写法，语音输入时就更不容易写错。") {
                     Toggle(
-                        "完成输入后提示可加入的常用词",
+                        "发现可能写错的专有词时提醒我",
                         isOn: Binding(
                             get: { viewModel.isVocabularyLearningSuggestionsEnabled },
                             set: { viewModel.setVocabularyLearningSuggestionsEnabled($0) }
@@ -155,15 +155,15 @@ struct SettingsPane: View {
                     )
                         .toggleStyle(.checkbox)
 
-                    Text("开启后，ReadyType 会在最近结果里提示是否加入可能的固定写法；只有点击“加入常用词”才会保存。关闭后，已保存常用词仍会继续生效。")
+                    Text("例如你说“ReadyType”，却被识别成“Reddit Tab”，输入完成后会显示修正建议。只有你点击“加入常用词”后才会保存。")
                         .font(.footnote)
                         .foregroundStyle(ReadyTypeTheme.muted)
 
                     Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
                         GridRow {
-                            Text("类型")
+                            Text("分类")
                                 .foregroundStyle(ReadyTypeTheme.muted)
-                            Picker("类型", selection: $viewModel.selectedVocabularyKind) {
+                            Picker("分类", selection: $viewModel.selectedVocabularyKind) {
                                 ForEach(UserVocabularyKind.allCases) { kind in
                                     Text(kind.displayName).tag(kind)
                                 }
@@ -173,7 +173,7 @@ struct SettingsPane: View {
                         }
 
                         GridRow {
-                            Text("新增")
+                            Text("添加词语")
                                 .foregroundStyle(ReadyTypeTheme.muted)
                             HStack(spacing: 10) {
                                 TextField("例如：张三、ReadyType、GitHub Actions", text: $viewModel.newVocabularyText)
@@ -187,7 +187,7 @@ struct SettingsPane: View {
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("批量导入")
+                        Text("一次添加多个")
                             .font(.callout.weight(.medium))
                         TextEditor(text: $viewModel.importVocabularyText)
                             .font(.body)
@@ -200,11 +200,11 @@ struct SettingsPane: View {
                                     .stroke(ReadyTypeTheme.strokeSoft, lineWidth: 1)
                             )
                         HStack {
-                            Text("一行一个词。只保存你明确添加的内容。")
+                            Text("每行填写一个词，例如人名、产品名或专业术语。")
                                 .font(.footnote)
                                 .foregroundStyle(ReadyTypeTheme.muted)
                             Spacer()
-                            Button("导入") {
+                            Button("全部添加") {
                                 importUserVocabularyEntries()
                             }
                             .disabled(viewModel.importVocabularyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -212,7 +212,7 @@ struct SettingsPane: View {
                     }
 
                     if viewModel.userVocabularyEntries.isEmpty {
-                        Text("还没有常用词。")
+                        Text("还没有添加常用词。可以先加入经常被识别错的人名或产品名。")
                             .font(.footnote)
                             .foregroundStyle(ReadyTypeTheme.muted)
                     } else {
@@ -408,8 +408,12 @@ struct SettingsPane: View {
     }
 
     private func vocabularyEntryDetail(_ entry: UserVocabularyEntry) -> String {
-        let aliasText = entry.aliases.isEmpty ? "暂无识别别名" : "可能识别成：\(entry.aliases.joined(separator: "、"))"
-        return "\(vocabularyScopeText(entry.scopes)) · \(aliasText)"
+        let scopeText = "适用于：\(vocabularyScopeText(entry.scopes))"
+        guard !entry.aliases.isEmpty else {
+            return scopeText
+        }
+
+        return "\(scopeText) · 常见误识别：\(entry.aliases.joined(separator: "、"))"
     }
 
     private func vocabularyScopeText(_ scopes: [UserVocabularyScope]) -> String {

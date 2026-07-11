@@ -16,6 +16,7 @@
 - Improved the Home and About product explanations, removed the placeholder English sidebar subtitle, and increased Light sidebar and selection contrast.
 - Hid model version dates from user-facing speech-package update status while retaining internal version comparison and safe update behavior.
 - Clarified the no-update speech-package status so users are told that the latest package is installed and no action is needed.
+- Rewrote Common Words guidance with a concrete misrecognition example, clearer reminder and save boundaries, and user-facing bulk-add wording.
 - Fixed Follow System updating only the title bar in some transitions, unified AppKit and SwiftUI appearance resolution, added layered off-white surfaces, animated theme changes, and aligned sidebar labels with a fixed icon column.
 
 ## 1.1.0 - 2026-07-11
