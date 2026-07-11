@@ -17,6 +17,32 @@ ReadyType 1.1.0 has the core voice-input pipeline, but the main window exposes o
 
 The main navigation becomes Home, Common Words, Language and Output, Shortcuts, Speech Recognition, Permissions and Privacy, and About. Home only shows readiness, the active shortcut, high-accuracy recognition status, the latest result, and required user actions.
 
+## Common Words Module
+
+### User Goal
+
+Users can teach ReadyType the correct spelling of names, brands, products, projects, and specialist terms that are often misrecognized. Common Words is not a transcript history and does not silently learn from edits.
+
+### Data Unit
+
+- One canonical spelling is one independent record, such as `ChatGPT`, `Codex`, or `GitHub Actions`.
+- Spaces inside a term are content and are never separators.
+- Each record contains a canonical spelling, category, applicable scopes, and optional known misrecognitions.
+- Deduplication ignores case and surrounding whitespace but does not merge different complete terms.
+
+### Add Flows
+
+- Add One accepts exactly one complete term. Input containing separators is rejected with guidance to use bulk add.
+- Add Multiple accepts newlines, Chinese/English commas, enumeration commas, and Chinese/English semicolons; it splits, deduplicates, and stores each term independently.
+- Previously stored comma-combined records are migrated, deduplicated, and persisted on load so each resulting term can be deleted independently.
+
+### Recognition Behavior
+
+- User-saved terms rank above built-in terms and are selected according to the current app and writing context.
+- Canonical spellings feed recognition context; known misrecognitions only support constrained correction and are never unconditional replacements.
+- The suggestion toggle only controls post-input prompts. Nothing is saved until the user confirms it.
+- Deleting a term removes it from subsequent recognition candidates immediately.
+
 ## Automation and Control
 
 - App and semantic context determine the default output automatically.

@@ -271,11 +271,16 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func addUserVocabularyEntry() throws {
+        guard UserVocabularyStore.parsedValues(newVocabularyText).count <= 1 else {
+            statusMessage = "一次只能添加一个词；多个词请使用下方的“一次添加多个”"
+            return
+        }
+
         guard try userVocabularyStore.add(
             value: newVocabularyText,
             kind: selectedVocabularyKind
         ) != nil else {
-            statusMessage = "常用词已存在或为空"
+            statusMessage = "这个常用词已存在，或尚未填写内容"
             return
         }
 
@@ -290,13 +295,13 @@ final class SettingsViewModel: ObservableObject {
             kind: selectedVocabularyKind
         )
         guard !imported.isEmpty else {
-            statusMessage = "没有可导入的常用词"
+            statusMessage = "没有新增常用词；请检查内容是否为空或已经添加"
             return
         }
 
         importVocabularyText = ""
         try reloadUserVocabularyEntries()
-        statusMessage = "已导入 \(imported.count) 个常用词"
+        statusMessage = "已添加 \(imported.count) 个常用词"
     }
 
     func deleteUserVocabularyEntry(id: UUID) throws {

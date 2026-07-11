@@ -165,17 +165,31 @@ final class UserVocabularyStore {
         }
 
         let data = try Data(contentsOf: fileURL)
-        return Self.normalizedEntries(try decoder.decode([UserVocabularyEntry].self, from: data))
+        let decoded = try decoder.decode([UserVocabularyEntry].self, from: data)
+        let normalized = Self.normalizedEntries(decoded)
+
+        if normalized != decoded {
+            try persist(normalized, notifyChange: false)
+        }
+
+        return normalized
     }
 
     func save(_ entries: [UserVocabularyEntry]) throws {
         let normalized = Self.normalizedEntries(entries)
+        try persist(normalized, notifyChange: true)
+    }
+
+    private func persist(_ entries: [UserVocabularyEntry], notifyChange: Bool) throws {
         try FileManager.default.createDirectory(
             at: fileURL.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
-        let data = try encoder.encode(normalized)
+        let data = try encoder.encode(entries)
         try data.write(to: fileURL, options: [.atomic])
+        guard notifyChange else {
+            return
+        }
         NotificationCenter.default.post(
             name: .readyTypeUserVocabularyDidChange,
             object: self,
@@ -189,7 +203,8 @@ final class UserVocabularyStore {
         kind: UserVocabularyKind = .general,
         aliases: [String] = []
     ) throws -> UserVocabularyEntry? {
-        guard let cleanValue = Self.cleanedValue(value) else {
+        let values = Self.parsedValues(value)
+        guard values.count == 1, let cleanValue = values.first else {
             return nil
         }
 
@@ -220,8 +235,8 @@ final class UserVocabularyStore {
     func importLines(_ text: String, kind: UserVocabularyKind = .general) throws -> [UserVocabularyEntry] {
         var imported: [UserVocabularyEntry] = []
 
-        for line in text.components(separatedBy: .newlines) {
-            if let entry = try add(value: line, kind: kind) {
+        for value in Self.parsedValues(text) {
+            if let entry = try add(value: value, kind: kind) {
                 imported.append(entry)
             }
         }
@@ -325,28 +340,35 @@ final class UserVocabularyStore {
         var seen: Set<String> = []
         var normalized: [UserVocabularyEntry] = []
 
-        for var entry in entries {
-            guard let cleanValue = cleanedValue(entry.value) else {
-                continue
-            }
+        for originalEntry in entries {
+            let values = parsedValues(originalEntry.value)
 
-            guard !isInternalDiagnosticEntry(entry, cleanValue: cleanValue) else {
-                continue
-            }
+            for (index, cleanValue) in values.enumerated() {
+                var entry = originalEntry
+                if values.count > 1 {
+                    entry.id = index == 0 ? originalEntry.id : UUID()
+                    entry.aliases = []
+                    entry.ignoredAliases = []
+                }
 
-            let key = cleanValue.normalizedSmartTermKey
-            guard !seen.contains(key) else {
-                continue
-            }
+                guard !isInternalDiagnosticEntry(entry, cleanValue: cleanValue) else {
+                    continue
+                }
 
-            seen.insert(key)
-            entry.value = cleanValue
-            entry.aliases = cleanedAliases(entry.aliases, excluding: cleanValue)
-            entry.scopes = mergingScopes(entry.scopes)
-            entry.confidence = min(max(entry.confidence, 0), 1)
-            entry.confirmedCount = max(entry.confirmedCount, 1)
-            entry.ignoredAliases = cleanedAliases(entry.ignoredAliases, excluding: cleanValue)
-            normalized.append(entry)
+                let key = cleanValue.normalizedSmartTermKey
+                guard !seen.contains(key) else {
+                    continue
+                }
+
+                seen.insert(key)
+                entry.value = cleanValue
+                entry.aliases = cleanedAliases(entry.aliases, excluding: cleanValue)
+                entry.scopes = mergingScopes(entry.scopes)
+                entry.confidence = min(max(entry.confidence, 0), 1)
+                entry.confirmedCount = max(entry.confirmedCount, 1)
+                entry.ignoredAliases = cleanedAliases(entry.ignoredAliases, excluding: cleanValue)
+                normalized.append(entry)
+            }
         }
 
         return normalized
@@ -360,6 +382,23 @@ final class UserVocabularyStore {
     private static func cleanedValue(_ value: String) -> String? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    static func parsedValues(_ text: String) -> [String] {
+        let separators = CharacterSet.newlines.union(CharacterSet(charactersIn: ",，、;；"))
+        var seen: Set<String> = []
+
+        return text.components(separatedBy: separators).compactMap { component in
+            guard let value = cleanedValue(component) else {
+                return nil
+            }
+
+            let key = value.normalizedSmartTermKey
+            guard seen.insert(key).inserted else {
+                return nil
+            }
+            return value
+        }
     }
 
     private static func cleanedAliases(_ aliases: [String], excluding value: String) -> [String] {

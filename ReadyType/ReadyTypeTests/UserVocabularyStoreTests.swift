@@ -41,6 +41,51 @@ final class UserVocabularyStoreTests: XCTestCase {
         XCTAssertEqual(try context.store.load().map(\.value), ["张三", "ReadyType"])
     }
 
+    func testImportSplitsSupportedSeparatorsAndPreservesSpacesInsideTerms() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+
+        let imported = try context.store.importLines(
+            "ChatGPT, Codex，DeepSeek、GitHub Actions;ReadyType；chatgpt",
+            kind: .technical
+        )
+
+        XCTAssertEqual(
+            imported.map(\.value),
+            ["ChatGPT", "Codex", "DeepSeek", "GitHub Actions", "ReadyType"]
+        )
+        XCTAssertEqual(try context.store.load().count, 5)
+    }
+
+    func testAddOneRejectsSeparatorCombinedValues() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+
+        XCTAssertNil(try context.store.add(value: "ChatGPT, Codex"))
+        XCTAssertEqual(try context.store.load(), [])
+    }
+
+    func testLoadMigratesCombinedValuesAndDeduplicatesIndividualTerms() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+        let now = Date(timeIntervalSince1970: 1_780_000_000)
+        let firstID = UUID()
+
+        let legacyEntries = [
+            UserVocabularyEntry(id: firstID, value: "ChatGPT, Codex", kind: .technical, createdAt: now, updatedAt: now),
+            UserVocabularyEntry(value: "chatgpt、Google", kind: .technical, createdAt: now, updatedAt: now)
+        ]
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        try encoder.encode(legacyEntries).write(to: context.fileURL)
+
+        let entries = try context.store.load()
+
+        XCTAssertEqual(entries.map(\.value), ["ChatGPT", "Codex", "Google"])
+        XCTAssertEqual(entries.first?.id, firstID)
+        XCTAssertEqual(try UserVocabularyStore(fileURL: context.fileURL).load().map(\.value), ["ChatGPT", "Codex", "Google"])
+    }
+
     func testProductizedKindsUseUserFacingCategories() throws {
         XCTAssertEqual(
             UserVocabularyKind.allCases.map(\.displayName),

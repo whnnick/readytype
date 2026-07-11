@@ -173,10 +173,10 @@ struct SettingsPane: View {
                         }
 
                         GridRow {
-                            Text("添加词语")
+                            Text("添加一个")
                                 .foregroundStyle(ReadyTypeTheme.muted)
                             HStack(spacing: 10) {
-                                TextField("例如：张三、ReadyType、GitHub Actions", text: $viewModel.newVocabularyText)
+                                TextField("例如：ReadyType", text: $viewModel.newVocabularyText)
                                     .textFieldStyle(.roundedBorder)
                                 Button("添加") {
                                     addUserVocabularyEntry()
@@ -200,7 +200,7 @@ struct SettingsPane: View {
                                     .stroke(ReadyTypeTheme.strokeSoft, lineWidth: 1)
                             )
                         HStack {
-                            Text("每行填写一个词，例如人名、产品名或专业术语。")
+                            Text("用换行、逗号、顿号或分号分隔；词语内部可以有空格。添加后会分别显示。")
                                 .font(.footnote)
                                 .foregroundStyle(ReadyTypeTheme.muted)
                             Spacer()
@@ -209,6 +209,12 @@ struct SettingsPane: View {
                             }
                             .disabled(viewModel.importVocabularyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         }
+                    }
+
+                    if let statusMessage = viewModel.statusMessage {
+                        Text(statusMessage)
+                            .font(.footnote)
+                            .foregroundStyle(ReadyTypeTheme.muted)
                     }
 
                     if viewModel.userVocabularyEntries.isEmpty {

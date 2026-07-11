@@ -38,6 +38,26 @@ Automatic behavior is the product default, not a mode users must understand.
 
 The main window separates Home, Common Words, Language and Output, Shortcuts, Speech Recognition, Permissions and Privacy, and About. Settings are not duplicated in the menu-bar popover.
 
+## Common Words Interaction
+
+```mermaid
+flowchart TD
+    A["Add One"] --> B{"Exactly one complete term?"}
+    B -->|Yes| C["Normalize and check duplicates"]
+    B -->|No| D["Guide the user to Add Multiple"]
+    E["Add Multiple"] --> F["Split on newline, comma, enumeration comma, or semicolon"]
+    F --> C
+    C --> G{"Already exists?"}
+    G -->|No| H["Store and display each term independently"]
+    G -->|Yes| I["Skip duplicates and report the number added"]
+    H --> J["Feed relevant candidates by app and context"]
+    K["Possible misrecognition after input"] --> L["Show a correction suggestion"]
+    L -->|User confirms| H
+    L -->|Dismisses| M["Do not save"]
+```
+
+Spaces are always preserved inside a term, for example `GitHub Actions`. Every list row is one canonical spelling that can independently participate in recognition and be removed.
+
 ## Error Recovery
 
 - Missing microphone permission: offer the relevant System Settings action.

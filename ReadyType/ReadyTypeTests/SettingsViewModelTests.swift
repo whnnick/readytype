@@ -421,6 +421,22 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertEqual(try vocabularyStore.load().map(\.value), ["张三"])
     }
 
+    func testAddOneGuidesMultipleValuesToBulkAdd() throws {
+        let context = makeContext()
+        defer { context.cleanup() }
+        let viewModel = SettingsViewModel(
+            settingsStore: SettingsStore(defaults: context.defaults),
+            keychainService: context.keychain,
+            userVocabularyStore: context.makeUserVocabularyStore()
+        )
+        viewModel.newVocabularyText = "ChatGPT、Codex"
+
+        try viewModel.addUserVocabularyEntry()
+
+        XCTAssertEqual(viewModel.userVocabularyEntries, [])
+        XCTAssertEqual(viewModel.statusMessage, "一次只能添加一个词；多个词请使用下方的“一次添加多个”")
+    }
+
     func testExternalUserVocabularyChangeRefreshesList() async throws {
         let context = makeContext()
         defer { context.cleanup() }
@@ -454,7 +470,7 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.userVocabularyEntries.map(\.value), ["ReadyType", "DeepSeek"])
         XCTAssertEqual(viewModel.importVocabularyText, "")
-        XCTAssertEqual(viewModel.statusMessage, "已导入 2 个常用词")
+        XCTAssertEqual(viewModel.statusMessage, "已添加 2 个常用词")
     }
 
     func testDeleteUserVocabularyEntryPersistsAndRefreshesList() throws {
