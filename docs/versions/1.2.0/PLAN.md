@@ -6,12 +6,13 @@
 2. Establish the design system before replacing screens.
 3. Do not rewrite the business pipeline during the UI refresh.
 4. Keep a runnable build and matching regression gate at every stage.
+5. Review every high-fidelity screen with the user and obtain explicit approval; do not modify application UI code until the user says, "UI approved, proceed with development."
 
 ## Phases
 
 ### 1. High-Fidelity Prototype
 
-Design Home, Common Words, Language and Output, Speech Recognition, Permissions and Privacy, and every HUD state in Figma/Open Design. Include Light, Dark, theme switching, a clickable primary flow, and motion annotations.
+Design Home, Common Words, Language and Output, Speech Recognition, Permissions and Privacy, and every HUD state in Figma/Open Design. Include Light, Dark, theme switching, a clickable primary flow, and motion annotations. Explain each screen's information structure, interaction, states, and tradeoffs, then iterate until the user records explicit design approval.
 
 ### 2. Design System
 
