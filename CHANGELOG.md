@@ -13,6 +13,8 @@
 - Reorganized the main window into Home, Common Words, Language & Output, Shortcuts, Speech Recognition, Permissions & Privacy, and About, with settings scoped to each destination.
 - Replaced mode and scenario controls on Home with a quiet summary of runtime status, shortcut, speech package, default output, and recent results.
 - Refined the HUD into a fixed-size adaptive glass capsule with a localized top-edge light sweep and reduced-motion fallback.
+- Improved the Home and About product explanations, removed the placeholder English sidebar subtitle, and increased Light sidebar and selection contrast.
+- Hid model version dates from user-facing speech-package update status while retaining internal version comparison and safe update behavior.
 
 ## 1.1.0 - 2026-07-11
 

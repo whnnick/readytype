@@ -75,8 +75,8 @@ final class StatusTextTests: XCTestCase {
         XCTAssertEqual(LocalSpeechModelUpdateStatus.notChecked.readyTypeDisplayMessage, "尚未检查高精度语音包更新")
         XCTAssertEqual(LocalSpeechModelUpdateStatus.checking.readyTypeDisplayMessage, "正在检查高精度语音包更新")
         XCTAssertEqual(LocalSpeechModelUpdateStatus.notInstalled.readyTypeDisplayMessage, "安装高精度语音包后可检查更新")
-        XCTAssertEqual(LocalSpeechModelUpdateStatus.upToDate(version: "2024-09-30").readyTypeDisplayMessage, "高精度语音包已是当前推荐版本（2024-09-30）")
-        XCTAssertEqual(LocalSpeechModelUpdateStatus.updateAvailable(currentVersion: "2024-09-30", latestManifest: LocalSpeechModelManifest(fileName: "openai_whisper-large-v3-v20250101_626MB", version: "2025-01-01", sizeDescription: "约 626 MiB")).readyTypeDisplayMessage, "发现新版高精度语音包（2025-01-01，约 626 MiB）")
+        XCTAssertEqual(LocalSpeechModelUpdateStatus.upToDate(version: "2024-09-30").readyTypeDisplayMessage, "高精度语音包已是当前版本")
+        XCTAssertEqual(LocalSpeechModelUpdateStatus.updateAvailable(currentVersion: "2024-09-30", latestManifest: LocalSpeechModelManifest(fileName: "openai_whisper-large-v3-v20250101_626MB", version: "2025-01-01", sizeDescription: "约 626 MiB")).readyTypeDisplayMessage, "发现新版高精度语音包（约 626 MiB）")
         XCTAssertEqual(LocalSpeechModelUpdateStatus.unableToCheck(reason: "暂时无法检查更新").readyTypeDisplayMessage, "暂时无法检查更新")
     }
 

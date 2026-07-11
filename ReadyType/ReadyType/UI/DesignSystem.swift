@@ -26,21 +26,37 @@ enum ReadyTypeAppearance: String, CaseIterable, Identifiable {
 
 enum ReadyTypeTheme {
     static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
-    static var sidebar: Color { Color(nsColor: .underPageBackgroundColor) }
+    static var sidebar: Color {
+        adaptive(
+            light: NSColor(red: 0.965, green: 0.968, blue: 0.973, alpha: 1),
+            dark: NSColor(red: 0.105, green: 0.112, blue: 0.108, alpha: 1)
+        )
+    }
     static var field: Color { Color(nsColor: .controlBackgroundColor).opacity(0.72) }
     static var fieldStrong: Color { Color(nsColor: .controlBackgroundColor) }
     static var stroke: Color { Color(nsColor: .separatorColor) }
     static var strokeSoft: Color { Color(nsColor: .separatorColor).opacity(0.58) }
     static var ink: Color { Color(nsColor: .labelColor) }
     static var muted: Color { Color(nsColor: .secondaryLabelColor) }
-    static let accent = Color(red: 0.29, green: 0.55, blue: 0.31)
-    static let accentStrong = Color(red: 0.36, green: 0.66, blue: 0.38)
-    static let accentSoft = accent.opacity(0.14)
+    static var accent: Color {
+        adaptive(
+            light: NSColor(red: 0.20, green: 0.43, blue: 0.24, alpha: 1),
+            dark: NSColor(red: 0.36, green: 0.66, blue: 0.38, alpha: 1)
+        )
+    }
+    static var accentStrong: Color { accent }
+    static var accentSoft: Color { accent.opacity(0.13) }
     static var panelStroke: Color { stroke.opacity(0.88) }
     static var pageBackground: Color { canvas }
     static let warning = Color(red: 0.950, green: 0.645, blue: 0.265)
     static let danger = Color(red: 0.950, green: 0.376, blue: 0.329)
     static let info = Color(red: 0.439, green: 0.663, blue: 0.855)
+
+    private static func adaptive(light: NSColor, dark: NSColor) -> Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+        })
+    }
 
     static func color(for role: StatusRole) -> Color {
         switch role {

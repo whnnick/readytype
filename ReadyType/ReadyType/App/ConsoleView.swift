@@ -27,7 +27,7 @@ struct ConsoleView: View {
                 Text("ReadyType")
                     .font(.title2.weight(.semibold))
                     .foregroundStyle(ReadyTypeTheme.ink)
-                Text("系统级 AI 语音输入，随时待命。")
+                Text("说出你的想法，ReadyType 会识别、整理，并直接输入到正在使用的 App。")
                     .font(.callout)
                     .foregroundStyle(ReadyTypeTheme.muted)
             }

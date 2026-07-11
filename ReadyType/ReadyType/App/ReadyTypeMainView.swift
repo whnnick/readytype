@@ -53,9 +53,6 @@ struct ReadyTypeMainView: View {
                     Text("ReadyType")
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(ReadyTypeTheme.ink)
-                    Text("Voice to text")
-                        .font(.caption)
-                        .foregroundStyle(ReadyTypeTheme.muted)
                 }
             }
             .padding(.horizontal, 16)

@@ -187,13 +187,13 @@ extension LocalSpeechModelUpdateStatus {
             return "正在检查高精度语音包更新"
         case .notInstalled:
             return "安装高精度语音包后可检查更新"
-        case .upToDate(let version):
-            return "高精度语音包已是当前推荐版本（\(version)）"
+        case .upToDate:
+            return "高精度语音包已是当前版本"
         case .updateAvailable(_, let latestManifest):
             if let sizeDescription = latestManifest.sizeDescription, !sizeDescription.isEmpty {
-                return "发现新版高精度语音包（\(latestManifest.version)，\(sizeDescription)）"
+                return "发现新版高精度语音包（\(sizeDescription)）"
             }
-            return "发现新版高精度语音包（\(latestManifest.version)）"
+            return "发现新版高精度语音包"
         case .unableToCheck(let reason):
             return reason
         }

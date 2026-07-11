@@ -48,11 +48,20 @@ struct AboutPane: View {
             VStack(alignment: .leading, spacing: 18) {
                 header
 
-                ReadyTypePanel("版本信息", subtitle: "ReadyType 当前为 1.0.0 正式版候选。") {
+                ReadyTypePanel("ReadyType 能做什么", subtitle: "在任何可以输入文字的地方，说话就能完成输入。") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("直接把语音变成文字，输入到当前 App。", systemImage: "text.cursor")
+                        Label("整理口语、补全标点，并按聊天、邮件或文档调整表达。", systemImage: "text.alignleft")
+                        Label("可以把中文直接翻译成自然英文。", systemImage: "character.bubble")
+                        Label("也可以把说出的要求整理成可交给 AI 的指令。", systemImage: "sparkles")
+                    }
+                    .font(.callout)
+                }
+
+                ReadyTypePanel("版本信息", subtitle: "当前安装的 ReadyType 版本。") {
                     VStack(alignment: .leading, spacing: 10) {
                         Label(info.versionDisplay, systemImage: "number")
                         Label(info.buildDisplay, systemImage: "hammer")
-                        Label("中文优先的 macOS 语音输入工具。", systemImage: "mic")
                         Label("\(appState.voiceShortcut.displayName) 开始说话，再次\(appState.voiceShortcut.displayName) 完成输入；Esc 取消。", systemImage: "keyboard")
                     }
                     .font(.callout)
@@ -85,7 +94,7 @@ struct AboutPane: View {
             Text("关于 ReadyType")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(ReadyTypeTheme.ink)
-            Text("版本、高精度语音包位置和隐私说明。")
+            Text("ReadyType 的功能、版本和隐私说明。")
                 .foregroundStyle(ReadyTypeTheme.muted)
         }
     }
