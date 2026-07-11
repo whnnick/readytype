@@ -22,18 +22,37 @@ enum ReadyTypeAppearance: String, CaseIterable, Identifiable {
         case .dark: .dark
         }
     }
+
+    static var currentSystemColorScheme: ColorScheme {
+        UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark" ? .dark : .light
+    }
 }
 
 enum ReadyTypeTheme {
-    static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
+    static var canvas: Color {
+        adaptive(
+            light: NSColor(red: 0.945, green: 0.952, blue: 0.958, alpha: 1),
+            dark: NSColor(red: 0.065, green: 0.073, blue: 0.069, alpha: 1)
+        )
+    }
     static var sidebar: Color {
         adaptive(
-            light: NSColor(red: 0.965, green: 0.968, blue: 0.973, alpha: 1),
+            light: NSColor(red: 0.900, green: 0.914, blue: 0.925, alpha: 1),
             dark: NSColor(red: 0.105, green: 0.112, blue: 0.108, alpha: 1)
         )
     }
-    static var field: Color { Color(nsColor: .controlBackgroundColor).opacity(0.72) }
-    static var fieldStrong: Color { Color(nsColor: .controlBackgroundColor) }
+    static var field: Color {
+        adaptive(
+            light: NSColor(red: 0.985, green: 0.987, blue: 0.990, alpha: 1),
+            dark: NSColor(red: 0.105, green: 0.118, blue: 0.110, alpha: 1)
+        )
+    }
+    static var fieldStrong: Color {
+        adaptive(
+            light: NSColor(red: 0.958, green: 0.965, blue: 0.970, alpha: 1),
+            dark: NSColor(red: 0.145, green: 0.158, blue: 0.150, alpha: 1)
+        )
+    }
     static var stroke: Color { Color(nsColor: .separatorColor) }
     static var strokeSoft: Color { Color(nsColor: .separatorColor).opacity(0.58) }
     static var ink: Color { Color(nsColor: .labelColor) }

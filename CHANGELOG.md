@@ -15,6 +15,7 @@
 - Refined the HUD into a fixed-size adaptive glass capsule with a localized top-edge light sweep and reduced-motion fallback.
 - Improved the Home and About product explanations, removed the placeholder English sidebar subtitle, and increased Light sidebar and selection contrast.
 - Hid model version dates from user-facing speech-package update status while retaining internal version comparison and safe update behavior.
+- Fixed Follow System updating only the title bar in some transitions, unified AppKit and SwiftUI appearance resolution, added layered off-white surfaces, animated theme changes, and aligned sidebar labels with a fixed icon column.
 
 ## 1.1.0 - 2026-07-11
 

@@ -6,6 +6,7 @@ struct ReadyTypeMainView: View {
     @StateObject private var onboardingViewModel = OnboardingViewModel()
     @StateObject private var settingsViewModel: SettingsViewModel
     @State private var shouldShowPostFirstUsePrompt = false
+    @State private var systemColorScheme = ReadyTypeAppearance.currentSystemColorScheme
     @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
 
     init(settingsViewModel: SettingsViewModel = SettingsViewModel()) {
@@ -29,12 +30,23 @@ struct ReadyTypeMainView: View {
         }
         .background(ReadyTypeTheme.canvas)
         .frame(minWidth: 820, idealWidth: 900, minHeight: 620, idealHeight: 680)
-        .preferredColorScheme(appearance.colorScheme)
+        .environment(\.colorScheme, effectiveColorScheme)
+        .animation(.easeInOut(duration: 0.22), value: effectiveColorScheme)
         .onAppear {
             applyAppearance()
         }
         .onChange(of: appearanceRawValue) { _, _ in
             applyAppearance()
+        }
+        .onReceive(
+            DistributedNotificationCenter.default().publisher(
+                for: Notification.Name("AppleInterfaceThemeChangedNotification")
+            )
+        ) { _ in
+            systemColorScheme = ReadyTypeAppearance.currentSystemColorScheme
+            if appearance == .system {
+                applyAppearance()
+            }
         }
         .onChange(of: appState.runtimeState) { _, newState in
             if onboardingViewModel.shouldShowPostFirstUseModelPrompt(after: newState) {
@@ -66,8 +78,14 @@ struct ReadyTypeMainView: View {
                             selection = section
                         }
                     } label: {
-                        Label(section.title, systemImage: section.systemImage)
-                            .font(.callout.weight(selection == section ? .semibold : .regular))
+                        HStack(spacing: 10) {
+                            Image(systemName: section.systemImage)
+                                .font(.system(size: 15, weight: .medium))
+                                .frame(width: 20, alignment: .center)
+
+                            Text(section.title)
+                                .font(.callout.weight(selection == section ? .semibold : .regular))
+                        }
                             .foregroundStyle(selection == section ? ReadyTypeTheme.accentStrong : ReadyTypeTheme.ink)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 12)
@@ -84,7 +102,7 @@ struct ReadyTypeMainView: View {
 
             Spacer()
 
-            Picker("外观", selection: $appearanceRawValue) {
+            Picker("外观", selection: appearanceSelection) {
                 ForEach(ReadyTypeAppearance.allCases) { appearance in
                     Text(appearance.displayName).tag(appearance.rawValue)
                 }
@@ -176,10 +194,26 @@ struct ReadyTypeMainView: View {
         ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
     }
 
+    private var effectiveColorScheme: ColorScheme {
+        appearance.colorScheme ?? systemColorScheme
+    }
+
+    private var appearanceSelection: Binding<String> {
+        Binding(
+            get: { appearanceRawValue },
+            set: { newValue in
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    appearanceRawValue = newValue
+                }
+            }
+        )
+    }
+
     private func applyAppearance() {
         switch appearance {
         case .system:
             NSApp.appearance = nil
+            systemColorScheme = ReadyTypeAppearance.currentSystemColorScheme
         case .light:
             NSApp.appearance = NSAppearance(named: .aqua)
         case .dark:
