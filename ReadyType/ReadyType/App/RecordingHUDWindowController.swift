@@ -52,7 +52,6 @@ final class RecordingHUDWindowController {
 
         panel.contentView = NSHostingView(
             rootView: RecordingHUDView(appState: appState, recordingStartedAt: recordingStartedAt)
-                .preferredColorScheme(.dark)
         )
         let targetOrigin = targetOrigin(for: panel)
 
@@ -103,7 +102,7 @@ final class RecordingHUDWindowController {
 
     private func makePanel() -> NSPanel {
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 590, height: 88),
+            contentRect: NSRect(x: 0, y: 0, width: 540, height: 74),
             styleMask: [.nonactivatingPanel, .borderless],
             backing: .buffered,
             defer: false
@@ -112,7 +111,6 @@ final class RecordingHUDWindowController {
         panel.collectionBehavior = [.canJoinAllSpaces, .transient, .ignoresCycle]
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.appearance = NSAppearance(named: .darkAqua)
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
         return panel

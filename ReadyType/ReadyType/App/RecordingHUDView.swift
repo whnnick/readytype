@@ -5,6 +5,7 @@ struct RecordingHUDView: View {
     let recordingStartedAt: Date
 
     @State private var errorOffset: CGFloat = 0
+    @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
     private var preferences: MotionPreferences { .current }
 
     var body: some View {
@@ -14,7 +15,7 @@ struct RecordingHUDView: View {
                 shortcut: appState.voiceShortcut
             )
 
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -46,7 +47,7 @@ struct RecordingHUDView: View {
                     .frame(width: 48, alignment: .trailing)
 
                 WaveformView(isActive: appState.runtimeState == .recording, reduceMotion: preferences.reduceMotion)
-                    .frame(width: 104, height: 28)
+                    .frame(width: 88, height: 24)
             }
             .frame(height: MotionTokens.voiceCapsuleHeight)
             .padding(.horizontal, 18)
@@ -57,8 +58,8 @@ struct RecordingHUDView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                ReadyTypeTheme.fieldStrong.opacity(0.82),
-                                ReadyTypeTheme.field.opacity(0.76)
+                                ReadyTypeTheme.fieldStrong.opacity(0.44),
+                                ReadyTypeTheme.field.opacity(0.30)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -78,7 +79,7 @@ struct RecordingHUDView: View {
                     .padding(.leading, 28)
                     .padding(.top, 1)
             }
-            .shadow(color: Color.black.opacity(0.28), radius: 22, x: 0, y: 16)
+            .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 10)
             .shadow(
                 color: ReadyTypeTheme.color(for: appState.runtimeState.readyTypeStatusRole).opacity(
                     MotionTokens.voiceCapsuleGlowOpacity(for: appState.runtimeState, preferences: preferences)
@@ -108,6 +109,11 @@ struct RecordingHUDView: View {
                 }
             }
         }
+        .preferredColorScheme(appearance.colorScheme)
+    }
+
+    private var appearance: ReadyTypeAppearance {
+        ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
     }
 
     private func timerText(at date: Date) -> String {
@@ -138,6 +144,8 @@ private struct VoiceCapsuleFlowBorder: View {
 
                 if MotionTokens.voiceCapsuleFlowEnabled(for: state, preferences: preferences) {
                     horizontalSweep(in: proxy.size)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        .padding(.top, 1)
                 }
 
                 if MotionTokens.voiceCapsuleErrorPulseEnabled(for: state, preferences: preferences) {
@@ -167,7 +175,7 @@ private struct VoiceCapsuleFlowBorder: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ),
-                lineWidth: 1
+                lineWidth: 0.6
             )
     }
 
@@ -189,11 +197,11 @@ private struct VoiceCapsuleFlowBorder: View {
     private func horizontalSweep(in size: CGSize) -> some View {
         let tint = ReadyTypeTheme.color(for: role)
         let opacity = MotionTokens.voiceCapsuleFlowOpacity(for: state, preferences: preferences)
-        let sweepWidth = max(size.width * 0.42, 148)
+        let sweepWidth = max(size.width * 0.30, 120)
         let startX = -sweepWidth * 1.15
         let endX = size.width + sweepWidth * 0.65
 
-        return Rectangle()
+        return Capsule()
             .fill(
                 LinearGradient(
                     colors: [
@@ -208,14 +216,9 @@ private struct VoiceCapsuleFlowBorder: View {
                     endPoint: .trailing
                 )
             )
-            .frame(width: sweepWidth, height: size.height + 20)
-            .blur(radius: 2.2)
+            .frame(width: sweepWidth, height: 2.4)
+            .blur(radius: 1.2)
             .offset(x: sweepPhase ? endX : startX)
-            .mask(
-                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius + 4, style: .continuous)
-                    .stroke(lineWidth: 4.2)
-                    .frame(width: size.width + 8, height: size.height + 8)
-            )
             .shadow(
                 color: tint.opacity(MotionTokens.voiceCapsuleGlowOpacity(for: state, preferences: preferences)),
                 radius: 15,

@@ -2,10 +2,11 @@ import SwiftUI
 
 struct ReadyTypeMainView: View {
     @EnvironmentObject private var appState: AppState
-    @State private var selection: ReadyTypeSection = .console
+    @State private var selection: ReadyTypeSection = .home
     @StateObject private var onboardingViewModel = OnboardingViewModel()
     @StateObject private var settingsViewModel: SettingsViewModel
     @State private var shouldShowPostFirstUsePrompt = false
+    @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
 
     init(settingsViewModel: SettingsViewModel = SettingsViewModel()) {
         _settingsViewModel = StateObject(wrappedValue: settingsViewModel)
@@ -27,7 +28,14 @@ struct ReadyTypeMainView: View {
             .background(ReadyTypeTheme.pageBackground)
         }
         .background(ReadyTypeTheme.canvas)
-        .frame(minWidth: 760, idealWidth: 760, minHeight: 620, idealHeight: 620)
+        .frame(minWidth: 820, idealWidth: 900, minHeight: 620, idealHeight: 680)
+        .preferredColorScheme(appearance.colorScheme)
+        .onAppear {
+            applyAppearance()
+        }
+        .onChange(of: appearanceRawValue) { _, _ in
+            applyAppearance()
+        }
         .onChange(of: appState.runtimeState) { _, newState in
             if onboardingViewModel.shouldShowPostFirstUseModelPrompt(after: newState) {
                 withAnimation(MotionTokens.statusAnimation(for: .current)) {
@@ -78,8 +86,18 @@ struct ReadyTypeMainView: View {
             .padding(.horizontal, 14)
 
             Spacer()
+
+            Picker("外观", selection: $appearanceRawValue) {
+                ForEach(ReadyTypeAppearance.allCases) { appearance in
+                    Text(appearance.displayName).tag(appearance.rawValue)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .controlSize(.small)
+            .padding(14)
         }
-        .frame(width: 196)
+        .frame(width: 210)
         .background(ReadyTypeTheme.sidebar)
         .overlay(alignment: .trailing) {
             Rectangle()
@@ -98,7 +116,7 @@ struct ReadyTypeMainView: View {
                 },
                 onEnableLocalSpeechModel: {
                     onboardingViewModel.enableLocalSpeechModel()
-                    selection = .settings
+                    selection = .speechRecognition
                     syncAppStateRecognitionSettings()
                 },
                 onDismiss: {
@@ -110,7 +128,7 @@ struct ReadyTypeMainView: View {
                 onEnableLocalSpeechModel: {
                     onboardingViewModel.enableLocalSpeechModel()
                     onboardingViewModel.markPostFirstUseModelPromptShown()
-                    selection = .settings
+                    selection = .speechRecognition
                     shouldShowPostFirstUsePrompt = false
                     syncAppStateRecognitionSettings()
                 },
@@ -125,10 +143,16 @@ struct ReadyTypeMainView: View {
     @ViewBuilder
     private var detail: some View {
         switch selection {
-        case .console:
+        case .home:
             ConsoleView()
-        case .settings:
-            SettingsPane(viewModel: settingsViewModel)
+        case .vocabulary:
+            SettingsPane(viewModel: settingsViewModel, section: .vocabulary)
+        case .languageOutput:
+            SettingsPane(viewModel: settingsViewModel, section: .languageOutput)
+        case .shortcuts:
+            SettingsPane(viewModel: settingsViewModel, section: .shortcuts)
+        case .speechRecognition:
+            SettingsPane(viewModel: settingsViewModel, section: .speechRecognition)
         case .permissions:
             PermissionsPane()
         case .about:
@@ -150,11 +174,29 @@ struct ReadyTypeMainView: View {
             appState.localSpeechModelState = .notInstalled
         }
     }
+
+    private var appearance: ReadyTypeAppearance {
+        ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
+    }
+
+    private func applyAppearance() {
+        switch appearance {
+        case .system:
+            NSApp.appearance = nil
+        case .light:
+            NSApp.appearance = NSAppearance(named: .aqua)
+        case .dark:
+            NSApp.appearance = NSAppearance(named: .darkAqua)
+        }
+    }
 }
 
 private enum ReadyTypeSection: String, CaseIterable, Identifiable {
-    case console
-    case settings
+    case home
+    case vocabulary
+    case languageOutput
+    case shortcuts
+    case speechRecognition
     case permissions
     case about
 
@@ -162,12 +204,13 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .console:
-            return "控制台"
-        case .settings:
-            return "设置"
+        case .home: return "首页"
+        case .vocabulary: return "常用词"
+        case .languageOutput: return "语言与输出"
+        case .shortcuts: return "快捷键"
+        case .speechRecognition: return "语音识别"
         case .permissions:
-            return "权限"
+            return "权限与隐私"
         case .about:
             return "关于"
         }
@@ -175,10 +218,11 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
 
     var systemImage: String {
         switch self {
-        case .console:
-            return "text.cursor"
-        case .settings:
-            return "slider.horizontal.3"
+        case .home: return "house"
+        case .vocabulary: return "text.book.closed"
+        case .languageOutput: return "character.bubble"
+        case .shortcuts: return "keyboard"
+        case .speechRecognition: return "waveform"
         case .permissions:
             return "checkmark.shield"
         case .about:

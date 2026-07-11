@@ -10,38 +10,7 @@ struct ConsoleView: View {
             VStack(alignment: .leading, spacing: 18) {
                 header
 
-                ReadyTypePanel("当前状态", subtitle: "ReadyType 会在你再次\(appState.voiceShortcut.displayName) 后识别、整理并输出到当前输入框；按 Esc 可取消。") {
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack(spacing: 12) {
-                            StatusPill(
-                                state: appState.runtimeState,
-                                message: appState.runtimeState.readyTypeDisplayMessage(
-                                    lastMessage: appState.lastMessage,
-                                    shortcut: appState.voiceShortcut
-                                )
-                            )
-                            .animation(MotionTokens.statusAnimation(for: preferences), value: appState.runtimeState)
-
-                            ModeBadge(mode: appState.selectedMode)
-                            RecognitionModeBadge(mode: appState.speechRecognitionMode)
-
-                            Spacer()
-                        }
-
-                        controlGroup(title: "输出方式") {
-                            modePicker
-                        }
-                        helperText(appState.selectedMode.userDescription)
-                        controlGroup(title: "写作场景") {
-                            scenarioPicker
-                        }
-                        .opacity(appState.selectedMode.requiresAI ? 1 : 0.58)
-                        helperText(scenarioHelperText)
-                        controlGroup(title: "识别状态") {
-                            recognitionStatus
-                        }
-                    }
-                }
+                homeSummary
 
                 recordPanel
                 previewPanel
@@ -55,16 +24,66 @@ struct ConsoleView: View {
             ReadyTypeMark(size: 48)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("ReadyType 控制台")
+                Text("ReadyType")
                     .font(.title2.weight(.semibold))
                     .foregroundStyle(ReadyTypeTheme.ink)
-                Text("\(appState.voiceShortcut.displayName) 开始说话，再次\(appState.voiceShortcut.displayName) 完成并输出；按 Esc 取消。默认不保存完整转写历史。")
+                Text("系统级 AI 语音输入，随时待命。")
                     .font(.callout)
                     .foregroundStyle(ReadyTypeTheme.muted)
             }
 
             Spacer()
         }
+    }
+
+    private var homeSummary: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 10) {
+                StatusDot(role: appState.runtimeState.readyTypeStatusRole, size: 9)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(appState.runtimeState.readyTypeDisplayMessage(lastMessage: appState.lastMessage, shortcut: appState.voiceShortcut))
+                        .font(.headline)
+                    Text("ReadyType 正在后台运行")
+                        .font(.footnote)
+                        .foregroundStyle(ReadyTypeTheme.muted)
+                }
+            }
+            .padding(.bottom, 18)
+
+            Divider()
+            summaryRow(title: "主快捷键", value: appState.voiceShortcut.displayName, systemImage: "keyboard")
+            Divider()
+            summaryRow(
+                title: "高精度语音包",
+                value: displayLocalSpeechModelState.readyTypeDisplayMessage(isHighAccuracyEnabled: appState.isHighAccuracyRecognitionEnabled),
+                systemImage: "waveform"
+            )
+            Divider()
+            summaryRow(title: "默认输出", value: appState.selectedMode.displayName, systemImage: "text.cursor")
+        }
+        .padding(18)
+        .background(ReadyTypeTheme.field, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(ReadyTypeTheme.strokeSoft, lineWidth: 0.5)
+        }
+    }
+
+    private func summaryRow(title: String, value: String, systemImage: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .foregroundStyle(ReadyTypeTheme.muted)
+                .frame(width: 18)
+            Text(title)
+                .foregroundStyle(ReadyTypeTheme.muted)
+            Spacer()
+            Text(value)
+                .foregroundStyle(ReadyTypeTheme.ink)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(2)
+        }
+        .font(.callout)
+        .padding(.vertical, 12)
     }
 
     private var modePicker: some View {

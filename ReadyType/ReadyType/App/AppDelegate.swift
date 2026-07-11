@@ -28,7 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
-        NSApp.appearance = NSAppearance(named: .darkAqua)
+        applySavedAppearance()
         configureApplicationIcon()
         syncAppStateWithSettings()
         menuBarController = MenuBarController(appState: appState) { [weak self] in
@@ -53,6 +53,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         startGlobalShortcut()
         startIdlePrewarmIfConfigured()
+    }
+
+    private func applySavedAppearance() {
+        let rawValue = UserDefaults.standard.string(forKey: "readyTypeAppearance")
+        switch ReadyTypeAppearance(rawValue: rawValue ?? ReadyTypeAppearance.system.rawValue) ?? .system {
+        case .system:
+            NSApp.appearance = nil
+        case .light:
+            NSApp.appearance = NSAppearance(named: .aqua)
+        case .dark:
+            NSApp.appearance = NSAppearance(named: .darkAqua)
+        }
     }
 
     private func syncAppStateWithSettings() {
@@ -704,13 +716,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let hostingController = NSHostingController(
             rootView: ReadyTypeMainView(settingsViewModel: makeSettingsViewModel())
                 .environmentObject(appState)
-                .preferredColorScheme(.dark)
         )
         let window = NSWindow(contentViewController: hostingController)
         window.title = "ReadyType"
-        window.appearance = NSAppearance(named: .darkAqua)
         window.styleMask = [.titled, .closable, .miniaturizable]
-        window.setContentSize(NSSize(width: 760, height: 620))
+        window.setContentSize(NSSize(width: 900, height: 680))
         window.isReleasedWhenClosed = false
         window.center()
         settingsWindow = window

@@ -1,12 +1,39 @@
 import SwiftUI
 
+enum SettingsPaneSection: Equatable {
+    case vocabulary
+    case languageOutput
+    case shortcuts
+    case speechRecognition
+
+    var title: String {
+        switch self {
+        case .vocabulary: "常用词"
+        case .languageOutput: "语言与输出"
+        case .shortcuts: "快捷键"
+        case .speechRecognition: "语音识别"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .vocabulary: "管理希望 ReadyType 准确保留的人名、产品和专业词。"
+        case .languageOutput: "选择输出方式，并管理 DeepSeek 连接。"
+        case .shortcuts: "设置开始、完成和取消语音输入的操作。"
+        case .speechRecognition: "管理识别方式和高精度语音包。"
+        }
+    }
+}
+
 struct SettingsPane: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject private var viewModel: SettingsViewModel
     @State private var errorMessage: String?
+    private let section: SettingsPaneSection
 
-    init(viewModel: SettingsViewModel) {
+    init(viewModel: SettingsViewModel, section: SettingsPaneSection = .speechRecognition) {
         self.viewModel = viewModel
+        self.section = section
     }
 
     var body: some View {
@@ -14,6 +41,7 @@ struct SettingsPane: View {
             VStack(alignment: .leading, spacing: 18) {
                 header
 
+                if section == .speechRecognition {
                 ReadyTypePanel("识别方式", subtitle: "默认保持快速响应，遇到长文、邮件和专业词时自动提高准确率。") {
                     Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
                         GridRow {
@@ -114,6 +142,9 @@ struct SettingsPane: View {
                         .foregroundStyle(ReadyTypeTheme.muted)
                 }
 
+                }
+
+                if section == .vocabulary {
                 ReadyTypePanel("常用词", subtitle: "添加人名、产品名、项目名、公司名和常用短语，帮助 ReadyType 更稳定地保留原词。") {
                     Toggle(
                         "完成输入后提示可加入的常用词",
@@ -218,6 +249,9 @@ struct SettingsPane: View {
                     }
                 }
 
+                }
+
+                if section == .languageOutput {
                 ReadyTypePanel("DeepSeek 连接", subtitle: "只用于整理、翻译和写给 AI；直接转文字不会使用。") {
                     Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
                         GridRow {
@@ -291,6 +325,9 @@ struct SettingsPane: View {
                     apiConnectionStatus
                 }
 
+                }
+
+                if section == .shortcuts {
                 ReadyTypePanel("开始说话快捷键", subtitle: "选择一个按两次就能开始或完成输入的按键。") {
                     Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
                         GridRow {
@@ -318,6 +355,9 @@ struct SettingsPane: View {
                     .font(.footnote)
                 }
 
+                }
+
+                if section == .languageOutput || section == .shortcuts {
                 ReadyTypePanel("输出体验", subtitle: "开始、取消和输出都保持低打扰。") {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("\(viewModel.voiceShortcut.displayName) 开始说话，再次\(viewModel.voiceShortcut.displayName) 完成并输出；Esc 可取消。", systemImage: "keyboard")
@@ -325,6 +365,7 @@ struct SettingsPane: View {
                         Label("语音输入浮层遵循系统“减少动态效果”设置。", systemImage: "accessibility")
                     }
                     .font(.callout)
+                }
                 }
             }
             .padding(26)
@@ -339,10 +380,10 @@ struct SettingsPane: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("设置")
+            Text(section.title)
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(ReadyTypeTheme.ink)
-            Text("识别方式、DeepSeek、输出方式与语音包状态。")
+            Text(section.subtitle)
                 .foregroundStyle(ReadyTypeTheme.muted)
         }
     }

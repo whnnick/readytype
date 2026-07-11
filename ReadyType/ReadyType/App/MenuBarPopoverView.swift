@@ -6,6 +6,7 @@ struct MenuBarPopoverView: View {
     let quit: () -> Void
 
     private var preferences: MotionPreferences { .current }
+    @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -71,6 +72,11 @@ struct MenuBarPopoverView: View {
                     .foregroundStyle(ReadyTypeTheme.muted)
             }
         }
+        .preferredColorScheme(appearance.colorScheme)
+    }
+
+    private var appearance: ReadyTypeAppearance {
+        ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
     }
 
     private var modes: some View {

@@ -5,10 +5,14 @@
 ### Added
 
 - Added bilingual ReadyType 1.2.0 UI/UX Refresh requirements, interaction architecture, visual and motion guidance, and implementation plans.
+- Added persisted Follow System, Light, and Dark appearances shared by the main window, HUD, and menu bar popover.
 
 ### Changed
 
 - Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.3.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
+- Reorganized the main window into Home, Common Words, Language & Output, Shortcuts, Speech Recognition, Permissions & Privacy, and About, with settings scoped to each destination.
+- Replaced mode and scenario controls on Home with a quiet summary of runtime status, shortcut, speech package, default output, and recent results.
+- Refined the HUD into a fixed-size adaptive glass capsule with a localized top-edge light sweep and reduced-motion fallback.
 
 ## 1.1.0 - 2026-07-11
 

@@ -1,19 +1,43 @@
 import SwiftUI
 
+enum ReadyTypeAppearance: String, CaseIterable, Identifiable {
+    case system
+    case light
+    case dark
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .system: "跟随系统"
+        case .light: "浅色"
+        case .dark: "深色"
+        }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
 enum ReadyTypeTheme {
-    static let canvas = Color(red: 0.055, green: 0.064, blue: 0.059)
-    static let sidebar = Color(red: 0.043, green: 0.050, blue: 0.047)
-    static let field = Color(red: 0.102, green: 0.118, blue: 0.108).opacity(0.96)
-    static let fieldStrong = Color(red: 0.133, green: 0.153, blue: 0.141)
-    static let stroke = Color(red: 0.251, green: 0.290, blue: 0.263)
-    static let strokeSoft = Color(red: 0.184, green: 0.216, blue: 0.196)
-    static let ink = Color(red: 0.930, green: 0.948, blue: 0.921)
-    static let muted = Color(red: 0.646, green: 0.696, blue: 0.652)
-    static let accent = Color(red: 0.510, green: 0.745, blue: 0.547)
-    static let accentStrong = Color(red: 0.565, green: 0.824, blue: 0.604)
-    static let accentSoft = Color(red: 0.157, green: 0.235, blue: 0.169)
-    static let panelStroke = stroke.opacity(0.88)
-    static let pageBackground = canvas
+    static var canvas: Color { Color(nsColor: .windowBackgroundColor) }
+    static var sidebar: Color { Color(nsColor: .underPageBackgroundColor) }
+    static var field: Color { Color(nsColor: .controlBackgroundColor).opacity(0.72) }
+    static var fieldStrong: Color { Color(nsColor: .controlBackgroundColor) }
+    static var stroke: Color { Color(nsColor: .separatorColor) }
+    static var strokeSoft: Color { Color(nsColor: .separatorColor).opacity(0.58) }
+    static var ink: Color { Color(nsColor: .labelColor) }
+    static var muted: Color { Color(nsColor: .secondaryLabelColor) }
+    static let accent = Color(red: 0.29, green: 0.55, blue: 0.31)
+    static let accentStrong = Color(red: 0.36, green: 0.66, blue: 0.38)
+    static let accentSoft = accent.opacity(0.14)
+    static var panelStroke: Color { stroke.opacity(0.88) }
+    static var pageBackground: Color { canvas }
     static let warning = Color(red: 0.950, green: 0.645, blue: 0.265)
     static let danger = Color(red: 0.950, green: 0.376, blue: 0.329)
     static let info = Color(red: 0.439, green: 0.663, blue: 0.855)
@@ -64,12 +88,11 @@ struct ReadyTypePanel<Content: View>: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(ReadyTypeTheme.field, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(ReadyTypeTheme.field, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(ReadyTypeTheme.panelStroke, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(ReadyTypeTheme.panelStroke, lineWidth: 0.5)
         )
-        .shadow(color: Color.black.opacity(0.32), radius: 18, x: 0, y: 12)
     }
 }
 

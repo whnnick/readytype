@@ -45,3 +45,9 @@ Add unit tests for appearance preferences, state presentation, and automatic con
 ## Definition of Done
 
 Version 1.2.0 is releasable only after the high-fidelity prototype is approved, all three appearance choices work, every HUD state passes, the main window is simplified, and the core input pipeline has no regression.
+
+## Current Progress
+
+- Completed: high-fidelity prototype approval, dynamic design tokens, three appearances, seven-destination navigation, scoped settings, simplified Home, and the first HUD implementation pass.
+- Verified: 331 Swift tests pass, the production app build and ad-hoc signature validation pass, and both Light and Dark main-window appearances are visible in the real app.
+- Remaining: update the visual-acceptance script for seven-destination navigation, then run the release screenshot gate for every HUD state, the menu bar popover, and multi-app input.

@@ -9,8 +9,8 @@ final class MotionTokensTests: XCTestCase {
         XCTAssertTrue(MotionTokens.waveAnimationEnabled(for: preferences))
         XCTAssertTrue(MotionTokens.errorShakeEnabled(for: preferences))
         XCTAssertTrue(MotionTokens.voiceCapsuleFlowEnabled(for: .recording, preferences: preferences))
-        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 28)
-        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 74)
+        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 30)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 60)
     }
 
     func testReducedMotionDisablesLargeMovementAndWaveAnimation() {

@@ -29,7 +29,6 @@ final class MenuBarController {
     private func configurePopover() {
         popover.behavior = .transient
         popover.animates = true
-        popover.appearance = NSAppearance(named: .darkAqua)
         popover.contentSize = NSSize(width: 292, height: 318)
         popover.contentViewController = NSHostingController(
             rootView: MenuBarPopoverView(
@@ -42,7 +41,6 @@ final class MenuBarController {
                     NSApp.terminate(nil)
                 }
             )
-            .preferredColorScheme(.dark)
         )
     }
 
