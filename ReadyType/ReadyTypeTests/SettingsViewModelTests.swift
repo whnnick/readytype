@@ -328,7 +328,7 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertEqual(updateChecker.checkCallCount, 1)
         XCTAssertEqual(viewModel.localSpeechModelUpdateStatus, .upToDate(version: "2024-09-30"))
         XCTAssertFalse(viewModel.isCheckingSpeechModelUpdate)
-        XCTAssertEqual(viewModel.statusMessage, "高精度语音包已是当前版本")
+        XCTAssertEqual(viewModel.statusMessage, "已安装最新语音包，无需更新")
     }
 
     func testAvailableSpeechModelUpdateDownloadsRecommendedManifest() async throws {
