@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Normalized Chinese and mixed Chinese-English output to full-width Chinese punctuation while keeping fully English output in ASCII punctuation; versions, URLs, times, and numeric formats remain intact.
+- Strengthened cleanup output requirements to restore sentence-internal and sentence-ending punctuation.
+
 ### Added
 
 - Common Words entries containing spaces can be split into independent terms after explicit confirmation, making accidental combined entries easy to correct.

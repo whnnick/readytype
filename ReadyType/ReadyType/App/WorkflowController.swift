@@ -61,12 +61,13 @@ final class WorkflowController {
                 mode: mode,
                 context: outputContext
             )
+            let convertedText = ChineseTextConverter.convert(
+                processedOutput.finalText,
+                style: settings.chineseTextStyle
+            )
             let output = ProcessedOutput(
                 rawTranscript: processedOutput.rawTranscript,
-                finalText: ChineseTextConverter.convert(
-                    processedOutput.finalText,
-                    style: settings.chineseTextStyle
-                ),
+                finalText: LanguageAwarePunctuationNormalizer.normalize(convertedText),
                 usedAI: processedOutput.usedAI,
                 usedFallback: processedOutput.usedFallback,
                 warning: processedOutput.warning

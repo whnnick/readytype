@@ -9,6 +9,27 @@ final class ChineseTextStyleTests: XCTestCase {
         )
     }
 
+    func testChineseAndMixedTextUseFullWidthPunctuation() {
+        XCTAssertEqual(
+            LanguageAwarePunctuationNormalizer.normalize("我用 Typeless,也用 Reddit.可以吗?"),
+            "我用 Typeless，也用 Reddit。可以吗？"
+        )
+    }
+
+    func testFullyEnglishTextUsesASCIIPunctuation() {
+        XCTAssertEqual(
+            LanguageAwarePunctuationNormalizer.normalize("I use Typeless，Reddit，and ReadyType。Does it work？"),
+            "I use Typeless,Reddit,and ReadyType.Does it work?"
+        )
+    }
+
+    func testChineseTextPreservesVersionsURLsTimesAndNumbers() {
+        XCTAssertEqual(
+            LanguageAwarePunctuationNormalizer.normalize("ReadyType 1.2.0,访问 https://readytype.app,时间 3:30,费用 1,000.50 元."),
+            "ReadyType 1.2.0，访问 https://readytype.app，时间 3:30，费用 1,000.50 元。"
+        )
+    }
+
     func testTraditionalStyleConvertsSimplifiedChinese() {
         XCTAssertEqual(
             ChineseTextConverter.convert("开始动工吧，准备软件更新。", style: .traditional),

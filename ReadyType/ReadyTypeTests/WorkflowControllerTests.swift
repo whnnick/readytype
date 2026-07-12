@@ -94,6 +94,30 @@ final class WorkflowControllerTests: XCTestCase {
         XCTAssertEqual(appState.lastOutput, "开始动工吧")
     }
 
+    func testNormalizesPunctuationToMatchDeliveredTextLanguage() async throws {
+        let appState = AppState(selectedMode: .aiCleanup)
+        let pasteService = MockTextDelivering(result: .pasted)
+        let controller = WorkflowController(
+            appState: appState,
+            settingsProvider: { .default },
+            outputProcessor: MockOutputProcessing(
+                result: ProcessedOutput(
+                    rawTranscript: "我用 Typeless 也用 Reddit",
+                    finalText: "我用 Typeless,也用 Reddit.",
+                    usedAI: true,
+                    usedFallback: false,
+                    warning: nil
+                )
+            ),
+            textDelivery: pasteService
+        )
+
+        try await controller.handleTranscript("我用 Typeless 也用 Reddit")
+
+        XCTAssertEqual(pasteService.requests.map(\.text), ["我用 Typeless，也用 Reddit。"])
+        XCTAssertEqual(appState.lastOutput, "我用 Typeless，也用 Reddit。")
+    }
+
     func testSpokenDictationCommandOverridesSelectedAIMode() async throws {
         let appState = AppState(selectedMode: .aiCleanup)
         let processor = MockOutputProcessing(

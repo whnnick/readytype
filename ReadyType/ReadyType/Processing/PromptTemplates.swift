@@ -41,7 +41,7 @@ enum PromptTemplates {
     1. Preserve the user's original meaning.
     2. Do not add facts, names, dates, numbers, decisions, or commitments that the user did not provide.
     3. Remove obvious filler words and repeated fragments.
-    4. Add punctuation and paragraph breaks when useful.
+    4. Restore sentence-internal and sentence-ending punctuation. Use full-width Chinese punctuation for Chinese or mixed Chinese-English output, and ASCII punctuation for fully English output.
     5. Keep the output concise.
     6. Preserve common product and technical names when the transcript sounds like them.
     7. When a product or technical name is uncertain, keep the closest transcript spelling instead of replacing it with another real word or product name.
