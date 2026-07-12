@@ -128,11 +128,11 @@ case "main":
         .max { $0.area < $1.area }
 case "hud":
     selected = candidates
-        .filter { $0.width >= 420 && $0.width <= 620 && $0.height >= 60 && $0.height <= 140 }
+        .filter { $0.width >= 360 && $0.width <= 500 && $0.height >= 48 && $0.height <= 100 }
         .min { $0.area < $1.area }
 case "popover":
     selected = candidates
-        .filter { $0.width >= 240 && $0.width <= 380 && $0.height >= 240 && $0.height <= 420 }
+        .filter { $0.width >= 240 && $0.width <= 380 && $0.height >= 240 && $0.height <= 480 }
         .max { $0.area < $1.area }
 default:
     selected = nil
@@ -271,15 +271,15 @@ click_sidebar_button 1
 sleep 0.3
 capture_window main "console"
 
-click_sidebar_button 2
+click_sidebar_button 4
 sleep 0.3
 capture_window main "settings"
 
-click_sidebar_button 3
+click_sidebar_button 7
 sleep 0.3
 capture_window main "permissions"
 
-click_sidebar_button 4
+click_sidebar_button 8
 sleep 0.3
 capture_window main "about"
 

@@ -10,8 +10,9 @@ struct MotionPreferences: Equatable {
 }
 
 enum MotionTokens {
-    static let voiceCapsuleCornerRadius: CGFloat = 30
-    static let voiceCapsuleHeight: CGFloat = 60
+    static let voiceCapsuleCornerRadius: CGFloat = 26
+    static let voiceCapsuleHeight: CGFloat = 52
+    static let voiceCapsuleWindowSize = NSSize(width: 420, height: 62)
 
     static func hudEntranceOffset(for preferences: MotionPreferences = .current) -> CGFloat {
         preferences.reduceMotion ? 0 : 12

@@ -15,11 +15,11 @@ struct RecordingHUDView: View {
                 shortcut: appState.voiceShortcut
             )
 
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         Text(presentation.title)
                             .font(.system(size: 15, weight: .semibold))
                             .lineLimit(1)
@@ -27,9 +27,6 @@ struct RecordingHUDView: View {
                             .foregroundStyle(ReadyTypeTheme.ink)
 
                         VoiceCapsuleBadge(text: appState.selectedMode.displayName, role: appState.runtimeState.readyTypeStatusRole)
-                        if let scenarioLabel = appState.scenarioSelection.hudLabel(for: appState.selectedMode) {
-                            VoiceCapsuleBadge(text: scenarioLabel, role: .neutral)
-                        }
                     }
 
                     Text(presentation.subtitle)
@@ -39,18 +36,18 @@ struct RecordingHUDView: View {
                         .contentTransition(.opacity)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 Text(timerText(at: timeline.date))
                     .font(.system(size: 13, weight: .medium, design: .monospaced))
                     .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
-                    .frame(width: 48, alignment: .trailing)
+                    .frame(width: 42, alignment: .trailing)
 
                 WaveformView(isActive: appState.runtimeState == .recording, reduceMotion: preferences.reduceMotion)
-                    .frame(width: 88, height: 24)
+                    .frame(width: 58, height: 20)
             }
             .frame(height: MotionTokens.voiceCapsuleHeight)
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 14)
             .background {
                 RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
                     .fill(.ultraThinMaterial)
@@ -75,8 +72,8 @@ struct RecordingHUDView: View {
             .overlay(alignment: .topLeading) {
                 Capsule()
                     .fill(ReadyTypeTheme.ink.opacity(0.16))
-                    .frame(width: 150, height: 1)
-                    .padding(.leading, 28)
+                    .frame(width: 112, height: 1)
+                    .padding(.leading, 22)
                     .padding(.top, 1)
             }
             .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 10)
@@ -262,16 +259,16 @@ private struct VoiceCapsuleStatusLight: View {
         ZStack {
             Circle()
                 .fill(ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0.10 : 0.20))
-                .frame(width: 34, height: 34)
+                .frame(width: 28, height: 28)
                 .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.12 : 1)
 
             Circle()
                 .stroke(ReadyTypeTheme.color(for: role).opacity(0.26), lineWidth: 1)
-                .frame(width: 26, height: 26)
+                .frame(width: 22, height: 22)
 
             Circle()
                 .fill(ReadyTypeTheme.color(for: role))
-                .frame(width: 9, height: 9)
+                .frame(width: 8, height: 8)
                 .shadow(color: ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0 : 0.70), radius: 7, x: 0, y: 0)
                 .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.34 : 1)
         }
@@ -293,8 +290,8 @@ private struct VoiceCapsuleBadge: View {
         Text(text)
             .font(.system(size: 10, weight: .semibold))
             .lineLimit(1)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 2)
             .background(ReadyTypeTheme.field.opacity(0.82), in: Capsule())
             .foregroundStyle(role == .neutral ? ReadyTypeTheme.muted : ReadyTypeTheme.color(for: role))
             .overlay(
@@ -309,10 +306,10 @@ private struct WaveformView: View {
     let reduceMotion: Bool
     @State private var phase = false
 
-    private let barCount = 10
+    private let barCount = 8
 
     var body: some View {
-        HStack(alignment: .center, spacing: 4) {
+        HStack(alignment: .center, spacing: 3) {
             ForEach(0..<barCount, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(
@@ -326,7 +323,7 @@ private struct WaveformView: View {
                             endPoint: .bottom
                         )
                     )
-                    .frame(width: 4, height: height(for: index))
+                    .frame(width: 3, height: height(for: index))
                     .opacity(isActive ? 0.95 : 0.30)
                     .animation(
                         isActive && !reduceMotion
@@ -344,8 +341,8 @@ private struct WaveformView: View {
             return 7
         }
 
-        let low: CGFloat = [7, 12, 17, 10, 23, 15, 9, 20, 13, 8][index]
-        let high: CGFloat = [18, 8, 12, 24, 11, 21, 16, 9, 22, 13][index]
+        let low: CGFloat = [6, 10, 15, 9, 19, 13, 8, 17][index]
+        let high: CGFloat = [16, 7, 11, 20, 10, 18, 14, 8][index]
         return phase ? high : low
     }
 }

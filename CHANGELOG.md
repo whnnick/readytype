@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Reduced the voice-input capsule to a compact fixed size, tightened its status light, timer, and waveform, and removed the redundant scenario badge while preserving essential state and output mode feedback.
 - Reordered the sidebar so Home appears first and Usage Overview follows it, matching the default page with the navigation hierarchy.
 - Fixed the menu bar popover being difficult to dismiss and added Escape-to-close behavior.
 - Usage Dashboard can clear local statistics, and streaks remain valid through the current day before the user records new activity.

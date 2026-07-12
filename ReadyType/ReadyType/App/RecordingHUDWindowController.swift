@@ -102,7 +102,7 @@ final class RecordingHUDWindowController {
 
     private func makePanel() -> NSPanel {
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 540, height: 74),
+            contentRect: NSRect(origin: .zero, size: MotionTokens.voiceCapsuleWindowSize),
             styleMask: [.nonactivatingPanel, .borderless],
             backing: .buffered,
             defer: false

@@ -2,6 +2,12 @@ import XCTest
 @testable import ReadyType
 
 final class MotionTokensTests: XCTestCase {
+    func testVoiceCapsuleUsesCompactStableDimensions() {
+        XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.width, 420)
+        XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.height, 62)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 52)
+    }
+
     func testStandardMotionAllowsExpressiveHUDMovement() {
         let preferences = MotionPreferences(reduceMotion: false)
 
@@ -9,8 +15,8 @@ final class MotionTokensTests: XCTestCase {
         XCTAssertTrue(MotionTokens.waveAnimationEnabled(for: preferences))
         XCTAssertTrue(MotionTokens.errorShakeEnabled(for: preferences))
         XCTAssertTrue(MotionTokens.voiceCapsuleFlowEnabled(for: .recording, preferences: preferences))
-        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 30)
-        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 60)
+        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 26)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 52)
     }
 
     func testReducedMotionDisablesLargeMovementAndWaveAnimation() {
