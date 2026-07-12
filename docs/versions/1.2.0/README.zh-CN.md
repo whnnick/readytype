@@ -8,6 +8,7 @@ ReadyType 1.2.0 聚焦 UI 与交互重构：把产品从“需要管理模式的
 - [交互架构](./INTERACTION_ARCHITECTURE.zh-CN.md)
 - [视觉与动效规范](./VISUAL_SYSTEM.zh-CN.md)
 - [实施计划](./PLAN.zh-CN.md)
+- [黑盒功能检查](./BLACK_BOX_TESTS.zh-CN.md)
 
 ## 核心方向
 

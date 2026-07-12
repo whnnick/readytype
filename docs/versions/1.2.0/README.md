@@ -8,6 +8,7 @@ ReadyType 1.2.0 focuses on a UI and interaction refresh: moving from a mode-heav
 - [Interaction Architecture](./INTERACTION_ARCHITECTURE.md)
 - [Visual and Motion System](./VISUAL_SYSTEM.md)
 - [Implementation Plan](./PLAN.md)
+- [Black-Box Functional Check](./BLACK_BOX_TESTS.md)
 
 ## Direction
 
