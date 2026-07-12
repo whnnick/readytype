@@ -313,6 +313,12 @@ final class SettingsViewModel: ObservableObject {
         statusMessage = "常用词已删除"
     }
 
+    func splitUserVocabularyEntry(id: UUID) throws {
+        let entries = try userVocabularyStore.splitWhitespaceSeparatedEntry(id: id)
+        try reloadUserVocabularyEntries()
+        statusMessage = entries.isEmpty ? "这条常用词无法拆分" : "已拆分为 \(entries.count) 个常用词"
+    }
+
     private func validatedBaseURL() throws -> URL {
         guard let url = URL(string: baseURLText.trimmingCharacters(in: .whitespacesAndNewlines)),
               let scheme = url.scheme?.lowercased(),

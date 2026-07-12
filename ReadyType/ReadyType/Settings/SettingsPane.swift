@@ -30,6 +30,7 @@ struct SettingsPane: View {
     @ObservedObject private var viewModel: SettingsViewModel
     @State private var errorMessage: String?
     @State private var isShowingAdvancedConnection = false
+    @State private var vocabularyEntryPendingSplit: UserVocabularyEntry?
     private let section: SettingsPaneSection
 
     init(viewModel: SettingsViewModel, section: SettingsPaneSection = .speechRecognition) {
@@ -57,6 +58,10 @@ struct SettingsPane: View {
                             .frame(maxWidth: 320)
                         }
                     }
+
+                    Text("空格属于词语本身，不会自动分隔。添加多个词时，请使用下方的“一次添加多个”，并用换行、逗号、顿号或分号分隔。")
+                        .font(.footnote)
+                        .foregroundStyle(ReadyTypeTheme.muted)
 
                     VStack(alignment: .leading, spacing: 5) {
                         Text(viewModel.speechRecognitionMode.userDescription)
@@ -243,6 +248,11 @@ struct SettingsPane: View {
                                         }
                                     }
                                     Spacer()
+                                    if entry.value.split(whereSeparator: { $0.isWhitespace }).count > 1 {
+                                        Button("拆分") {
+                                            vocabularyEntryPendingSplit = entry
+                                        }
+                                    }
                                     Button("删除") {
                                         deleteUserVocabularyEntry(id: entry.id)
                                     }
@@ -419,6 +429,21 @@ struct SettingsPane: View {
                 diskState: state,
                 runtimeState: appState.localSpeechModelState
             )
+        }
+        .confirmationDialog(
+            "按空格拆分这条常用词？",
+            isPresented: Binding(
+                get: { vocabularyEntryPendingSplit != nil },
+                set: { if !$0 { vocabularyEntryPendingSplit = nil } }
+            ),
+            presenting: vocabularyEntryPendingSplit
+        ) { entry in
+            Button("拆分为独立常用词") {
+                splitUserVocabularyEntry(id: entry.id)
+            }
+            Button("保留为一个词组", role: .cancel) {}
+        } message: { entry in
+            Text("“\(entry.value)”会按空格拆分。适用于误把多个词输在一行的情况；GitHub Actions 等固定词组应保留。")
         }
     }
 
@@ -625,6 +650,16 @@ struct SettingsPane: View {
     private func deleteUserVocabularyEntry(id: UUID) {
         do {
             try viewModel.deleteUserVocabularyEntry(id: id)
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func splitUserVocabularyEntry(id: UUID) {
+        do {
+            try viewModel.splitUserVocabularyEntry(id: id)
+            vocabularyEntryPendingSplit = nil
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription

@@ -336,6 +336,46 @@ final class UserVocabularyStore {
         try save(entries)
     }
 
+    @discardableResult
+    func splitWhitespaceSeparatedEntry(id: UUID) throws -> [UserVocabularyEntry] {
+        var entries = try load()
+        guard let index = entries.firstIndex(where: { $0.id == id }) else {
+            return []
+        }
+
+        let original = entries[index]
+        let values = original.value
+            .split(whereSeparator: { $0.isWhitespace })
+            .map(String.init)
+        guard values.count > 1 else {
+            return []
+        }
+
+        entries.remove(at: index)
+        var existingKeys = Set(entries.map { $0.value.normalizedSmartTermKey })
+        let now = Date()
+        var replacements: [UserVocabularyEntry] = []
+
+        for value in values where existingKeys.insert(value.normalizedSmartTermKey).inserted {
+            replacements.append(
+                UserVocabularyEntry(
+                    value: value,
+                    kind: original.kind,
+                    scopes: original.scopes,
+                    source: .manual,
+                    confidence: 1,
+                    confirmedCount: 1,
+                    createdAt: now,
+                    updatedAt: now
+                )
+            )
+        }
+
+        entries.append(contentsOf: replacements)
+        try save(entries)
+        return replacements
+    }
+
     static func defaultFileURL() -> URL {
         let supportDirectory = FileManager.default.urls(
             for: .applicationSupportDirectory,

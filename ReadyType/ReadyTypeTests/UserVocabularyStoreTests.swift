@@ -2,6 +2,17 @@ import XCTest
 @testable import ReadyType
 
 final class UserVocabularyStoreTests: XCTestCase {
+    func testSplitWhitespaceSeparatedEntryCreatesIndependentTerms() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+        let original = try XCTUnwrap(context.store.add(value: "Typeless Reddit"))
+
+        let replacements = try context.store.splitWhitespaceSeparatedEntry(id: original.id)
+
+        XCTAssertEqual(replacements.map(\.value), ["Typeless", "Reddit"])
+        XCTAssertEqual(try context.store.load().map(\.value), ["Typeless", "Reddit"])
+    }
+
     func testAddTrimsDeduplicatesAndPersistsEntries() throws {
         let context = try makeContext()
         defer { context.cleanup() }
