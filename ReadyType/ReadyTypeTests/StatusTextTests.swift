@@ -51,6 +51,30 @@ final class StatusTextTests: XCTestCase {
         XCTAssertEqual(RuntimeState.error("x").readyTypeStatusRole, .danger)
     }
 
+    func testHomeStatusUsesSuccessWhenHighAccuracyIsReady() {
+        XCTAssertEqual(
+            RuntimeState.idle.readyTypeHomeStatusRole(
+                localSpeechModelState: .warm,
+                isHighAccuracyEnabled: true
+            ),
+            .success
+        )
+        XCTAssertEqual(
+            RuntimeState.idle.readyTypeHomeStatusRole(
+                localSpeechModelState: .warm,
+                isHighAccuracyEnabled: false
+            ),
+            .neutral
+        )
+        XCTAssertEqual(
+            RuntimeState.recording.readyTypeHomeStatusRole(
+                localSpeechModelState: .warm,
+                isHighAccuracyEnabled: true
+            ),
+            .recording
+        )
+    }
+
     func testLocalSpeechModelStateChineseMessages() {
         XCTAssertEqual(LocalSpeechModelState.notInstalled.readyTypeDisplayMessage(isHighAccuracyEnabled: false), "高精度识别未启用")
         XCTAssertEqual(LocalSpeechModelState.notInstalled.readyTypeDisplayMessage(isHighAccuracyEnabled: true), "高精度语音包未安装")

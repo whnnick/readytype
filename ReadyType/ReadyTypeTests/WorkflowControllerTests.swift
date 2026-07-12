@@ -34,6 +34,33 @@ final class WorkflowControllerTests: XCTestCase {
         XCTAssertEqual(appState.lastProcessingSummary, "直接转文字：未调用 DeepSeek")
     }
 
+    func testSuccessfulDeliveryRecordsAggregateUsage() async throws {
+        let appState = AppState(
+            selectedMode: .dictation,
+            lastVoiceRunMetrics: VoiceRunMetrics(recordingDuration: 4.5)
+        )
+        let recorder = MockUsageStatisticsRecorder()
+        let controller = WorkflowController(
+            appState: appState,
+            settingsProvider: { .default },
+            outputProcessor: MockOutputProcessing(
+                result: ProcessedOutput(
+                    rawTranscript: "开始动工吧",
+                    finalText: "开始动工吧",
+                    usedAI: false,
+                    usedFallback: false,
+                    warning: nil
+                )
+            ),
+            textDelivery: MockTextDelivering(result: .pasted),
+            usageStatisticsRecorder: recorder
+        )
+
+        try await controller.handleTranscript("开始动工吧")
+
+        XCTAssertEqual(recorder.records, [.init(recordingDuration: 4.5, outputText: "开始动工吧")])
+    }
+
     func testAppliesSelectedChineseTextStyleBeforeDelivery() async throws {
         let appState = AppState(selectedMode: .dictation)
         let processor = MockOutputProcessing(
@@ -475,5 +502,19 @@ private final class MockTextDelivering: TextDelivering {
     func deliver(_ text: String, pasteAutomatically: Bool) throws -> PasteDeliveryResult {
         requests.append(Request(text: text, pasteAutomatically: pasteAutomatically))
         return result
+    }
+}
+
+@MainActor
+private final class MockUsageStatisticsRecorder: UsageStatisticsRecording {
+    struct Record: Equatable {
+        let recordingDuration: TimeInterval
+        let outputText: String
+    }
+
+    private(set) var records: [Record] = []
+
+    func recordCompletedInput(recordingDuration: TimeInterval, outputText: String) {
+        records.append(Record(recordingDuration: recordingDuration, outputText: outputText))
     }
 }

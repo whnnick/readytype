@@ -2,16 +2,18 @@ import AppKit
 import SwiftUI
 
 @MainActor
-final class MenuBarController {
+final class MenuBarController: NSObject, NSPopoverDelegate {
     private let statusItem: NSStatusItem
     private let appState: AppState
     private let openConsole: @MainActor () -> Void
     private let popover = NSPopover()
+    private var escapeMonitor: Any?
 
     init(appState: AppState, openConsole: @escaping @MainActor () -> Void = MenuBarController.defaultOpenSettings) {
         self.appState = appState
         self.openConsole = openConsole
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        super.init()
         configureStatusItem()
         configurePopover()
     }
@@ -28,6 +30,7 @@ final class MenuBarController {
 
     private func configurePopover() {
         popover.behavior = .transient
+        popover.delegate = self
         popover.animates = true
         popover.contentSize = NSSize(width: 292, height: 318)
         popover.contentViewController = NSHostingController(
@@ -70,7 +73,21 @@ final class MenuBarController {
             popover.performClose(sender)
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-            popover.contentViewController?.view.window?.makeKey()
+        }
+    }
+
+    func popoverDidShow(_ notification: Notification) {
+        escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard event.keyCode == 53 else { return event }
+            self?.popover.performClose(nil)
+            return nil
+        }
+    }
+
+    func popoverWillClose(_ notification: Notification) {
+        if let escapeMonitor {
+            NSEvent.removeMonitor(escapeMonitor)
+            self.escapeMonitor = nil
         }
     }
 

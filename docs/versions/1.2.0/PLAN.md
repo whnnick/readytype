@@ -46,6 +46,13 @@ Add unit tests for appearance preferences, state presentation, and automatic con
 
 Version 1.2.0 is releasable only after the high-fidelity prototype is approved, all three appearance choices work, every HUD state passes, the main window is simplified, and the core input pipeline has no regression.
 
+### 7. Dashboard and Menu Bar Reliability
+
+1. Record successful inputs as daily aggregates without storing text.
+2. Add cumulative metrics, a 14-day trend, active days, and current streak.
+3. Use the transient popover lifecycle so outside clicks and Escape reliably close the menu bar panel.
+4. Verify with storage unit tests, workflow regression, and real menu bar interaction.
+
 ## Current Progress
 
 - Completed: high-fidelity prototype approval, dynamic design tokens, three appearances, seven-destination navigation, scoped settings, simplified Home, and the first HUD implementation pass.

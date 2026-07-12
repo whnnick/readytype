@@ -158,6 +158,8 @@ struct ReadyTypeMainView: View {
     @ViewBuilder
     private var detail: some View {
         switch selection {
+        case .dashboard:
+            DashboardView()
         case .home:
             ConsoleView()
         case .vocabulary:
@@ -223,6 +225,7 @@ struct ReadyTypeMainView: View {
 }
 
 private enum ReadyTypeSection: String, CaseIterable, Identifiable {
+    case dashboard
     case home
     case vocabulary
     case languageOutput
@@ -235,6 +238,7 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .dashboard: return "使用概览"
         case .home: return "首页"
         case .vocabulary: return "常用词"
         case .languageOutput: return "语言与输出"
@@ -249,6 +253,7 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
 
     var systemImage: String {
         switch self {
+        case .dashboard: return "chart.line.uptrend.xyaxis"
         case .home: return "house"
         case .vocabulary: return "text.book.closed"
         case .languageOutput: return "character.bubble"

@@ -39,7 +39,13 @@ struct ConsoleView: View {
     private var homeSummary: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
-                StatusDot(role: appState.runtimeState.readyTypeStatusRole, size: 9)
+                StatusDot(
+                    role: appState.runtimeState.readyTypeHomeStatusRole(
+                        localSpeechModelState: appState.localSpeechModelState,
+                        isHighAccuracyEnabled: appState.isHighAccuracyRecognitionEnabled
+                    ),
+                    size: 9
+                )
                 VStack(alignment: .leading, spacing: 2) {
                     Text(appState.runtimeState.readyTypeDisplayMessage(lastMessage: appState.lastMessage, shortcut: appState.voiceShortcut))
                         .font(.headline)

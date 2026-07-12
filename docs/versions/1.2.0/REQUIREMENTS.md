@@ -70,6 +70,13 @@ The HUD keeps stable dimensions across Ready, Listening, Recognizing, Polishing,
 - No full transcript history, account system, or cloud sync.
 - No 1.3.0 Trending Vocabulary Packs implementation.
 
+### Usage Dashboard Privacy Boundary
+
+- Dashboard stores only daily aggregates: completed inputs, recording duration, and output character count.
+- It never stores source audio, transcript text, AI output text, app content, or full input history.
+- Estimated time saved uses a conservative 40 Chinese characters per minute baseline and is a trend indicator, not an exact productivity claim.
+- Tracking starts with the first successful input after this feature ships and does not reconstruct earlier activity.
+
 ## Acceptance Criteria
 
 - First-time users complete input without understanding mode or scenario terminology.

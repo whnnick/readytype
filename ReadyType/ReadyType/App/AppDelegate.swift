@@ -6,6 +6,7 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState = AppState()
     private let settingsStore = SettingsStore()
+    private let usageStatisticsStore = UsageStatisticsStore()
     private let keychainService = KeychainService()
     private var menuBarController: MenuBarController?
     private var voiceInputController: VoiceInputController?
@@ -230,7 +231,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         scenario: outputContext.scenario,
                         existingEntries: entries
                     )
-            }
+            },
+            usageStatisticsRecorder: usageStatisticsStore
         )
 
         voiceInputController = VoiceInputController(

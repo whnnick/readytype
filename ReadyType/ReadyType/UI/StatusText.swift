@@ -56,6 +56,19 @@ extension RuntimeState {
         }
     }
 
+    func readyTypeHomeStatusRole(
+        localSpeechModelState: LocalSpeechModelState,
+        isHighAccuracyEnabled: Bool
+    ) -> StatusRole {
+        if self == .idle,
+           isHighAccuracyEnabled,
+           localSpeechModelState == .warm {
+            return .success
+        }
+
+        return readyTypeStatusRole
+    }
+
     func readyTypeDisplayMessage(
         lastMessage: String? = nil,
         shortcut: VoiceShortcutConfiguration = .default

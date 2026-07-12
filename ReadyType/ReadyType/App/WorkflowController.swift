@@ -19,6 +19,7 @@ final class WorkflowController {
     private let outputContextProvider: OutputContextProvider
     private let vocabularySuggestionProvider: VocabularySuggestionProvider
     private let now: () -> Date
+    private let usageStatisticsRecorder: UsageStatisticsRecording?
 
     init(
         appState: AppState,
@@ -28,6 +29,7 @@ final class WorkflowController {
         scenarioProvider: @escaping ScenarioProvider = { _ in .generic },
         outputContextProvider: OutputContextProvider? = nil,
         vocabularySuggestionProvider: @escaping VocabularySuggestionProvider = { _, _, _ in [] },
+        usageStatisticsRecorder: UsageStatisticsRecording? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.appState = appState
@@ -38,6 +40,7 @@ final class WorkflowController {
             OutputContext(scenario: scenarioProvider(transcript))
         }
         self.vocabularySuggestionProvider = vocabularySuggestionProvider
+        self.usageStatisticsRecorder = usageStatisticsRecorder
         self.now = now
     }
 
@@ -88,6 +91,10 @@ final class WorkflowController {
             let deliveryResult = try textDelivery.deliver(
                 output.finalText,
                 pasteAutomatically: settings.pasteAutomatically
+            )
+            usageStatisticsRecorder?.recordCompletedInput(
+                recordingDuration: appState.lastVoiceRunMetrics?.recordingDuration ?? 0,
+                outputText: output.finalText
             )
             appState.lastVoiceRunMetrics?.outputCompletedAt = now()
             if let summaryLine = appState.lastVoiceRunMetrics?.summaryLine {
