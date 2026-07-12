@@ -29,6 +29,7 @@ struct SettingsPane: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject private var viewModel: SettingsViewModel
     @State private var errorMessage: String?
+    @State private var isShowingAdvancedConnection = false
     private let section: SettingsPaneSection
 
     init(viewModel: SettingsViewModel, section: SettingsPaneSection = .speechRecognition) {
@@ -260,51 +261,50 @@ struct SettingsPane: View {
                 }
 
                 if section == .languageOutput {
-                ReadyTypePanel("DeepSeek 连接", subtitle: "只用于整理、翻译和写给 AI；直接转文字不会使用。") {
-                    Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 14) {
-                        GridRow {
-                            Text("默认输出方式")
-                                .foregroundStyle(ReadyTypeTheme.muted)
-                            Picker("默认输出方式", selection: $viewModel.defaultMode) {
-                                ForEach(OutputMode.allCases) { mode in
-                                    Text(mode.displayName).tag(mode)
-                                }
-                            }
-                            .labelsHidden()
-                            .frame(maxWidth: 320)
-                        }
-
-                        GridRow {
-                            Text("服务地址")
-                                .foregroundStyle(ReadyTypeTheme.muted)
-                            TextField("https://api.deepseek.com", text: $viewModel.baseURLText)
-                                .textFieldStyle(.roundedBorder)
-                        }
-
-                        GridRow {
-                            Text("模型名称")
-                                .foregroundStyle(ReadyTypeTheme.muted)
-                            TextField("deepseek-chat", text: $viewModel.model)
-                                .textFieldStyle(.roundedBorder)
-                        }
-
-                        GridRow {
-                            Text("DeepSeek 密钥")
-                                .foregroundStyle(ReadyTypeTheme.muted)
-                            SecureField(viewModel.hasSavedAPIKey ? "已保存在钥匙串，留空则保持不变" : "输入 DeepSeek 密钥", text: $viewModel.apiKeyText)
-                                .textFieldStyle(.roundedBorder)
+                ReadyTypePanel("默认输出", subtitle: "每次语音输入默认得到什么结果；也可以从菜单栏临时切换。") {
+                    Picker("默认输出", selection: $viewModel.defaultMode) {
+                        ForEach(OutputMode.allCases) { mode in
+                            Text(mode.displayName).tag(mode)
                         }
                     }
+                    .pickerStyle(.segmented)
 
-                    Toggle("自动粘贴到当前输入框；失败时复制到剪贴板", isOn: $viewModel.pasteAutomatically)
-                        .toggleStyle(.checkbox)
+                    Text(viewModel.defaultMode.userDescription)
+                        .font(.footnote)
+                        .foregroundStyle(ReadyTypeTheme.muted)
+                }
+
+                ReadyTypePanel("AI 功能", subtitle: "整理成文、翻译成英文和写给 AI 时使用 DeepSeek；直接转文字不使用。") {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("DeepSeek 密钥")
+                            .font(.callout.weight(.medium))
+                        SecureField(viewModel.hasSavedAPIKey ? "密钥已安全保存；留空不会更改" : "输入你的 DeepSeek 密钥", text: $viewModel.apiKeyText)
+                            .textFieldStyle(.roundedBorder)
+                        Text("密钥只保存在这台 Mac 的系统钥匙串中。")
+                            .font(.footnote)
+                            .foregroundStyle(ReadyTypeTheme.muted)
+                    }
+
+                    DisclosureGroup("高级连接设置", isExpanded: $isShowingAdvancedConnection) {
+                        Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 12) {
+                            GridRow {
+                                Text("服务地址")
+                                    .foregroundStyle(ReadyTypeTheme.muted)
+                                TextField("https://api.deepseek.com", text: $viewModel.baseURLText)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+
+                            GridRow {
+                                Text("模型名称")
+                                    .foregroundStyle(ReadyTypeTheme.muted)
+                                TextField("deepseek-chat", text: $viewModel.model)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+                        }
+                        .padding(.top, 8)
+                    }
 
                     HStack {
-                        Button("保存设置") {
-                            save()
-                        }
-                        .keyboardShortcut(.defaultAction)
-
                         Button("清除密钥") {
                             clearAPIKey()
                         }
@@ -331,6 +331,22 @@ struct SettingsPane: View {
                     }
 
                     apiConnectionStatus
+                }
+
+                ReadyTypePanel("输入到当前 App", subtitle: "语音处理完成后，ReadyType 如何交付结果。") {
+                    Toggle("自动输入到当前光标位置", isOn: $viewModel.pasteAutomatically)
+                        .toggleStyle(.checkbox)
+                    Text("如果当前 App 不允许自动输入，结果会复制到剪贴板，不会丢失。")
+                        .font(.footnote)
+                        .foregroundStyle(ReadyTypeTheme.muted)
+
+                    HStack {
+                        Spacer()
+                        Button("保存语言与输出设置") {
+                            save()
+                        }
+                        .keyboardShortcut(.defaultAction)
+                    }
                 }
 
                 }
@@ -365,7 +381,7 @@ struct SettingsPane: View {
 
                 }
 
-                if section == .languageOutput || section == .shortcuts {
+                if section == .shortcuts {
                 ReadyTypePanel("输出体验", subtitle: "开始、取消和输出都保持低打扰。") {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("\(viewModel.voiceShortcut.displayName) 开始说话，再次\(viewModel.voiceShortcut.displayName) 完成并输出；Esc 可取消。", systemImage: "keyboard")

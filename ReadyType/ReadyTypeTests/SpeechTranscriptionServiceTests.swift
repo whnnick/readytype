@@ -44,6 +44,34 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
         }
     }
 
+    func testTranscribeRejectsRepeatedLongHallucination() async {
+        let phrase = "请不吝点赞、订阅、转发、打赏支持明镜与点点栏目。"
+        let backend = MockSpeechRecognitionBackend(result: phrase + phrase)
+        let service = SpeechTranscriptionService(backend: backend)
+
+        do {
+            _ = try await service.transcribe(
+                recording: AudioRecording(fileURL: URL(fileURLWithPath: "/tmp/test.m4a"), duration: 4)
+            )
+            XCTFail("Expected transcriptionEmpty")
+        } catch let error as ReadyTypeError {
+            XCTAssertEqual(error, .transcriptionEmpty)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testTranscribeKeepsNaturalShortRepetition() async throws {
+        let backend = MockSpeechRecognitionBackend(result: "好好学习，天天向上。")
+        let service = SpeechTranscriptionService(backend: backend)
+
+        let transcript = try await service.transcribe(
+            recording: AudioRecording(fileURL: URL(fileURLWithPath: "/tmp/test.m4a"), duration: 2)
+        )
+
+        XCTAssertEqual(transcript, "好好学习，天天向上。")
+    }
+
     func testRoutedBackendAutomaticShortInputUsesFastSystemEvenWhenHighAccuracyIsReady() async throws {
         let fastBackend = MockSpeechRecognitionBackend(result: "fast text")
         let highAccuracyBackend = MockSpeechRecognitionBackend(result: "high accuracy text")

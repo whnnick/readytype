@@ -52,6 +52,10 @@ final class SpeechTranscriptionService: SpeechTranscribing {
                 throw ReadyTypeError.transcriptionEmpty
             }
 
+            guard !SpeechTranscriptValidator.isLikelyHallucination(transcript) else {
+                throw ReadyTypeError.transcriptionEmpty
+            }
+
             return transcript
         } catch let error as ReadyTypeError {
             throw error
@@ -269,7 +273,7 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
 
     func transcribeAudio(at fileURL: URL) async throws -> String {
         let pipe = try await pipeline(load: true, prewarm: false)
-        let decodeOptions = DecodingOptions(language: "zh")
+        let decodeOptions = DecodingOptions(language: "zh", chunkingStrategy: .vad)
         let results = try await pipe.transcribe(audioPath: fileURL.path, decodeOptions: decodeOptions)
         let transcript = results
             .map(\.text)
@@ -307,6 +311,24 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
         let pipe = try await WhisperKit(config)
         pipeline = pipe
         return pipe
+    }
+}
+
+enum SpeechTranscriptValidator {
+    static func isLikelyHallucination(_ transcript: String) -> Bool {
+        let normalized = transcript
+            .lowercased()
+            .unicodeScalars
+            .filter { !CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters).contains($0) }
+            .map(String.init)
+            .joined()
+
+        guard normalized.count >= 20, normalized.count.isMultiple(of: 2) else {
+            return false
+        }
+
+        let midpoint = normalized.index(normalized.startIndex, offsetBy: normalized.count / 2)
+        return normalized[..<midpoint] == normalized[midpoint...]
     }
 }
 

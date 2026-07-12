@@ -9,6 +9,8 @@
 
 ### Changed
 
+- Advanced the current development build to `1.2.0 (69)` so test artifacts no longer reuse `1.1.0 (68)`.
+- Enabled VAD chunking for high-accuracy recognition and reject anomalous transcripts made from repeated long segments before they can be pasted.
 - Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.3.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
 - Reorganized the main window into Home, Common Words, Language & Output, Shortcuts, Speech Recognition, Permissions & Privacy, and About, with settings scoped to each destination.
 - Replaced mode and scenario controls on Home with a quiet summary of runtime status, shortcut, speech package, default output, and recent results.
@@ -19,6 +21,7 @@
 - Rewrote Common Words guidance with a concrete misrecognition example, clearer reminder and save boundaries, and user-facing bulk-add wording.
 - Common Words bulk add now accepts newlines, Chinese/English commas, enumeration commas, and semicolons, deduplicates and stores each term independently, and migrates previously combined comma entries.
 - Common Words manual add does not ask users to configure a scope; ReadyType adjusts usage priority automatically from the current app, category, and context.
+- Reorganized Language & Output around Default Output, AI Features, and delivery to the current app, with DeepSeek service and model fields moved into Advanced Connection Settings.
 - Fixed Follow System updating only the title bar in some transitions, unified AppKit and SwiftUI appearance resolution, added layered off-white surfaces, animated theme changes, and aligned sidebar labels with a fixed icon column.
 
 ## 1.1.0 - 2026-07-11
