@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Reordered the sidebar so Home appears first and Usage Overview follows it, matching the default page with the navigation hierarchy.
 - Fixed the menu bar popover being difficult to dismiss and added Escape-to-close behavior.
 - Usage Dashboard can clear local statistics, and streaks remain valid through the current day before the user records new activity.
 - Unified the AppKit popover and SwiftUI content dimensions to avoid relayout jank, and applied appearance selection to the entire menu bar popover.

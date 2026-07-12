@@ -225,8 +225,8 @@ struct ReadyTypeMainView: View {
 }
 
 private enum ReadyTypeSection: String, CaseIterable, Identifiable {
-    case dashboard
     case home
+    case dashboard
     case vocabulary
     case languageOutput
     case shortcuts
