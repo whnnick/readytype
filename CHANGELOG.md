@@ -13,6 +13,7 @@
 
 - Fixed the menu bar popover being difficult to dismiss and added Escape-to-close behavior.
 - Usage Dashboard can clear local statistics, and streaks remain valid through the current day before the user records new activity.
+- Unified the AppKit popover and SwiftUI content dimensions to avoid relayout jank, and applied appearance selection to the entire menu bar popover.
 - Home now uses a green status dot when high-accuracy recognition is enabled and ready, while recording, processing, and error states keep priority.
 - Advanced the current development build to `1.2.0 (70)` so test artifacts no longer reuse stale build numbers.
 - Enabled VAD chunking for high-accuracy recognition and reject anomalous transcripts made from repeated long segments before they can be pasted.

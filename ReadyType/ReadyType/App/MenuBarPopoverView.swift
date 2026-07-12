@@ -15,8 +15,13 @@ struct MenuBarPopoverView: View {
             controls
         }
         .padding(14)
-        .frame(width: 318)
+        .frame(
+            width: MenuBarPopoverLayout.width,
+            height: MenuBarPopoverLayout.height,
+            alignment: .top
+        )
         .background(ReadyTypeTheme.canvas)
+        .preferredColorScheme(appearance.colorScheme)
     }
 
     private var header: some View {
@@ -72,7 +77,6 @@ struct MenuBarPopoverView: View {
                     .foregroundStyle(ReadyTypeTheme.muted)
             }
         }
-        .preferredColorScheme(appearance.colorScheme)
     }
 
     private var appearance: ReadyTypeAppearance {

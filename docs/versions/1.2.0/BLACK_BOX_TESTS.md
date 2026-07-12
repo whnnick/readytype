@@ -1,6 +1,6 @@
 # ReadyType 1.2.0 Black-Box Functional Check
 
-Last updated: 2026-07-12. Current candidate build: `1.2.0 (73)`.
+Last updated: 2026-07-13. Current candidate build: `1.2.0 (74)`.
 
 ## Requirement Mapping and Status
 
@@ -17,8 +17,8 @@ Last updated: 2026-07-12. Current candidate build: `1.2.0 (73)`.
 
 ## Verification Completed
 
-- `swift test`: 347 executed, 14 skipped by real-service or environment conditions, 0 failures.
-- `scripts/build-app.sh`: passed; App reports `1.2.0 (73)`.
+- `swift test`: 348 executed, 14 skipped by real-service or environment conditions, 0 failures.
+- `scripts/build-app.sh`: passed; App reports `1.2.0 (74)`.
 - `scripts/package-app.sh`, `scripts/package-dmg.sh`, and `hdiutil verify`: passed; ZIP and DMG were regenerated.
 - Dashboard Light, Dark, and Follow System: checked in the real window.
 - Populated Dashboard: completed-input count, voice duration, characters, and estimated time saved display real aggregates.
@@ -26,8 +26,8 @@ Last updated: 2026-07-12. Current candidate build: `1.2.0 (73)`.
 
 ## Manual Confirmation Remaining
 
-1. Complete one real voice input in final build 73 and confirm all four aggregates update once while no text is persisted.
-2. Reconfirm status-item toggle, outside click, and Escape dismissal in final build 73.
+1. Dashboard increments passed a real voice-input check; sample the persisted file once more before release to confirm no text is present.
+2. Confirm status-item toggle, outside click, and Escape dismissal in build 74, including smooth opening animation.
 3. Confirm the Clear Statistics dialog and result; automated UI must not delete the user's local aggregate data.
 
 ## Release Blockers

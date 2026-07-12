@@ -1,6 +1,11 @@
 import AppKit
 import SwiftUI
 
+enum MenuBarPopoverLayout {
+    static let width: CGFloat = 318
+    static let height: CGFloat = 430
+}
+
 @MainActor
 final class MenuBarController: NSObject, NSPopoverDelegate {
     private let statusItem: NSStatusItem
@@ -32,7 +37,10 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         popover.behavior = .transient
         popover.delegate = self
         popover.animates = true
-        popover.contentSize = NSSize(width: 292, height: 318)
+        popover.contentSize = NSSize(
+            width: MenuBarPopoverLayout.width,
+            height: MenuBarPopoverLayout.height
+        )
         popover.contentViewController = NSHostingController(
             rootView: MenuBarPopoverView(
                 appState: appState,
