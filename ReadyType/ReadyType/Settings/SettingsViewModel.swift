@@ -10,6 +10,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var baseURLText: String
     @Published var model: String
     @Published var pasteAutomatically: Bool
+    @Published var chineseTextStyle: ChineseTextStyle
     @Published var speechRecognitionMode: SpeechRecognitionMode
     @Published var isHighAccuracyRecognitionEnabled: Bool
     @Published var isIdlePrewarmEnabled: Bool
@@ -68,6 +69,7 @@ final class SettingsViewModel: ObservableObject {
         self.baseURLText = settings.deepSeekBaseURL.absoluteString
         self.model = settings.deepSeekModel
         self.pasteAutomatically = settings.pasteAutomatically
+        self.chineseTextStyle = settings.chineseTextStyle
         self.speechRecognitionMode = settings.speechRecognitionMode
         self.isHighAccuracyRecognitionEnabled = settings.isHighAccuracyRecognitionEnabled
         self.isIdlePrewarmEnabled = settings.isIdlePrewarmEnabled
@@ -112,6 +114,7 @@ final class SettingsViewModel: ObservableObject {
             deepSeekBaseURL: baseURL,
             deepSeekModel: trimmedModel,
             pasteAutomatically: pasteAutomatically,
+            chineseTextStyle: chineseTextStyle,
             speechRecognitionMode: speechRecognitionMode,
             isHighAccuracyRecognitionEnabled: isHighAccuracyRecognitionEnabled,
             isIdlePrewarmEnabled: isIdlePrewarmEnabled,

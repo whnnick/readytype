@@ -26,6 +26,7 @@ final class AppSettingsTests: XCTestCase {
             deepSeekBaseURL: URL(string: "https://proxy.example.com/v1")!,
             deepSeekModel: "deepseek-reasoner",
             pasteAutomatically: false,
+            chineseTextStyle: .traditional,
             speechRecognitionMode: .highAccuracyLocal,
             isHighAccuracyRecognitionEnabled: true,
             isIdlePrewarmEnabled: false,

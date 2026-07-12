@@ -272,6 +272,26 @@ struct SettingsPane: View {
                     Text(viewModel.defaultMode.userDescription)
                         .font(.footnote)
                         .foregroundStyle(ReadyTypeTheme.muted)
+
+                    Divider()
+
+                    HStack {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("中文文字")
+                                .font(.callout.weight(.medium))
+                            Text("统一语音识别和 AI 整理后的中文写法。")
+                                .font(.footnote)
+                                .foregroundStyle(ReadyTypeTheme.muted)
+                        }
+                        Spacer()
+                        Picker("中文文字", selection: $viewModel.chineseTextStyle) {
+                            ForEach(ChineseTextStyle.allCases) { style in
+                                Text(style.displayName).tag(style)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 150)
+                    }
                 }
 
                 ReadyTypePanel("AI 功能", subtitle: "整理成文、翻译成英文和写给 AI 时使用 DeepSeek；直接转文字不使用。") {

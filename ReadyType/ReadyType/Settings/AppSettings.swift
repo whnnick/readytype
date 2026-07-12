@@ -5,6 +5,7 @@ struct AppSettings: Equatable {
     var deepSeekBaseURL: URL
     var deepSeekModel: String
     var pasteAutomatically: Bool
+    var chineseTextStyle: ChineseTextStyle
     var speechRecognitionMode: SpeechRecognitionMode
     var isHighAccuracyRecognitionEnabled: Bool
     var isIdlePrewarmEnabled: Bool
@@ -16,6 +17,7 @@ struct AppSettings: Equatable {
         deepSeekBaseURL: URL,
         deepSeekModel: String,
         pasteAutomatically: Bool,
+        chineseTextStyle: ChineseTextStyle = .simplified,
         speechRecognitionMode: SpeechRecognitionMode = .automatic,
         isHighAccuracyRecognitionEnabled: Bool = false,
         isIdlePrewarmEnabled: Bool = true,
@@ -26,6 +28,7 @@ struct AppSettings: Equatable {
         self.deepSeekBaseURL = deepSeekBaseURL
         self.deepSeekModel = deepSeekModel
         self.pasteAutomatically = pasteAutomatically
+        self.chineseTextStyle = chineseTextStyle
         self.speechRecognitionMode = speechRecognitionMode
         self.isHighAccuracyRecognitionEnabled = isHighAccuracyRecognitionEnabled
         self.isIdlePrewarmEnabled = isIdlePrewarmEnabled
@@ -38,6 +41,7 @@ struct AppSettings: Equatable {
         deepSeekBaseURL: DeepSeekConfiguration.default.baseURL,
         deepSeekModel: DeepSeekConfiguration.default.model,
         pasteAutomatically: true,
+        chineseTextStyle: .simplified,
         speechRecognitionMode: .automatic,
         isHighAccuracyRecognitionEnabled: false,
         isIdlePrewarmEnabled: true,

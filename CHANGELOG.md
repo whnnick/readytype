@@ -4,12 +4,13 @@
 
 ### Added
 
+- Added a Chinese Text setting with Simplified Chinese, Traditional Chinese, and Follow System options; Simplified Chinese is the default and applies consistently to direct and AI-assisted output.
 - Added bilingual ReadyType 1.2.0 UI/UX Refresh requirements, interaction architecture, visual and motion guidance, and implementation plans.
 - Added persisted Follow System, Light, and Dark appearances shared by the main window, HUD, and menu bar popover.
 
 ### Changed
 
-- Advanced the current development build to `1.2.0 (69)` so test artifacts no longer reuse `1.1.0 (68)`.
+- Advanced the current development build to `1.2.0 (70)` so test artifacts no longer reuse stale build numbers.
 - Enabled VAD chunking for high-accuracy recognition and reject anomalous transcripts made from repeated long segments before they can be pasted.
 - Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.3.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
 - Reorganized the main window into Home, Common Words, Language & Output, Shortcuts, Speech Recognition, Permissions & Privacy, and About, with settings scoped to each destination.

@@ -34,6 +34,39 @@ final class WorkflowControllerTests: XCTestCase {
         XCTAssertEqual(appState.lastProcessingSummary, "直接转文字：未调用 DeepSeek")
     }
 
+    func testAppliesSelectedChineseTextStyleBeforeDelivery() async throws {
+        let appState = AppState(selectedMode: .dictation)
+        let processor = MockOutputProcessing(
+            result: ProcessedOutput(
+                rawTranscript: "開始動工吧",
+                finalText: "開始動工吧",
+                usedAI: false,
+                usedFallback: false,
+                warning: nil
+            )
+        )
+        let pasteService = MockTextDelivering(result: .pasted)
+        let controller = WorkflowController(
+            appState: appState,
+            settingsProvider: {
+                AppSettings(
+                    defaultMode: .dictation,
+                    deepSeekBaseURL: URL(string: "https://api.deepseek.com")!,
+                    deepSeekModel: "deepseek-v4-flash",
+                    pasteAutomatically: true,
+                    chineseTextStyle: .simplified
+                )
+            },
+            outputProcessor: processor,
+            textDelivery: pasteService
+        )
+
+        try await controller.handleTranscript("開始動工吧")
+
+        XCTAssertEqual(pasteService.requests.map(\.text), ["开始动工吧"])
+        XCTAssertEqual(appState.lastOutput, "开始动工吧")
+    }
+
     func testSpokenDictationCommandOverridesSelectedAIMode() async throws {
         let appState = AppState(selectedMode: .aiCleanup)
         let processor = MockOutputProcessing(

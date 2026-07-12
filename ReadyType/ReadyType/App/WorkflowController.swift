@@ -53,10 +53,20 @@ final class WorkflowController {
         do {
             appState.runtimeState = mode.requiresAI ? .processingAI : .transcribing
             let outputContext = outputContextProvider(transcriptForProcessing)
-            let output = try await outputProcessor.process(
+            let processedOutput = try await outputProcessor.process(
                 transcriptForProcessing,
                 mode: mode,
                 context: outputContext
+            )
+            let output = ProcessedOutput(
+                rawTranscript: processedOutput.rawTranscript,
+                finalText: ChineseTextConverter.convert(
+                    processedOutput.finalText,
+                    style: settings.chineseTextStyle
+                ),
+                usedAI: processedOutput.usedAI,
+                usedFallback: processedOutput.usedFallback,
+                warning: processedOutput.warning
             )
             appState.lastOutput = output.finalText
             appState.userVocabularySuggestions = settings.isVocabularyLearningSuggestionsEnabled

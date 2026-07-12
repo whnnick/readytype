@@ -6,6 +6,7 @@ final class SettingsStore {
         static let deepSeekBaseURL = "deepSeekBaseURL"
         static let deepSeekModel = "deepSeekModel"
         static let pasteAutomatically = "pasteAutomatically"
+        static let chineseTextStyle = "chineseTextStyle"
         static let speechRecognitionMode = "speechRecognitionMode"
         static let isHighAccuracyRecognitionEnabled = "isHighAccuracyRecognitionEnabled"
         static let isIdlePrewarmEnabled = "isIdlePrewarmEnabled"
@@ -44,6 +45,10 @@ final class SettingsStore {
             .flatMap(SpeechRecognitionMode.init(rawValue:))
             ?? defaultSettings.speechRecognitionMode
 
+        let chineseTextStyle = defaults.string(forKey: Keys.chineseTextStyle)
+            .flatMap(ChineseTextStyle.init(rawValue:))
+            ?? defaultSettings.chineseTextStyle
+
         let isHighAccuracyRecognitionEnabled = boolValue(
             forKey: Keys.isHighAccuracyRecognitionEnabled,
             defaultValue: defaultSettings.isHighAccuracyRecognitionEnabled
@@ -66,6 +71,7 @@ final class SettingsStore {
             deepSeekBaseURL: baseURL,
             deepSeekModel: model,
             pasteAutomatically: pasteAutomatically,
+            chineseTextStyle: chineseTextStyle,
             speechRecognitionMode: speechRecognitionMode,
             isHighAccuracyRecognitionEnabled: isHighAccuracyRecognitionEnabled,
             isIdlePrewarmEnabled: isIdlePrewarmEnabled,
@@ -79,6 +85,7 @@ final class SettingsStore {
         defaults.set(settings.deepSeekBaseURL.absoluteString, forKey: Keys.deepSeekBaseURL)
         defaults.set(settings.deepSeekModel, forKey: Keys.deepSeekModel)
         defaults.set(settings.pasteAutomatically, forKey: Keys.pasteAutomatically)
+        defaults.set(settings.chineseTextStyle.rawValue, forKey: Keys.chineseTextStyle)
         defaults.set(settings.speechRecognitionMode.rawValue, forKey: Keys.speechRecognitionMode)
         defaults.set(settings.isHighAccuracyRecognitionEnabled, forKey: Keys.isHighAccuracyRecognitionEnabled)
         defaults.set(settings.isIdlePrewarmEnabled, forKey: Keys.isIdlePrewarmEnabled)
