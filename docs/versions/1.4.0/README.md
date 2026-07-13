@@ -18,4 +18,4 @@ ReadyType 1.4.0 establishes privacy-first anonymous product analytics so future 
 
 ## Current Status
 
-The event allowlist, user control, core input funnel instrumentation, and No-op default are complete. The official provider, production configuration verification, release-facing README updates, and 1.4.0 black-box checks remain pending, so current builds do not produce remote analytics data.
+The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, and No-op default are complete. Production App ID verification, release-facing README updates, and 1.4.0 black-box checks remain pending, so current builds without injected configuration do not produce remote analytics data.

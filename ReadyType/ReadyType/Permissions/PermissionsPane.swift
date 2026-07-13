@@ -70,7 +70,7 @@ struct PermissionsPane: View {
                             )
                         )
                         .toggleStyle(.checkbox)
-                        Text("只发送匿名的功能使用、性能分桶和固定错误码；不会发送语音、文字内容、窗口标题、常用词、剪贴板或 DeepSeek 密钥。公开源码构建默认不发送统计。")
+                        Text("只发送匿名的功能使用、性能分桶、固定错误码，以及用于兼容性分析的 App 与系统信息；不会发送语音、文字内容、窗口标题、常用词、剪贴板或 DeepSeek 密钥。公开源码构建默认不发送统计。")
                             .font(.footnote)
                             .foregroundStyle(ReadyTypeTheme.muted)
                     }

@@ -31,3 +31,4 @@ Business modules
 
 The event specification, privacy copy, implementation, and tests must agree. A build with anonymous analytics enabled ships only after its official configuration is verified.
 
+The official provider uses TelemetryDeck Swift SDK 2.14.1. `READYTYPE_TELEMETRYDECK_APP_ID` injects the App ID into the app bundle's `Info.plist` at build time. The App ID routes data and is not a dashboard credential, but it remains outside the repository so ordinary source builds stay no-op. Management tokens and dashboard credentials must never enter client builds.

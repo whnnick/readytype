@@ -9,6 +9,8 @@ APP_DIR="$ROOT_DIR/dist/$APP_NAME.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
+TELEMETRY_BUNDLE_NAME="TelemetryDeck_TelemetryDeck.bundle"
+TELEMETRY_BUNDLE_SOURCE="$ROOT_DIR/.build/$BUILD_CONFIG/$TELEMETRY_BUNDLE_NAME"
 SWIFTPM_CACHE_DIR="$ROOT_DIR/.build/swiftpm-cache"
 SWIFTPM_CONFIG_DIR="$ROOT_DIR/.build/swiftpm-config"
 SWIFTPM_SECURITY_DIR="$ROOT_DIR/.build/swiftpm-security"
@@ -40,9 +42,18 @@ mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
 cp "$ROOT_DIR/.build/$BUILD_CONFIG/$APP_NAME" "$MACOS_DIR/$APP_NAME"
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeInfo.plist" "$CONTENTS_DIR/Info.plist"
+if [[ -n "${READYTYPE_TELEMETRYDECK_APP_ID:-}" ]]; then
+    plutil -insert ReadyTypeTelemetryDeckAppID -string "$READYTYPE_TELEMETRYDECK_APP_ID" "$CONTENTS_DIR/Info.plist"
+fi
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeAppIcon.icns" "$RESOURCES_DIR/ReadyTypeAppIcon.icns"
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeBrandLogo.svg" "$RESOURCES_DIR/ReadyTypeBrandLogo.svg"
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeMenuBarTemplate.png" "$RESOURCES_DIR/ReadyTypeMenuBarTemplate.png"
+if [[ ! -f "$TELEMETRY_BUNDLE_SOURCE/PrivacyInfo.xcprivacy" ]]; then
+    echo "Missing TelemetryDeck privacy manifest: $TELEMETRY_BUNDLE_SOURCE/PrivacyInfo.xcprivacy" >&2
+    exit 1
+fi
+cp -R "$TELEMETRY_BUNDLE_SOURCE" "$RESOURCES_DIR/$TELEMETRY_BUNDLE_NAME"
+chmod -R u+w "$RESOURCES_DIR/$TELEMETRY_BUNDLE_NAME"
 printf "APPL????" > "$CONTENTS_DIR/PkgInfo"
 touch "$APP_DIR" "$CONTENTS_DIR" "$RESOURCES_DIR"
 xattr -cr "$APP_DIR"

@@ -31,3 +31,4 @@
 
 事件规范、隐私文案、实现和测试必须一致；只有官方配置验证完成后才发布启用匿名统计的构建。
 
+官方 Provider 使用 TelemetryDeck Swift SDK 2.14.1；App ID 由 `READYTYPE_TELEMETRYDECK_APP_ID` 在构建时注入 App 的 `Info.plist`。App ID 用于数据路由而非后台管理，但不提交到仓库，以确保普通源码构建保持 No-op。管理 Token 和 Dashboard 凭据不得进入客户端构建。

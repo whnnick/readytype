@@ -11,13 +11,15 @@ let package = Package(
         .executable(name: "ReadyType", targets: ["ReadyType"])
     ],
     dependencies: [
-        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", from: "1.0.0")
+        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", from: "1.0.0"),
+        .package(url: "https://github.com/TelemetryDeck/SwiftSDK.git", from: "2.14.1")
     ],
     targets: [
         .executableTarget(
             name: "ReadyType",
             dependencies: [
-                .product(name: "WhisperKit", package: "argmax-oss-swift")
+                .product(name: "WhisperKit", package: "argmax-oss-swift"),
+                .product(name: "TelemetryDeck", package: "SwiftSDK")
             ],
             path: "ReadyType/ReadyType",
             resources: [

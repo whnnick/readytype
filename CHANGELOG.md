@@ -5,6 +5,8 @@
 - Added bilingual ReadyType 1.4.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.
 - Added a strongly typed anonymous event layer, user control, and No-op default covering launch, input start, completion, cancellation, and fixed error codes; current public builds still send no network analytics.
 - Precomputed contextual-vocabulary ranking context and sort keys so the 2,000-term stress-test P95 remains reliably below the 50 ms gate.
+- Integrated the official TelemetryDeck Swift SDK as an optional analytics provider; its App ID is injected only at build time, missing configuration remains no-op, and automatic session events and session statistics are disabled.
+- The build script now copies and verifies TelemetryDeck's privacy-manifest bundle so custom `.app` packaging cannot omit the third-party privacy declaration.
 
 ## 1.2.0 - 2026-07-13
 

@@ -7,6 +7,12 @@
 - Durations, recording length, and system information use buckets to avoid high-cardinality data.
 - Official build configuration and admin credentials stay out of the public repository; public source builds send nothing by default.
 
+## Provider Metadata
+
+Official builds use TelemetryDeck Swift SDK 2.14.1. In addition to the ReadyType properties below, the SDK attaches fixed compatibility metadata including app version and build, system version, architecture and Mac model, language/region/time zone, display properties, appearance, and accessibility preferences. ReadyType supplies no account, email, or other custom user identifier, and disables automatic SDK session events and session statistics.
+
+Default metadata must be audited again before any SDK upgrade. Scope changes require this specification and the user-facing privacy disclosure to be updated first.
+
 ## Allowed Events
 
 | Event | Allowed properties |
@@ -31,4 +37,3 @@
 - Latency bucket: `under_500ms`, `500_1500ms`, `1500_3000ms`, `over_3000ms`
 
 New events or properties must update this specification and its tests before entering business code.
-

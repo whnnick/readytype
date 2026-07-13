@@ -41,6 +41,61 @@ enum ReadyTypeAnalyticsEvent: Equatable {
     case voiceInputFailed(stage: AnalyticsVoiceStage, code: AnalyticsErrorCode)
 }
 
+extension ReadyTypeAnalyticsEvent {
+    var signal: ReadyTypeAnalyticsSignal {
+        switch self {
+        case let .appLaunched(version, build, osMajorVersion, architecture):
+            ReadyTypeAnalyticsSignal(
+                name: "app_launched",
+                parameters: [
+                    "version": version,
+                    "build": build,
+                    "os_major": String(osMajorVersion),
+                    "architecture": architecture.rawValue
+                ]
+            )
+        case let .voiceInputStarted(recognitionSelection, outputMethod):
+            ReadyTypeAnalyticsSignal(
+                name: "voice_input_started",
+                parameters: [
+                    "recognition_selection": recognitionSelection.rawValue,
+                    "output_method": outputMethod.rawValue
+                ]
+            )
+        case let .voiceInputFinished(engine, outputMethod, scenario, recordingDuration, completionLatency, delivery):
+            ReadyTypeAnalyticsSignal(
+                name: "voice_input_finished",
+                parameters: [
+                    "engine": engine.rawValue,
+                    "output_method": outputMethod.rawValue,
+                    "scenario": scenario.rawValue,
+                    "recording_duration": recordingDuration.rawValue,
+                    "completion_latency": completionLatency.rawValue,
+                    "delivery": delivery.rawValue
+                ]
+            )
+        case let .voiceInputCancelled(stage):
+            ReadyTypeAnalyticsSignal(
+                name: "voice_input_cancelled",
+                parameters: ["stage": stage.rawValue]
+            )
+        case let .voiceInputFailed(stage, code):
+            ReadyTypeAnalyticsSignal(
+                name: "voice_input_failed",
+                parameters: [
+                    "stage": stage.rawValue,
+                    "code": code.rawValue
+                ]
+            )
+        }
+    }
+}
+
+struct ReadyTypeAnalyticsSignal: Equatable {
+    var name: String
+    var parameters: [String: String]
+}
+
 enum AnalyticsArchitecture: String, Equatable {
     case arm64
     case x86_64

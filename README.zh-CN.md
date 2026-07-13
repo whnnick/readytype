@@ -105,7 +105,7 @@ swift test
 - `直接转文字` 不调用 DeepSeek。
 - AI 输出方式会把当前文本发送给 DeepSeek 处理。
 - 高精度语音包保存在 `~/Library/Application Support/ReadyType/Models/`。
-- 公开源码构建默认不发送匿名统计；统计功能不会包含语音、文字内容、窗口标题、常用词、剪贴板或 DeepSeek 密钥。
+- 公开源码构建默认不发送匿名统计；官方构建启用后会发送匿名功能事件及 App、系统和设备兼容性信息，但不会包含语音、文字内容、窗口标题、常用词、剪贴板或 DeepSeek 密钥。
 
 ## 开源协议
 

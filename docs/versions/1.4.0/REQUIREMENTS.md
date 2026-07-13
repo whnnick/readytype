@@ -14,7 +14,7 @@ The current Usage Overview stores only daily completed-input counts, recording d
 
 ## Privacy Requirements
 
-Audio, raw transcripts, final output, window titles, file paths, clipboard content, common words, DeepSeek requests or responses, API keys, contacts, and account details must never be uploaded. The app may send only events and enumerated properties listed in `ANALYTICS_SPEC.md`.
+Audio, raw transcripts, final output, window titles, file paths, clipboard content, common words, DeepSeek requests or responses, API keys, contacts, and account details must never be uploaded. The app may send only events and enumerated properties listed in `ANALYTICS_SPEC.md` plus audited compatibility metadata supplied by the TelemetryDeck SDK.
 
 ## Acceptance Criteria
 
@@ -31,4 +31,3 @@ Audio, raw transcripts, final output, window titles, file paths, clipboard conte
 - Do not upload the existing `UsageStatistics.json` file.
 - Do not store admin tokens or dashboard credentials in the client.
 - English UI, English ASR, and mixed Chinese-English speech are outside this release.
-

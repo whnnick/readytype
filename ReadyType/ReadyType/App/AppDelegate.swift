@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let settingsStore = SettingsStore()
     private let usageStatisticsStore = UsageStatisticsStore()
     private lazy var analyticsTracker: AnalyticsTracking = ConsentAwareAnalyticsTracker(
-        tracker: NoopAnalyticsTracker(),
+        tracker: ReadyTypeAnalyticsFactory.make(),
         isEnabled: { [settingsStore] in settingsStore.load().isAnonymousAnalyticsEnabled }
     )
     private let keychainService = KeychainService()
