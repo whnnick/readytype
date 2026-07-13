@@ -3,6 +3,9 @@ tmp/
 .DS_Store
 .build/
 dist/
+/ReadyType.app.zip
+/ReadyType.dmg
+/SHA256SUMS.txt
 *.pdf
 !docs/versions/**/*.pdf
 docs/versions/**/plans/*.local.json

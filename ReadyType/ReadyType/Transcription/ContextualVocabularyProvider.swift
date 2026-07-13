@@ -43,8 +43,13 @@ struct ContextualVocabularyProvider {
         return await withTaskGroup(of: [String].self) { group in
             group.addTask {
                 if artificialDelayNanoseconds > 0 {
-                    try? await Task.sleep(nanoseconds: artificialDelayNanoseconds)
+                    do {
+                        try await Task.sleep(nanoseconds: artificialDelayNanoseconds)
+                    } catch {
+                        return []
+                    }
                 }
+                guard !Task.isCancelled else { return [] }
                 return rankedTerms(for: request)
             }
 

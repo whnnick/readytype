@@ -15,6 +15,8 @@ final class ReleaseGateScriptTests: XCTestCase {
         let asrMetricsTemplate = root.appendingPathComponent("docs/versions/1.0.0/plans/readytype-1.0.0-asr-metrics-template.json")
         let releaseGate = root.appendingPathComponent("scripts/verify-1.0.0-release-local.sh")
         let ciWorkflow = root.appendingPathComponent(".github/workflows/ci.yml")
+        let releaseWorkflow = root.appendingPathComponent(".github/workflows/release.yml")
+        let sensitiveInformationScanner = root.appendingPathComponent("scripts/check-sensitive-info.py")
 
         XCTAssertTrue(
             FileManager.default.fileExists(atPath: benchmarkScript.path),
@@ -55,6 +57,14 @@ final class ReleaseGateScriptTests: XCTestCase {
         XCTAssertTrue(
             FileManager.default.fileExists(atPath: asrMetricsTemplate.path),
             "1.0.0 real ASR metrics need a stable record template."
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: releaseWorkflow.path),
+            "Version tags need an automated GitHub Release workflow."
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: sensitiveInformationScanner.path),
+            "CI and release jobs need a shared sensitive-information scanner."
         )
 
         let releaseGateSource = try String(contentsOf: releaseGate, encoding: .utf8)
@@ -116,6 +126,19 @@ final class ReleaseGateScriptTests: XCTestCase {
             ciWorkflowSource.contains("ReadyType.dmg"),
             "GitHub Actions should upload the generated DMG artifact."
         )
+        XCTAssertTrue(
+            ciWorkflowSource.contains("scripts/check-sensitive-info.py"),
+            "CI should run the shared sensitive-information scanner."
+        )
+
+        let releaseWorkflowSource = try String(contentsOf: releaseWorkflow, encoding: .utf8)
+        XCTAssertTrue(releaseWorkflowSource.contains("tags:"))
+        XCTAssertTrue(releaseWorkflowSource.contains("Validate tag and app version"))
+        XCTAssertTrue(releaseWorkflowSource.contains("scripts/check-sensitive-info.py"))
+        XCTAssertTrue(releaseWorkflowSource.contains("scripts/package-app.sh"))
+        XCTAssertTrue(releaseWorkflowSource.contains("scripts/package-dmg.sh"))
+        XCTAssertTrue(releaseWorkflowSource.contains("SHA256SUMS.txt"))
+        XCTAssertTrue(releaseWorkflowSource.contains("gh release create"))
 
         let visualAcceptanceSource = try String(contentsOf: visualAcceptanceScript, encoding: .utf8)
         XCTAssertTrue(

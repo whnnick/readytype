@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed contextual-vocabulary work continuing after its timeout was cancelled, preventing delayed fallback and environment-sensitive CI failures.
+- Added tag-triggered GitHub Releases with version validation, tests, sensitive-information scanning, ZIP and DMG packages, and SHA-256 checksums.
 - Normalized Chinese and mixed Chinese-English output to full-width Chinese punctuation while keeping fully English output in ASCII punctuation; versions, URLs, times, and numeric formats remain intact.
 - Strengthened cleanup output requirements to restore sentence-internal and sentence-ending punctuation.
 
