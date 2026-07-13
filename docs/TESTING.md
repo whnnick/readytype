@@ -53,3 +53,10 @@ Useful details:
 - What you expected
 
 Remove API keys, private chats, private emails, real customer information, and sensitive business content before posting.
+
+## Maintainer Real-Voice Acceptance
+
+- Fix the case count and stop conditions before testing; do not keep adding near-duplicate prompts during a run.
+- Record only the scenario, spoken input, raw recognition, final output, timing, and paste result.
+- Classify failures as recognition, Common Words/terminology, AI cleanup, language formatting, or delivery before changing code.
+- Retest the failed case, one adjacent positive case, and one false-positive guard; the full release gate still runs before publishing.

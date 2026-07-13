@@ -35,7 +35,8 @@
 3. “清除统计”确认框已打开并取消，18 次本机统计完整保留，未执行删除。
 4. 已在构建 80 真实口述 Typeless / Reddit 测试句；原始识别和最终输出写法正确，中文全角标点正确。
 
-## 发布阻塞项
+## 发布状态
 
-1. 提交最终发布文档并等待远端 CI 通过。
-2. 创建 `v1.2.0` tag，并核对自动生成的 GitHub Release 下载资产。
+- `v1.2.0` 已于 2026-07-13 发布，并成为 GitHub Latest Release。
+- Release workflow 已通过；`ReadyType.app.zip`、`ReadyType.dmg` 和 `SHA256SUMS.txt` 均已上传。
+- 当前无遗留发布阻塞项。

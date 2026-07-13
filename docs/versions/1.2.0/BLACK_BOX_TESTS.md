@@ -35,7 +35,8 @@ Last updated: 2026-07-13. Current candidate build: `1.2.0 (80)`.
 3. The Clear Statistics confirmation was opened and cancelled; all 18 local records remained and no deletion was performed.
 4. Build 80 passed a real Typeless / Reddit voice test with canonical spelling and full-width Chinese punctuation in both recognition and final output.
 
-## Release Blockers
+## Release Status
 
-1. Commit the final release documentation and wait for remote CI to pass.
-2. Create the `v1.2.0` tag and verify the automatically generated GitHub Release assets.
+- `v1.2.0` was published on 2026-07-13 and is the GitHub Latest Release.
+- The Release workflow passed, with `ReadyType.app.zip`, `ReadyType.dmg`, and `SHA256SUMS.txt` uploaded.
+- No release blockers remain.

@@ -17,6 +17,7 @@ final class ReleaseGateScriptTests: XCTestCase {
         let ciWorkflow = root.appendingPathComponent(".github/workflows/ci.yml")
         let releaseWorkflow = root.appendingPathComponent(".github/workflows/release.yml")
         let sensitiveInformationScanner = root.appendingPathComponent("scripts/check-sensitive-info.py")
+        let releaseStateVerifier = root.appendingPathComponent("scripts/verify-release-state.sh")
 
         XCTAssertTrue(
             FileManager.default.fileExists(atPath: benchmarkScript.path),
@@ -65,6 +66,10 @@ final class ReleaseGateScriptTests: XCTestCase {
         XCTAssertTrue(
             FileManager.default.fileExists(atPath: sensitiveInformationScanner.path),
             "CI and release jobs need a shared sensitive-information scanner."
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: releaseStateVerifier.path),
+            "Published releases need a repeatable remote-state verifier."
         )
 
         let releaseGateSource = try String(contentsOf: releaseGate, encoding: .utf8)
@@ -139,6 +144,13 @@ final class ReleaseGateScriptTests: XCTestCase {
         XCTAssertTrue(releaseWorkflowSource.contains("scripts/package-dmg.sh"))
         XCTAssertTrue(releaseWorkflowSource.contains("SHA256SUMS.txt"))
         XCTAssertTrue(releaseWorkflowSource.contains("gh release create"))
+
+        let releaseStateVerifierSource = try String(contentsOf: releaseStateVerifier, encoding: .utf8)
+        XCTAssertTrue(releaseStateVerifierSource.contains("releases/latest"))
+        XCTAssertTrue(releaseStateVerifierSource.contains("ReadyType.app.zip"))
+        XCTAssertTrue(releaseStateVerifierSource.contains("ReadyType.dmg"))
+        XCTAssertTrue(releaseStateVerifierSource.contains("SHA256SUMS.txt"))
+        XCTAssertTrue(releaseStateVerifierSource.contains("BLACK_BOX_TESTS.zh-CN.md"))
 
         let visualAcceptanceSource = try String(contentsOf: visualAcceptanceScript, encoding: .utf8)
         XCTAssertTrue(
