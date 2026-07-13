@@ -74,12 +74,15 @@ struct ContextualVocabularyProvider {
             return []
         }
 
+        let context = RankingContext(request: request)
+
         return dictionary.terms
-            .filter { $0.isAllowed(for: request) }
+            .filter { $0.isAllowed(for: context) }
             .map { term in
                 RankedSmartTerm(
                     value: term.value,
-                    score: score(term, for: request)
+                    sortKey: term.value.lowercased(),
+                    score: score(term, for: context)
                 )
             }
             .filter { $0.score > 0 }
@@ -97,10 +100,10 @@ struct ContextualVocabularyProvider {
         return min(hardCappedLimit, 2)
     }
 
-    private func score(_ term: SmartTerm, for request: ContextualVocabularyRequest) -> Double {
+    private func score(_ term: SmartTerm, for context: RankingContext) -> Double {
         var score = term.weight + term.source.basePriority
 
-        if request.isTechnicalContext {
+        if context.isTechnical {
             switch term.source {
             case .packageName:
                 score += 80
@@ -113,7 +116,7 @@ struct ContextualVocabularyProvider {
             }
         }
 
-        if request.normalizedTranscriptPrefix.contains(term.value.normalizedSmartTermKey) {
+        if context.normalizedTranscriptPrefix.contains(term.value.normalizedSmartTermKey) {
             score += 250
         }
 
@@ -127,26 +130,32 @@ struct ContextualVocabularyProvider {
 
 private struct RankedSmartTerm: Comparable {
     var value: String
+    var sortKey: String
     var score: Double
 
     static func < (lhs: RankedSmartTerm, rhs: RankedSmartTerm) -> Bool {
         if lhs.score == rhs.score {
-            return lhs.value.localizedCaseInsensitiveCompare(rhs.value) == .orderedAscending
+            return lhs.sortKey < rhs.sortKey
         }
         return lhs.score > rhs.score
     }
 }
 
-private extension ContextualVocabularyRequest {
-    var normalizedTranscriptPrefix: String {
-        transcriptPrefix.normalizedSmartTermKey
+private struct RankingContext {
+    var normalizedTranscriptPrefix: String
+    var isTechnical: Bool
+    var vocabularyScope: UserVocabularyScope
+
+    init(request: ContextualVocabularyRequest) {
+        normalizedTranscriptPrefix = request.transcriptPrefix.normalizedSmartTermKey
+        isTechnical = request.isTechnicalContext
+        vocabularyScope = request.vocabularyScope
     }
+}
 
+private extension ContextualVocabularyRequest {
     var isTechnicalContext: Bool {
-        if scenario == .aiTool || scenario == .document || scenario == .note {
-            return true
-        }
-
+        guard scenario != .aiTool, scenario != .document, scenario != .note else { return true }
         let bundle = (frontmostAppBundleIdentifier ?? "").lowercased()
         return bundle.contains("cursor") ||
             bundle.contains("xcode") ||
@@ -159,16 +168,16 @@ private extension ContextualVocabularyRequest {
 }
 
 private extension SmartTerm {
-    func isAllowed(for request: ContextualVocabularyRequest) -> Bool {
+    func isAllowed(for context: RankingContext) -> Bool {
         if scopes.contains(.all) {
             return true
         }
 
-        if scopes.contains(request.vocabularyScope) {
+        if scopes.contains(context.vocabularyScope) {
             return true
         }
 
-        return scopes.contains(.technical) && request.isTechnicalContext
+        return scopes.contains(.technical) && context.isTechnical
     }
 }
 

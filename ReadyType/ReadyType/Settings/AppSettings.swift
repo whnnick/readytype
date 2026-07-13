@@ -10,6 +10,7 @@ struct AppSettings: Equatable {
     var isHighAccuracyRecognitionEnabled: Bool
     var isIdlePrewarmEnabled: Bool
     var isVocabularyLearningSuggestionsEnabled: Bool
+    var isAnonymousAnalyticsEnabled: Bool
     var voiceShortcut: VoiceShortcutConfiguration
 
     init(
@@ -22,6 +23,7 @@ struct AppSettings: Equatable {
         isHighAccuracyRecognitionEnabled: Bool = false,
         isIdlePrewarmEnabled: Bool = true,
         isVocabularyLearningSuggestionsEnabled: Bool = true,
+        isAnonymousAnalyticsEnabled: Bool = true,
         voiceShortcut: VoiceShortcutConfiguration = .default
     ) {
         self.defaultMode = defaultMode
@@ -33,6 +35,7 @@ struct AppSettings: Equatable {
         self.isHighAccuracyRecognitionEnabled = isHighAccuracyRecognitionEnabled
         self.isIdlePrewarmEnabled = isIdlePrewarmEnabled
         self.isVocabularyLearningSuggestionsEnabled = isVocabularyLearningSuggestionsEnabled
+        self.isAnonymousAnalyticsEnabled = isAnonymousAnalyticsEnabled
         self.voiceShortcut = voiceShortcut
     }
 
@@ -46,6 +49,7 @@ struct AppSettings: Equatable {
         isHighAccuracyRecognitionEnabled: false,
         isIdlePrewarmEnabled: true,
         isVocabularyLearningSuggestionsEnabled: true,
+        isAnonymousAnalyticsEnabled: true,
         voiceShortcut: .default
     )
 }

@@ -37,9 +37,17 @@ final class WorkflowControllerTests: XCTestCase {
     func testSuccessfulDeliveryRecordsAggregateUsage() async throws {
         let appState = AppState(
             selectedMode: .dictation,
-            lastVoiceRunMetrics: VoiceRunMetrics(recordingDuration: 4.5)
+            lastVoiceRunMetrics: VoiceRunMetrics(
+                recordingStoppedAt: Date(timeIntervalSince1970: 100),
+                recordingDuration: 4.5
+            )
+        )
+        appState.lastSpeechRecognitionRouteDecision = SpeechRecognitionRouteDecision(
+            backend: .highAccuracyLocal,
+            fallbackReason: nil
         )
         let recorder = MockUsageStatisticsRecorder()
+        let analytics = WorkflowAnalyticsRecorder()
         let controller = WorkflowController(
             appState: appState,
             settingsProvider: { .default },
@@ -53,12 +61,27 @@ final class WorkflowControllerTests: XCTestCase {
                 )
             ),
             textDelivery: MockTextDelivering(result: .pasted),
-            usageStatisticsRecorder: recorder
+            usageStatisticsRecorder: recorder,
+            analyticsTracker: analytics,
+            now: { Date(timeIntervalSince1970: 102) }
         )
 
         try await controller.handleTranscript("开始动工吧")
 
         XCTAssertEqual(recorder.records, [.init(recordingDuration: 4.5, outputText: "开始动工吧")])
+        XCTAssertEqual(
+            analytics.events,
+            [
+                .voiceInputFinished(
+                    engine: .local,
+                    outputMethod: .direct,
+                    scenario: .generic,
+                    recordingDuration: .under5Seconds,
+                    completionLatency: .fifteenHundredTo3000Milliseconds,
+                    delivery: .pasted
+                )
+            ]
+        )
     }
 
     func testAppliesSelectedChineseTextStyleBeforeDelivery() async throws {
@@ -466,6 +489,15 @@ final class WorkflowControllerTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+}
+
+@MainActor
+private final class WorkflowAnalyticsRecorder: AnalyticsTracking {
+    private(set) var events: [ReadyTypeAnalyticsEvent] = []
+
+    func track(_ event: ReadyTypeAnalyticsEvent) {
+        events.append(event)
     }
 }
 

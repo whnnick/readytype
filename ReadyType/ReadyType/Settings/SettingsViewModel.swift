@@ -15,6 +15,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var isHighAccuracyRecognitionEnabled: Bool
     @Published var isIdlePrewarmEnabled: Bool
     @Published var isVocabularyLearningSuggestionsEnabled: Bool
+    @Published var isAnonymousAnalyticsEnabled: Bool
     @Published var voiceShortcut: VoiceShortcutConfiguration
     @Published var apiKeyText: String
     @Published private(set) var hasSavedAPIKey: Bool
@@ -74,6 +75,7 @@ final class SettingsViewModel: ObservableObject {
         self.isHighAccuracyRecognitionEnabled = settings.isHighAccuracyRecognitionEnabled
         self.isIdlePrewarmEnabled = settings.isIdlePrewarmEnabled
         self.isVocabularyLearningSuggestionsEnabled = settings.isVocabularyLearningSuggestionsEnabled
+        self.isAnonymousAnalyticsEnabled = settings.isAnonymousAnalyticsEnabled
         self.voiceShortcut = settings.voiceShortcut
         self.apiKeyText = ""
         self.hasSavedAPIKey = (try? keychainService.hasAPIKey()) ?? false
@@ -119,6 +121,7 @@ final class SettingsViewModel: ObservableObject {
             isHighAccuracyRecognitionEnabled: isHighAccuracyRecognitionEnabled,
             isIdlePrewarmEnabled: isIdlePrewarmEnabled,
             isVocabularyLearningSuggestionsEnabled: isVocabularyLearningSuggestionsEnabled,
+            isAnonymousAnalyticsEnabled: isAnonymousAnalyticsEnabled,
             voiceShortcut: voiceShortcut
         )
 
@@ -145,6 +148,15 @@ final class SettingsViewModel: ObservableObject {
         settings.isVocabularyLearningSuggestionsEnabled = enabled
         settingsStore.save(settings)
         statusMessage = enabled ? "已开启常用词建议" : "已关闭常用词建议"
+    }
+
+    func setAnonymousAnalyticsEnabled(_ enabled: Bool) {
+        isAnonymousAnalyticsEnabled = enabled
+
+        var settings = settingsStore.load()
+        settings.isAnonymousAnalyticsEnabled = enabled
+        settingsStore.save(settings)
+        statusMessage = enabled ? "已开启匿名使用统计" : "已关闭匿名使用统计"
     }
 
     func clearAPIKey() throws {

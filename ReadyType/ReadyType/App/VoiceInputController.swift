@@ -7,6 +7,7 @@ final class VoiceInputController {
     private let recorder: AudioRecordingManaging
     private let transcriber: SpeechTranscribing
     private let transcriptHandler: TranscriptHandling
+    private let analyticsTracker: AnalyticsTracking
     private let now: () -> Date
 
     init(
@@ -15,6 +16,7 @@ final class VoiceInputController {
         recorder: AudioRecordingManaging,
         transcriber: SpeechTranscribing,
         transcriptHandler: TranscriptHandling,
+        analyticsTracker: AnalyticsTracking = NoopAnalyticsTracker(),
         now: @escaping () -> Date = Date.init
     ) {
         self.appState = appState
@@ -22,6 +24,7 @@ final class VoiceInputController {
         self.recorder = recorder
         self.transcriber = transcriber
         self.transcriptHandler = transcriptHandler
+        self.analyticsTracker = analyticsTracker
         self.now = now
     }
 
@@ -36,12 +39,14 @@ final class VoiceInputController {
         guard permissions.canRecord else {
             let error = ReadyTypeError.microphonePermissionMissing
             apply(error)
+            trackFailure(error)
             throw error
         }
 
         guard permissions.canTranscribe else {
             let error = ReadyTypeError.speechRecognitionPermissionMissing
             apply(error)
+            trackFailure(error)
             throw error
         }
 
@@ -51,12 +56,20 @@ final class VoiceInputController {
             appState.runtimeState = .recording
             appState.lastMessage = "正在语音输入"
             appState.lastVoiceRunMetrics?.inputFeedbackShownAt = now()
+            analyticsTracker.track(
+                .voiceInputStarted(
+                    recognitionSelection: appState.speechRecognitionMode.analyticsValue,
+                    outputMethod: appState.selectedMode.analyticsValue
+                )
+            )
         } catch let error as ReadyTypeError {
             apply(error)
+            trackFailure(error)
             throw error
         } catch {
             let readyTypeError = ReadyTypeError.recordingFailed(error.localizedDescription)
             apply(readyTypeError)
+            trackFailure(readyTypeError)
             throw readyTypeError
         }
     }
@@ -76,15 +89,18 @@ final class VoiceInputController {
             try await transcriptHandler.handleTranscript(transcript)
         } catch let error as ReadyTypeError {
             apply(error)
+            trackFailure(error)
             throw error
         } catch {
             let readyTypeError = ReadyTypeError.transcriptionFailed(error.localizedDescription)
             apply(readyTypeError)
+            trackFailure(readyTypeError)
             throw readyTypeError
         }
     }
 
     func cancelRecording() {
+        analyticsTracker.track(.voiceInputCancelled(stage: .recording))
         recorder.cancelRecording()
         appState.runtimeState = .idle
         appState.lastMessage = "已取消本次输入"
@@ -94,6 +110,10 @@ final class VoiceInputController {
     private func apply(_ error: ReadyTypeError) {
         appState.runtimeState = .error(error.userMessage)
         appState.lastMessage = error.userMessage
+    }
+
+    private func trackFailure(_ error: ReadyTypeError) {
+        analyticsTracker.track(.voiceInputFailed(stage: error.analyticsStage, code: error.analyticsCode))
     }
 
     private static func formatDuration(_ duration: TimeInterval) -> String {

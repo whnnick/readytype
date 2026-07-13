@@ -7,6 +7,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState = AppState()
     private let settingsStore = SettingsStore()
     private let usageStatisticsStore = UsageStatisticsStore()
+    private lazy var analyticsTracker: AnalyticsTracking = ConsentAwareAnalyticsTracker(
+        tracker: NoopAnalyticsTracker(),
+        isEnabled: { [settingsStore] in settingsStore.load().isAnonymousAnalyticsEnabled }
+    )
     private let keychainService = KeychainService()
     private var menuBarController: MenuBarController?
     private var voiceInputController: VoiceInputController?
@@ -32,6 +36,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         applySavedAppearance()
         configureApplicationIcon()
         syncAppStateWithSettings()
+        analyticsTracker.track(
+            .appLaunched(
+                version: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown",
+                build: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown",
+                osMajorVersion: ProcessInfo.processInfo.operatingSystemVersion.majorVersion,
+                architecture: .current
+            )
+        )
         menuBarController = MenuBarController(appState: appState) { [weak self] in
             self?.showSettingsWindow()
         }
@@ -157,6 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
+            settingsStore: settingsStore,
             localSpeechModelManager: localSpeechModelManager,
             userVocabularyStore: userVocabularyStore,
             postDownloadPrewarm: { [weak self] in
@@ -235,7 +248,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         existingEntries: entries
                     )
             },
-            usageStatisticsRecorder: usageStatisticsStore
+            usageStatisticsRecorder: usageStatisticsStore,
+            analyticsTracker: analyticsTracker
         )
 
         voiceInputController = VoiceInputController(
@@ -253,7 +267,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                 )
             ),
-            transcriptHandler: workflowController
+            transcriptHandler: workflowController,
+            analyticsTracker: analyticsTracker
         )
     }
 

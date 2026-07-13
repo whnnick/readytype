@@ -20,6 +20,7 @@ final class WorkflowController {
     private let vocabularySuggestionProvider: VocabularySuggestionProvider
     private let now: () -> Date
     private let usageStatisticsRecorder: UsageStatisticsRecording?
+    private let analyticsTracker: AnalyticsTracking
 
     init(
         appState: AppState,
@@ -30,6 +31,7 @@ final class WorkflowController {
         outputContextProvider: OutputContextProvider? = nil,
         vocabularySuggestionProvider: @escaping VocabularySuggestionProvider = { _, _, _ in [] },
         usageStatisticsRecorder: UsageStatisticsRecording? = nil,
+        analyticsTracker: AnalyticsTracking = NoopAnalyticsTracker(),
         now: @escaping () -> Date = Date.init
     ) {
         self.appState = appState
@@ -41,6 +43,7 @@ final class WorkflowController {
         }
         self.vocabularySuggestionProvider = vocabularySuggestionProvider
         self.usageStatisticsRecorder = usageStatisticsRecorder
+        self.analyticsTracker = analyticsTracker
         self.now = now
     }
 
@@ -110,6 +113,21 @@ final class WorkflowController {
                 appState.runtimeState = .copiedFallback
                 appState.lastMessage = "已复制到剪贴板"
             }
+
+            analyticsTracker.track(
+                .voiceInputFinished(
+                    engine: appState.lastSpeechRecognitionRouteDecision?.backend.analyticsValue ?? .apple,
+                    outputMethod: mode.analyticsValue,
+                    scenario: outputContext.scenario.analyticsValue,
+                    recordingDuration: AnalyticsDurationBucket(
+                        seconds: appState.lastVoiceRunMetrics?.recordingDuration ?? 0
+                    ),
+                    completionLatency: AnalyticsLatencyBucket(
+                        milliseconds: appState.lastVoiceRunMetrics?.stopToOutputLatencyMilliseconds ?? 0
+                    ),
+                    delivery: deliveryResult == .pasted ? .pasted : .clipboard
+                )
+            )
         } catch let error as ReadyTypeError {
             appState.runtimeState = .error(error.userMessage)
             appState.lastMessage = error.userMessage

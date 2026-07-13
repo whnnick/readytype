@@ -105,6 +105,7 @@ Generated files are written to `dist/`.
 - Direct dictation does not call DeepSeek.
 - AI output methods send the current text to DeepSeek for processing.
 - High-accuracy speech packages are stored under `~/Library/Application Support/ReadyType/Models/`.
+- Public source builds do not send anonymous analytics by default; analytics never include audio, text content, window titles, common words, clipboard data, or DeepSeek keys.
 
 ## License
 

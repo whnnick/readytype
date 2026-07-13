@@ -171,7 +171,7 @@ struct ReadyTypeMainView: View {
         case .speechRecognition:
             SettingsPane(viewModel: settingsViewModel, section: .speechRecognition)
         case .permissions:
-            PermissionsPane()
+            PermissionsPane(viewModel: settingsViewModel)
         case .about:
             AboutPane()
         }

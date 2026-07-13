@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added bilingual ReadyType 1.4.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.
+- Added a strongly typed anonymous event layer, user control, and No-op default covering launch, input start, completion, cancellation, and fixed error codes; current public builds still send no network analytics.
+- Precomputed contextual-vocabulary ranking context and sort keys so the 2,000-term stress-test P95 remains reliably below the 50 ms gate.
+
 ## 1.2.0 - 2026-07-13
 
 - Applied Common Words to both fast and high-accuracy Whisper recognition and supplied a bounded, deduplicated canonical-spelling list to AI cleanup.

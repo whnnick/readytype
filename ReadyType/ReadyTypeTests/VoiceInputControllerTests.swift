@@ -5,6 +5,7 @@ import XCTest
 final class VoiceInputControllerTests: XCTestCase {
     func testBeginRecordingChecksPermissionsAndStartsRecorder() async throws {
         let appState = AppState()
+        let analytics = VoiceInputAnalyticsRecorder()
         let recorder = MockAudioRecordingManaging(recording: AudioRecording(fileURL: URL(fileURLWithPath: "/tmp/test.m4a"), duration: 1))
         let controller = VoiceInputController(
             appState: appState,
@@ -15,13 +16,18 @@ final class VoiceInputControllerTests: XCTestCase {
             ),
             recorder: recorder,
             transcriber: MockSpeechTranscribing(transcript: "hello"),
-            transcriptHandler: MockTranscriptHandling()
+            transcriptHandler: MockTranscriptHandling(),
+            analyticsTracker: analytics
         )
 
         try await controller.beginRecording()
 
         XCTAssertEqual(recorder.startCount, 1)
         XCTAssertEqual(appState.runtimeState, .recording)
+        XCTAssertEqual(
+            analytics.events,
+            [.voiceInputStarted(recognitionSelection: .automatic, outputMethod: .polished)]
+        )
     }
 
     func testBeginRecordingRequestsUndeterminedPermissionsBeforeRecording() async throws {
@@ -145,6 +151,7 @@ final class VoiceInputControllerTests: XCTestCase {
         let recorder = MockAudioRecordingManaging(recording: AudioRecording(fileURL: URL(fileURLWithPath: "/tmp/test.m4a"), duration: 1.4))
         let transcriber = MockSpeechTranscribing(transcript: "recognized words")
         let transcriptHandler = MockTranscriptHandling()
+        let analytics = VoiceInputAnalyticsRecorder()
         let controller = VoiceInputController(
             appState: appState,
             permissionService: PermissionService(
@@ -154,7 +161,8 @@ final class VoiceInputControllerTests: XCTestCase {
             ),
             recorder: recorder,
             transcriber: transcriber,
-            transcriptHandler: transcriptHandler
+            transcriptHandler: transcriptHandler,
+            analyticsTracker: analytics
         )
 
         try await controller.beginRecording()
@@ -167,6 +175,13 @@ final class VoiceInputControllerTests: XCTestCase {
         XCTAssertEqual(appState.runtimeState, .idle)
         XCTAssertEqual(appState.lastMessage, "已取消本次输入")
         XCTAssertNil(appState.lastVoiceRunMetrics)
+        XCTAssertEqual(
+            analytics.events,
+            [
+                .voiceInputStarted(recognitionSelection: .automatic, outputMethod: .polished),
+                .voiceInputCancelled(stage: .recording)
+            ]
+        )
     }
 
     func testFinishRecordingErrorUpdatesAppState() async {
@@ -193,6 +208,15 @@ final class VoiceInputControllerTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+}
+
+@MainActor
+private final class VoiceInputAnalyticsRecorder: AnalyticsTracking {
+    private(set) var events: [ReadyTypeAnalyticsEvent] = []
+
+    func track(_ event: ReadyTypeAnalyticsEvent) {
+        events.append(event)
     }
 }
 

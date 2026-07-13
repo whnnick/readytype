@@ -2,7 +2,12 @@ import SwiftUI
 
 struct PermissionsPane: View {
     @EnvironmentObject private var appState: AppState
+    @ObservedObject private var viewModel: SettingsViewModel
     @State private var permissionSnapshot = PermissionService().snapshot()
+
+    init(viewModel: SettingsViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         ScrollView {
@@ -56,6 +61,18 @@ struct PermissionsPane: View {
                         Label("DeepSeek 密钥存入 macOS 钥匙串，不写入项目文件。", systemImage: "key")
                         Label("直接转文字不调用 DeepSeek；整理成文、翻译成英文与写给 AI 会发送当前转写文本。", systemImage: "lock.shield")
                         Label("高精度识别只使用本地语音包；未安装、未就绪或低电量时会回退极速识别。", systemImage: "cpu")
+                        Divider()
+                        Toggle(
+                            "帮助改进 ReadyType",
+                            isOn: Binding(
+                                get: { viewModel.isAnonymousAnalyticsEnabled },
+                                set: { viewModel.setAnonymousAnalyticsEnabled($0) }
+                            )
+                        )
+                        .toggleStyle(.checkbox)
+                        Text("只发送匿名的功能使用、性能分桶和固定错误码；不会发送语音、文字内容、窗口标题、常用词、剪贴板或 DeepSeek 密钥。公开源码构建默认不发送统计。")
+                            .font(.footnote)
+                            .foregroundStyle(ReadyTypeTheme.muted)
                     }
                     .font(.callout)
                 }

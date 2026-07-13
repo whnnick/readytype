@@ -11,6 +11,7 @@ final class SettingsStore {
         static let isHighAccuracyRecognitionEnabled = "isHighAccuracyRecognitionEnabled"
         static let isIdlePrewarmEnabled = "isIdlePrewarmEnabled"
         static let isVocabularyLearningSuggestionsEnabled = "isVocabularyLearningSuggestionsEnabled"
+        static let isAnonymousAnalyticsEnabled = "isAnonymousAnalyticsEnabled"
         static let voiceShortcutTrigger = "voiceShortcutTrigger"
         static let voiceShortcutDoublePressInterval = "voiceShortcutDoublePressInterval"
     }
@@ -64,6 +65,11 @@ final class SettingsStore {
             defaultValue: defaultSettings.isVocabularyLearningSuggestionsEnabled
         )
 
+        let isAnonymousAnalyticsEnabled = boolValue(
+            forKey: Keys.isAnonymousAnalyticsEnabled,
+            defaultValue: defaultSettings.isAnonymousAnalyticsEnabled
+        )
+
         let voiceShortcut = loadVoiceShortcut(defaultValue: defaultSettings.voiceShortcut)
 
         return AppSettings(
@@ -76,6 +82,7 @@ final class SettingsStore {
             isHighAccuracyRecognitionEnabled: isHighAccuracyRecognitionEnabled,
             isIdlePrewarmEnabled: isIdlePrewarmEnabled,
             isVocabularyLearningSuggestionsEnabled: isVocabularyLearningSuggestionsEnabled,
+            isAnonymousAnalyticsEnabled: isAnonymousAnalyticsEnabled,
             voiceShortcut: voiceShortcut
         )
     }
@@ -90,6 +97,7 @@ final class SettingsStore {
         defaults.set(settings.isHighAccuracyRecognitionEnabled, forKey: Keys.isHighAccuracyRecognitionEnabled)
         defaults.set(settings.isIdlePrewarmEnabled, forKey: Keys.isIdlePrewarmEnabled)
         defaults.set(settings.isVocabularyLearningSuggestionsEnabled, forKey: Keys.isVocabularyLearningSuggestionsEnabled)
+        defaults.set(settings.isAnonymousAnalyticsEnabled, forKey: Keys.isAnonymousAnalyticsEnabled)
         defaults.set(settings.voiceShortcut.trigger.rawValue, forKey: Keys.voiceShortcutTrigger)
         defaults.set(settings.voiceShortcut.doublePressInterval, forKey: Keys.voiceShortcutDoublePressInterval)
     }

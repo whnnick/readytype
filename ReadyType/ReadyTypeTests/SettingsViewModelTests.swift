@@ -18,6 +18,7 @@ final class SettingsViewModelTests: XCTestCase {
                 isHighAccuracyRecognitionEnabled: true,
                 isIdlePrewarmEnabled: false,
                 isVocabularyLearningSuggestionsEnabled: false,
+                isAnonymousAnalyticsEnabled: false,
                 voiceShortcut: VoiceShortcutConfiguration(trigger: .doubleControl)
             )
         )
@@ -33,6 +34,7 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isHighAccuracyRecognitionEnabled)
         XCTAssertFalse(viewModel.isIdlePrewarmEnabled)
         XCTAssertFalse(viewModel.isVocabularyLearningSuggestionsEnabled)
+        XCTAssertFalse(viewModel.isAnonymousAnalyticsEnabled)
         XCTAssertEqual(viewModel.voiceShortcut, VoiceShortcutConfiguration(trigger: .doubleControl))
         XCTAssertTrue(viewModel.hasSavedAPIKey)
         XCTAssertEqual(viewModel.apiKeyText, "")
@@ -52,6 +54,7 @@ final class SettingsViewModelTests: XCTestCase {
         viewModel.isHighAccuracyRecognitionEnabled = true
         viewModel.isIdlePrewarmEnabled = false
         viewModel.isVocabularyLearningSuggestionsEnabled = false
+        viewModel.isAnonymousAnalyticsEnabled = false
         viewModel.voiceShortcut = VoiceShortcutConfiguration(trigger: .doubleCommand)
         viewModel.apiKeyText = "new-secret"
 
@@ -65,6 +68,7 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertTrue(store.load().isHighAccuracyRecognitionEnabled)
         XCTAssertFalse(store.load().isIdlePrewarmEnabled)
         XCTAssertFalse(store.load().isVocabularyLearningSuggestionsEnabled)
+        XCTAssertFalse(store.load().isAnonymousAnalyticsEnabled)
         XCTAssertEqual(store.load().voiceShortcut, VoiceShortcutConfiguration(trigger: .doubleCommand))
         XCTAssertEqual(try context.keychain.loadAPIKey(), "new-secret")
         XCTAssertEqual(viewModel.apiKeyText, "")
@@ -91,6 +95,21 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isVocabularyLearningSuggestionsEnabled)
         XCTAssertTrue(store.load().isVocabularyLearningSuggestionsEnabled)
         XCTAssertEqual(viewModel.statusMessage, "已开启常用词建议")
+    }
+
+    func testAnonymousAnalyticsTogglePersistsImmediately() {
+        let context = makeContext()
+        defer { context.cleanup() }
+
+        let store = SettingsStore(defaults: context.defaults)
+        store.save(.default)
+        let viewModel = SettingsViewModel(settingsStore: store, keychainService: context.keychain)
+
+        viewModel.setAnonymousAnalyticsEnabled(false)
+
+        XCTAssertFalse(viewModel.isAnonymousAnalyticsEnabled)
+        XCTAssertFalse(store.load().isAnonymousAnalyticsEnabled)
+        XCTAssertEqual(viewModel.statusMessage, "已关闭匿名使用统计")
     }
 
     func testSaveNotifiesWhenVoiceShortcutChanges() throws {

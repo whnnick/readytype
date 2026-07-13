@@ -18,6 +18,8 @@ Version 1.2.0 is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): refre
 
 Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
 
+Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): establish anonymous product analytics that never collect user content, then use activation, retention, adoption, failure, and latency evidence to guide a bilingual beta. Based on the current product decision, 1.4.0 is implemented before the 1.3.0 Trending Vocabulary Packs work.
+
 ### UI and Interaction Refresh
 
 Automatically understand the current app and intent by default, reducing the number of output-mode, writing-scenario, and recognition choices shown together. The voice HUD provides stable, low-distraction, and explainable state feedback.
