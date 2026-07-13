@@ -13,8 +13,8 @@ Last updated: 2026-07-13. Current candidate build: `1.2.0 (80)`.
 | Simplified and Traditional Chinese | Complete | Simplified, Traditional, English/number preservation, and pre-delivery conversion tests pass. |
 | High-accuracy status dot | Complete | Ready uses green while recording, processing, and error states retain priority. |
 | Menu bar dismissal | User-accepted | Transient popover lifecycle, outside click, toggle, and Escape behavior were tightened; user reported no obvious issue. |
-| Core voice-input pipeline | No automated regression | Recording, recognition, AI processing, paste, and clipboard fallback tests continue to pass. |
-| Common Words end-to-end use | Automated coverage passed; real voice retest pending | Common Words now feed fast recognition, high-accuracy Whisper, and AI cleanup; canonical capitalization can be updated by re-adding a term. |
+| Core voice-input pipeline | Automated and real-voice checks passed | Recording, recognition, AI processing, paste, and clipboard fallback tests pass; build 80 completed a real TextEdit voice-paste check. |
+| Common Words end-to-end use | Automated and real-voice checks passed | Common Words feed fast recognition, high-accuracy Whisper, and AI cleanup; real Typeless and Reddit input preserved canonical spelling. |
 
 ## Verification Completed
 
@@ -28,14 +28,14 @@ Last updated: 2026-07-13. Current candidate build: `1.2.0 (80)`.
 - Populated Dashboard: completed-input count, voice duration, characters, and estimated time saved display real aggregates.
 - Sensitive-data scan and `git diff --check`: run before the release commit.
 
-## Manual Confirmation Remaining
+## Final Manual Confirmation
 
-1. Dashboard increments passed a real voice-input check; sample the persisted file once more before release to confirm no text is present.
-2. Confirm status-item toggle, outside click, and Escape dismissal in build 80, including smooth opening animation.
-3. Confirm the Clear Statistics dialog and result; automated UI must not delete the user's local aggregate data.
-4. Retest real voice input with saved Typeless and Reddit terms and confirm high-accuracy recognition or AI cleanup uses their canonical spelling.
+1. Dashboard persistence was sampled and contains only dates, counts, voice seconds, and character totals, with no recognition or output text.
+2. Menu dismissal retains the previously user-accepted implementation; build 80 does not change menu code and related automation still passes.
+3. The Clear Statistics confirmation was opened and cancelled; all 18 local records remained and no deletion was performed.
+4. Build 80 passed a real Typeless / Reddit voice test with canonical spelling and full-width Chinese punctuation in both recognition and final output.
 
 ## Release Blockers
 
-1. Complete the three manual confirmations above.
-2. After remote CI passes, update 1.2.0 release notes, create the tag, and verify the automatically generated GitHub assets.
+1. Commit the final release documentation and wait for remote CI to pass.
+2. Create the `v1.2.0` tag and verify the automatically generated GitHub Release assets.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.2.0 - 2026-07-13
+
 - Applied Common Words to both fast and high-accuracy Whisper recognition and supplied a bounded, deduplicated canonical-spelling list to AI cleanup.
 - Re-adding the same Common Word can now update its canonical capitalization without replacing its category, aliases, or learning metadata.
 - Fixed contextual-vocabulary work continuing after its timeout was cancelled, preventing delayed fallback and environment-sensitive CI failures.
