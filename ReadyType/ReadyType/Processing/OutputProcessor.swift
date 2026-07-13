@@ -19,6 +19,7 @@ final class OutputProcessor: OutputProcessing {
     private let providerFactory: () -> ChatCompletionProvider
     private let termCorrectionServiceProvider: () -> TermCorrectionService
     private let directDictationNormalizerProvider: () -> DirectDictationNormalizer
+    private let userVocabularyTermsProvider: () -> [String]
 
     init(provider: ChatCompletionProvider) {
         self.providerFactory = { provider }
@@ -28,6 +29,7 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
+        self.userVocabularyTermsProvider = { [] }
     }
 
     init(
@@ -41,6 +43,7 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
+        self.userVocabularyTermsProvider = { [] }
     }
 
     init(
@@ -52,16 +55,19 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
+        self.userVocabularyTermsProvider = { [] }
     }
 
     init(
         providerFactory: @escaping () -> ChatCompletionProvider,
         termCorrectionServiceProvider: @escaping () -> TermCorrectionService,
-        directDictationNormalizerProvider: @escaping () -> DirectDictationNormalizer
+        directDictationNormalizerProvider: @escaping () -> DirectDictationNormalizer,
+        userVocabularyTermsProvider: @escaping () -> [String] = { [] }
     ) {
         self.providerFactory = providerFactory
         self.termCorrectionServiceProvider = termCorrectionServiceProvider
         self.directDictationNormalizerProvider = directDictationNormalizerProvider
+        self.userVocabularyTermsProvider = userVocabularyTermsProvider
     }
 
     func process(_ transcript: String, mode: OutputMode) async throws -> ProcessedOutput {
@@ -268,7 +274,8 @@ final class OutputProcessor: OutputProcessing {
                 .filter { Self.isTermCandidate($0, supportedBy: context.scenario) }
                 .prefix(10)
         )
-        guard !suggestions.isEmpty else {
+        let canonicalTerms = Self.canonicalTerms(userVocabularyTermsProvider())
+        guard !suggestions.isEmpty || !canonicalTerms.isEmpty else {
             return rawTranscript
         }
 
@@ -276,14 +283,41 @@ final class OutputProcessor: OutputProcessing {
             "- \"\($0.original)\" may mean \"\($0.replacement)\""
         }
 
-        return """
-        \(rawTranscript)
+        let canonicalSection = canonicalTerms.isEmpty ? "" : """
+
+        User-saved canonical spellings:
+        \(canonicalTerms.map { "- \"\($0)\"" }.joined(separator: "\n"))
+
+        These are vocabulary hints, not required content. Use a spelling only when the transcript sounds close and the surrounding context supports it.
+        """
+
+        let candidateSection = suggestions.isEmpty ? "" : """
 
         Possible ASR term candidates:
         \(hintLines.joined(separator: "\n"))
 
         Use these candidates only when the surrounding context clearly supports them. Do not add facts.
         """
+
+        return """
+        \(rawTranscript)
+        \(canonicalSection)
+        \(candidateSection)
+        """
+    }
+
+    private static func canonicalTerms(_ terms: [String]) -> [String] {
+        var seen: Set<String> = []
+        return terms.compactMap { term in
+            let trimmed = term.trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = trimmed.normalizedSmartTermKey
+            guard !trimmed.isEmpty, !key.isEmpty, seen.insert(key).inserted else {
+                return nil
+            }
+            return trimmed
+        }
+        .prefix(20)
+        .map { $0 }
     }
 
     private static func isTermCandidate(

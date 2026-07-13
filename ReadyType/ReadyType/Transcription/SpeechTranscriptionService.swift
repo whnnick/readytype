@@ -119,7 +119,11 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
             return try await transcribeWithFastSystem(recording: recording, contextualTerms: context.contextualTerms)
         case .highAccuracyLocal:
             do {
-                return try await transcribeWithHighAccuracy(recording: recording, mode: context.mode)
+                return try await transcribeWithHighAccuracy(
+                    recording: recording,
+                    mode: context.mode,
+                    contextualTerms: context.contextualTerms
+                )
             } catch AutomaticHighAccuracyTimeoutError.timedOut {
                 onDecision?(
                     SpeechRecognitionRouteDecision(
@@ -140,19 +144,37 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
         }
     }
 
-    private func transcribeWithHighAccuracy(recording: AudioRecording, mode: SpeechRecognitionMode) async throws -> String {
+    private func transcribeWithHighAccuracy(
+        recording: AudioRecording,
+        mode: SpeechRecognitionMode,
+        contextualTerms: [String]
+    ) async throws -> String {
         guard mode == .automatic else {
-            return try await highAccuracyBackend.transcribeAudio(at: recording.fileURL)
+            return try await transcribe(
+                with: highAccuracyBackend,
+                fileURL: recording.fileURL,
+                contextualTerms: contextualTerms
+            )
         }
 
-        return try await transcribeAutomaticHighAccuracy(recording: recording)
+        return try await transcribeAutomaticHighAccuracy(
+            recording: recording,
+            contextualTerms: contextualTerms
+        )
     }
 
-    private func transcribeAutomaticHighAccuracy(recording: AudioRecording) async throws -> String {
+    private func transcribeAutomaticHighAccuracy(
+        recording: AudioRecording,
+        contextualTerms: [String]
+    ) async throws -> String {
         let stream = AsyncStream<Result<String, Error>> { continuation in
             let recognitionTask = Task { @MainActor in
                 do {
-                    let transcript = try await highAccuracyBackend.transcribeAudio(at: recording.fileURL)
+                    let transcript = try await transcribe(
+                        with: highAccuracyBackend,
+                        fileURL: recording.fileURL,
+                        contextualTerms: contextualTerms
+                    )
                     continuation.yield(.success(transcript))
                 } catch is CancellationError {
                     return
@@ -186,13 +208,25 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
     }
 
     private func transcribeWithFastSystem(recording: AudioRecording, contextualTerms: [String]) async throws -> String {
+        try await transcribe(
+            with: fastSystemBackend,
+            fileURL: recording.fileURL,
+            contextualTerms: contextualTerms
+        )
+    }
+
+    private func transcribe(
+        with backend: SpeechRecognitionBackend,
+        fileURL: URL,
+        contextualTerms: [String]
+    ) async throws -> String {
         let cappedTerms = Array(contextualTerms.prefix(100))
 
-        if let contextualBackend = fastSystemBackend as? ContextualSpeechRecognitionBackend {
-            return try await contextualBackend.transcribeAudio(at: recording.fileURL, contextualTerms: cappedTerms)
+        if let contextualBackend = backend as? ContextualSpeechRecognitionBackend {
+            return try await contextualBackend.transcribeAudio(at: fileURL, contextualTerms: cappedTerms)
         }
 
-        return try await fastSystemBackend.transcribeAudio(at: recording.fileURL)
+        return try await backend.transcribeAudio(at: fileURL)
     }
 
     static func defaultContext(for recording: AudioRecording) -> SpeechRecognitionRouteContext {
@@ -237,10 +271,17 @@ enum LocalHighAccuracySpeechEngineKind: Equatable {
 @MainActor
 protocol LocalHighAccuracySpeechEngine: AnyObject {
     func transcribeAudio(at fileURL: URL) async throws -> String
+    func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String
     func prewarm() async throws
 }
 
-final class LocalHighAccuracySpeechBackend: SpeechRecognitionBackend {
+extension LocalHighAccuracySpeechEngine {
+    func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
+        try await transcribeAudio(at: fileURL)
+    }
+}
+
+final class LocalHighAccuracySpeechBackend: ContextualSpeechRecognitionBackend {
     let engineKind: LocalHighAccuracySpeechEngineKind
 
     private let engine: LocalHighAccuracySpeechEngine
@@ -255,6 +296,10 @@ final class LocalHighAccuracySpeechBackend: SpeechRecognitionBackend {
 
     func transcribeAudio(at fileURL: URL) async throws -> String {
         try await engine.transcribeAudio(at: fileURL)
+    }
+
+    func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
+        try await engine.transcribeAudio(at: fileURL, contextualTerms: contextualTerms)
     }
 }
 
@@ -272,8 +317,19 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
     }
 
     func transcribeAudio(at fileURL: URL) async throws -> String {
+        try await transcribeAudio(at: fileURL, contextualTerms: [])
+    }
+
+    func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
         let pipe = try await pipeline(load: true, prewarm: false)
-        let decodeOptions = DecodingOptions(language: "zh", chunkingStrategy: .vad)
+        var decodeOptions = DecodingOptions(language: "zh", chunkingStrategy: .vad)
+        if let tokenizer = pipe.tokenizer,
+           let prompt = Self.contextPrompt(from: contextualTerms) {
+            decodeOptions.promptTokens = tokenizer
+                .encode(text: " " + prompt)
+                .filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+            decodeOptions.usePrefillPrompt = true
+        }
         let results = try await pipe.transcribe(audioPath: fileURL.path, decodeOptions: decodeOptions)
         let transcript = results
             .map(\.text)
@@ -285,6 +341,22 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
         }
 
         return transcript
+    }
+
+    private static func contextPrompt(from terms: [String]) -> String? {
+        var selected: [String] = []
+        var characterCount = 0
+
+        for term in terms.prefix(80) {
+            let trimmed = term.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+            let additionalCount = trimmed.count + (selected.isEmpty ? 0 : 2)
+            guard characterCount + additionalCount <= 500 else { break }
+            selected.append(trimmed)
+            characterCount += additionalCount
+        }
+
+        return selected.isEmpty ? nil : selected.joined(separator: ", ")
     }
 
     func prewarm() async throws {

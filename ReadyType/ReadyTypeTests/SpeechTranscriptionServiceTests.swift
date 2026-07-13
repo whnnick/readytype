@@ -103,7 +103,7 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
 
     func testRoutedBackendUsesHighAccuracyOnlyWhenRouterSelectsIt() async throws {
         let fastBackend = MockSpeechRecognitionBackend(result: "fast text")
-        let highAccuracyBackend = MockSpeechRecognitionBackend(result: "high accuracy text")
+        let highAccuracyBackend = MockContextualSpeechRecognitionBackend(result: "high accuracy text")
         var routeDecisions: [SpeechRecognitionRouteDecision] = []
         let backend = RoutedSpeechRecognitionBackend(
             fastSystemBackend: fastBackend,
@@ -131,6 +131,7 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
 
         XCTAssertEqual(transcript, "high accuracy text")
         XCTAssertEqual(highAccuracyBackend.requestedURLs, [url])
+        XCTAssertEqual(highAccuracyBackend.requestedContextualTerms, [["ReadyType"]])
         XCTAssertTrue(fastBackend.requestedURLs.isEmpty)
         XCTAssertEqual(routeDecisions, [SpeechRecognitionRouteDecision(backend: .highAccuracyLocal, fallbackReason: nil)])
     }
@@ -364,6 +365,7 @@ private final class MockSpeechRecognitionBackend: SpeechRecognitionBackend {
 
 private final class MockContextualSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
     private let result: String
+    private(set) var requestedURLs: [URL] = []
     private(set) var requestedContextualTerms: [[String]] = []
 
     init(result: String) {
@@ -371,6 +373,7 @@ private final class MockContextualSpeechRecognitionBackend: ContextualSpeechReco
     }
 
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
+        requestedURLs.append(fileURL)
         requestedContextualTerms.append(contextualTerms)
         return result
     }

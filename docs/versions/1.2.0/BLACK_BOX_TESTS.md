@@ -1,6 +1,6 @@
 # ReadyType 1.2.0 Black-Box Functional Check
 
-Last updated: 2026-07-13. Current candidate build: `1.2.0 (79)`.
+Last updated: 2026-07-13. Current candidate build: `1.2.0 (80)`.
 
 ## Requirement Mapping and Status
 
@@ -14,11 +14,12 @@ Last updated: 2026-07-13. Current candidate build: `1.2.0 (79)`.
 | High-accuracy status dot | Complete | Ready uses green while recording, processing, and error states retain priority. |
 | Menu bar dismissal | User-accepted | Transient popover lifecycle, outside click, toggle, and Escape behavior were tightened; user reported no obvious issue. |
 | Core voice-input pipeline | No automated regression | Recording, recognition, AI processing, paste, and clipboard fallback tests continue to pass. |
+| Common Words end-to-end use | Automated coverage passed; real voice retest pending | Common Words now feed fast recognition, high-accuracy Whisper, and AI cleanup; canonical capitalization can be updated by re-adding a term. |
 
 ## Verification Completed
 
-- `swift test`: 354 executed, 14 skipped by real-service or environment conditions, 0 failures.
-- `scripts/build-app.sh`: passed; App reports `1.2.0 (79)`.
+- `swift test`: 357 executed, 14 skipped by real-service or environment conditions, 0 failures.
+- `scripts/build-app.sh`: passed; App reports `1.2.0 (80)`.
 - Contextual-vocabulary timeout test: fixed post-cancellation work; local fallback now completes in about 82-85ms.
 - GitHub Release workflow: YAML parsing and release-gate tests pass; ZIP, DMG, and SHA-256 assets publish only when the version tag matches the App version.
 - Compact HUD: a real recording-state full-screen capture passed; title, output mode, timer, waveform, and cancel guidance remain visible at the smaller size.
@@ -30,8 +31,9 @@ Last updated: 2026-07-13. Current candidate build: `1.2.0 (79)`.
 ## Manual Confirmation Remaining
 
 1. Dashboard increments passed a real voice-input check; sample the persisted file once more before release to confirm no text is present.
-2. Confirm status-item toggle, outside click, and Escape dismissal in build 79, including smooth opening animation.
+2. Confirm status-item toggle, outside click, and Escape dismissal in build 80, including smooth opening animation.
 3. Confirm the Clear Statistics dialog and result; automated UI must not delete the user's local aggregate data.
+4. Retest real voice input with saved Typeless and Reddit terms and confirm high-accuracy recognition or AI cleanup uses their canonical spelling.
 
 ## Release Blockers
 

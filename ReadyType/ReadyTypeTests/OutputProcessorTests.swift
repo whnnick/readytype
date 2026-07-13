@@ -58,6 +58,36 @@ final class OutputProcessorTests: XCTestCase {
         XCTAssertEqual(provider.requests[0].userText, "um clean this up")
     }
 
+    func testAICleanupIncludesBoundedUserVocabularyHints() async throws {
+        let provider = MockChatCompletionProvider(result: "我平时用 Typeless，也会看 Reddit。")
+        let processor = OutputProcessor(
+            providerFactory: { provider },
+            termCorrectionServiceProvider: {
+                TermCorrectionService(dictionary: .readyTypeDefault)
+            },
+            directDictationNormalizerProvider: {
+                DirectDictationNormalizer(dictionary: .readyTypeDefault)
+            },
+            userVocabularyTermsProvider: {
+                ["Typeless", "Reddit", "Typeless"] + (0..<30).map { "Term\($0)" }
+            }
+        )
+
+        _ = try await processor.process(
+            "我平时用tape like也会看reddit",
+            mode: .aiCleanup,
+            scenario: .generic
+        )
+
+        let userText = try XCTUnwrap(provider.requests.first?.userText)
+        XCTAssertTrue(userText.contains("User-saved canonical spellings:"))
+        XCTAssertTrue(userText.contains("\"Typeless\""))
+        XCTAssertTrue(userText.contains("\"Reddit\""))
+        XCTAssertEqual(userText.components(separatedBy: "\"Typeless\"").count - 1, 1)
+        XCTAssertFalse(userText.contains("\"Term20\""))
+        XCTAssertTrue(userText.contains("not required content"))
+    }
+
     func testAICleanupUsesChatToneContextInPrompt() async throws {
         let provider = MockChatCompletionProvider(result: "你工作的时候用高级服务器，看视频就用那台。")
         let processor = OutputProcessor(provider: provider)

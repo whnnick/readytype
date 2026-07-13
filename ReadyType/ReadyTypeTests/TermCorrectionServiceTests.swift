@@ -2,6 +2,26 @@ import XCTest
 @testable import ReadyType
 
 final class TermCorrectionServiceTests: XCTestCase {
+    func testCorrectionServiceRestoresCanonicalCapitalizationForUserTerms() {
+        let dictionary = SmartTermDictionary(terms: [
+            SmartTerm(value: "Reddit", source: .userDefined, weight: 100)
+        ])
+
+        let suggestions = TermCorrectionService(dictionary: dictionary)
+            .suggestions(for: "我也会看reddit")
+
+        XCTAssertTrue(
+            suggestions.contains(
+                TermCorrectionSuggestion(
+                    original: "reddit",
+                    replacement: "Reddit",
+                    confidence: 0.98,
+                    source: .userDefined
+                )
+            )
+        )
+    }
+
     func testCorrectionServiceSuggestsLikelyTechnicalTermWithoutReplacingText() {
         let service = TermCorrectionService(
             dictionary: SmartTermDictionary(terms: [

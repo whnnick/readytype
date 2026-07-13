@@ -192,6 +192,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             directDictationNormalizerProvider: { [weak self] in
                 let dictionary = self?.currentSmartTermDictionary() ?? .readyTypeDefault
                 return DirectDictationNormalizer(dictionary: dictionary)
+            },
+            userVocabularyTermsProvider: { [weak self] in
+                ((try? self?.userVocabularyStore.load()) ?? []).map(\.value)
             }
         )
         let textDelivery = PasteService(pasteTargetActivator: pasteTargetActivator)

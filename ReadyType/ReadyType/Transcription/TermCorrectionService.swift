@@ -97,6 +97,11 @@ struct TermCorrectionService {
             (original: $0, confidence: term.aliasConfidence, scopes: term.scopes)
         }
 
+        let lowercaseValue = term.value.lowercased()
+        if term.source == .userDefined, lowercaseValue != term.value {
+            aliases.append((original: lowercaseValue, confidence: 0.98, scopes: term.scopes))
+        }
+
         switch term.value.normalizedSmartTermKey {
         case "readytype":
             aliases.append(contentsOf: [

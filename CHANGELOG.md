@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Applied Common Words to both fast and high-accuracy Whisper recognition and supplied a bounded, deduplicated canonical-spelling list to AI cleanup.
+- Re-adding the same Common Word can now update its canonical capitalization without replacing its category, aliases, or learning metadata.
 - Fixed contextual-vocabulary work continuing after its timeout was cancelled, preventing delayed fallback and environment-sensitive CI failures.
 - Added tag-triggered GitHub Releases with version validation, tests, sensitive-information scanning, ZIP and DMG packages, and SHA-256 checksums.
 - Normalized Chinese and mixed Chinese-English output to full-width Chinese punctuation while keeping fully English output in ASCII punctuation; versions, URLs, times, and numeric formats remain intact.

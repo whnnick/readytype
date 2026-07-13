@@ -33,6 +33,17 @@ final class UserVocabularyStoreTests: XCTestCase {
         XCTAssertEqual(entries.first?.aliases, ["ready play"])
     }
 
+    func testAddingSameTermWithNewCapitalizationUpdatesCanonicalSpelling() throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+
+        _ = try context.store.add(value: "reddit", kind: .general)
+        let updated = try context.store.add(value: "Reddit", kind: .general)
+
+        XCTAssertEqual(updated?.value, "Reddit")
+        XCTAssertEqual(try context.store.load().map(\.value), ["Reddit"])
+    }
+
     func testImportLinesAddsOneTermPerLineAndIgnoresBlankOrDuplicateLines() throws {
         let context = try makeContext()
         defer { context.cleanup() }

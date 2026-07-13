@@ -221,8 +221,16 @@ final class UserVocabularyStore {
 
         var entries = try load()
         let key = cleanValue.normalizedSmartTermKey
-        guard !entries.contains(where: { $0.value.normalizedSmartTermKey == key }) else {
-            return nil
+        if let index = entries.firstIndex(where: { $0.value.normalizedSmartTermKey == key }) {
+            guard entries[index].value != cleanValue,
+                  entries[index].kind == kind,
+                  aliases.isEmpty else {
+                return nil
+            }
+            entries[index].value = cleanValue
+            entries[index].updatedAt = Date()
+            try save(entries)
+            return entries[index]
         }
 
         let now = Date()
