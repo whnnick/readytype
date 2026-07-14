@@ -23,7 +23,7 @@ enum VoiceInputHUDText {
         case .idle:
             return VoiceInputHUDPresentation(title: "准备就绪", subtitle: "\(shortcut.displayName) 开始说话")
         case .recording:
-            return VoiceInputHUDPresentation(title: "正在听你说话", subtitle: "再次\(shortcut.displayName) 完成 · Esc 取消")
+            return VoiceInputHUDPresentation(title: "正在听", subtitle: "再次\(shortcut.displayName) 完成 · Esc 取消")
         case .transcribing:
             return VoiceInputHUDPresentation(title: "正在识别", subtitle: "保持当前输入框，马上就好")
         case .processingAI:

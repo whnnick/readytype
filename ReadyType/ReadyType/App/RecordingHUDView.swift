@@ -3,6 +3,7 @@ import SwiftUI
 struct RecordingHUDView: View {
     @ObservedObject var appState: AppState
     let recordingStartedAt: Date
+    let audioLevelProvider: () -> Double
 
     @State private var errorOffset: CGFloat = 0
     @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
@@ -21,7 +22,7 @@ struct RecordingHUDView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         Text(presentation.title)
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.system(size: 14, weight: .medium))
                             .lineLimit(1)
                             .contentTransition(.opacity)
                             .foregroundStyle(ReadyTypeTheme.ink)
@@ -30,7 +31,7 @@ struct RecordingHUDView: View {
                     }
 
                     Text(presentation.subtitle)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 11, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(ReadyTypeTheme.muted)
                         .contentTransition(.opacity)
@@ -43,7 +44,11 @@ struct RecordingHUDView: View {
                     .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
                     .frame(width: 42, alignment: .trailing)
 
-                WaveformView(isActive: appState.runtimeState == .recording, reduceMotion: preferences.reduceMotion)
+                WaveformView(
+                    isActive: appState.runtimeState == .recording,
+                    reduceMotion: preferences.reduceMotion,
+                    audioLevelProvider: audioLevelProvider
+                )
                     .frame(width: 58, height: 20)
             }
             .frame(height: MotionTokens.voiceCapsuleHeight)
@@ -304,45 +309,44 @@ private struct VoiceCapsuleBadge: View {
 private struct WaveformView: View {
     let isActive: Bool
     let reduceMotion: Bool
-    @State private var phase = false
+    let audioLevelProvider: () -> Double
 
-    private let barCount = 8
+    private let heightProfile: [CGFloat] = [0.48, 0.72, 0.90, 0.66, 1.00, 0.78, 0.58, 0.84]
 
     var body: some View {
-        HStack(alignment: .center, spacing: 3) {
-            ForEach(0..<barCount, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                ReadyTypeTheme.info.opacity(0.82),
-                                ReadyTypeTheme.accentStrong,
-                                ReadyTypeTheme.accent.opacity(0.72)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
+        TimelineView(.animation(minimumInterval: 1 / 24, paused: !isActive || reduceMotion)) { _ in
+            let level = isActive && !reduceMotion ? audioLevelProvider() : 0
+
+            HStack(alignment: .center, spacing: 3) {
+                ForEach(heightProfile.indices, id: \.self) { index in
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    ReadyTypeTheme.info.opacity(0.82),
+                                    ReadyTypeTheme.accentStrong,
+                                    ReadyTypeTheme.accent.opacity(0.72)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-                    .frame(width: 3, height: height(for: index))
-                    .opacity(isActive ? 0.95 : 0.30)
-                    .animation(
-                        isActive && !reduceMotion
-                        ? .easeInOut(duration: 0.46 + Double(index) * 0.032).repeatForever(autoreverses: true)
-                        : .default,
-                        value: phase
-                    )
+                        .frame(width: 3, height: height(for: index, level: level))
+                        .opacity(isActive ? 0.95 : 0.30)
+                }
             }
         }
-        .onAppear { phase = true }
     }
 
-    private func height(for index: Int) -> CGFloat {
-        guard isActive, !reduceMotion, MotionTokens.waveAnimationEnabled(for: MotionPreferences(reduceMotion: reduceMotion)) else {
-            return 7
+    private func height(for index: Int, level: Double) -> CGFloat {
+        guard isActive,
+              !reduceMotion,
+              MotionTokens.waveAnimationEnabled(for: MotionPreferences(reduceMotion: reduceMotion))
+        else {
+            return 6
         }
 
-        let low: CGFloat = [6, 10, 15, 9, 19, 13, 8, 17][index]
-        let high: CGFloat = [16, 7, 11, 20, 10, 18, 14, 8][index]
-        return phase ? high : low
+        let clampedLevel = CGFloat(min(max(level, 0), 1))
+        return 4 + clampedLevel * 16 * heightProfile[index]
     }
 }

@@ -26,7 +26,7 @@ final class StatusTextTests: XCTestCase {
     }
 
     func testVoiceInputHUDUsesInputFocusedCopy() {
-        XCTAssertEqual(VoiceInputHUDText.presentation(for: .recording).title, "正在听你说话")
+        XCTAssertEqual(VoiceInputHUDText.presentation(for: .recording).title, "正在听")
         XCTAssertEqual(VoiceInputHUDText.presentation(for: .recording).subtitle, "再次双击 Option 完成 · Esc 取消")
         XCTAssertEqual(VoiceInputHUDText.presentation(for: .transcribing).title, "正在识别")
         XCTAssertEqual(VoiceInputHUDText.presentation(for: .processingAI).title, "正在整理")

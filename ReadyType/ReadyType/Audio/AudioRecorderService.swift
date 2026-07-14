@@ -16,6 +16,21 @@ protocol AudioRecordingManaging: AnyObject {
 protocol AudioRecorderBackend: AnyObject {
     func startRecording(to fileURL: URL) throws
     func stopRecording()
+    func currentPowerLevel() -> Float?
+}
+
+enum AudioLevelNormalizer {
+    static let silenceFloor: Float = -48
+    static let loudCeiling: Float = -6
+
+    static func normalize(decibels: Float) -> Double {
+        guard decibels.isFinite, decibels > silenceFloor else {
+            return 0
+        }
+
+        let clamped = min(decibels, loudCeiling)
+        return Double((clamped - silenceFloor) / (loudCeiling - silenceFloor))
+    }
 }
 
 final class AudioRecorderService: AudioRecordingManaging {
@@ -71,6 +86,16 @@ final class AudioRecorderService: AudioRecordingManaging {
         activeRecording = nil
     }
 
+    func currentLevel() -> Double {
+        guard activeRecording != nil,
+              let decibels = backend.currentPowerLevel()
+        else {
+            return 0
+        }
+
+        return AudioLevelNormalizer.normalize(decibels: decibels)
+    }
+
     private static func defaultRecordingURL() -> URL {
         FileManager.default.temporaryDirectory
             .appendingPathComponent("readytype-\(UUID().uuidString)")
@@ -91,6 +116,7 @@ final class AVFoundationAudioRecorderBackend: NSObject, AudioRecorderBackend {
 
         do {
             let recorder = try AVAudioRecorder(url: fileURL, settings: settings)
+            recorder.isMeteringEnabled = true
             recorder.prepareToRecord()
 
             guard recorder.record() else {
@@ -108,5 +134,14 @@ final class AVFoundationAudioRecorderBackend: NSObject, AudioRecorderBackend {
     func stopRecording() {
         recorder?.stop()
         recorder = nil
+    }
+
+    func currentPowerLevel() -> Float? {
+        guard let recorder, recorder.isRecording else {
+            return nil
+        }
+
+        recorder.updateMeters()
+        return recorder.averagePower(forChannel: 0)
     }
 }

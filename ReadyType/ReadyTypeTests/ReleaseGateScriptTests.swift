@@ -157,9 +157,10 @@ final class ReleaseGateScriptTests: XCTestCase {
 
         let visualAcceptanceSource = try String(contentsOf: visualAcceptanceScript, encoding: .utf8)
         XCTAssertTrue(
-            visualAcceptanceSource.contains("正在听你说话"),
+            visualAcceptanceSource.contains("正在听，"),
             "Visual acceptance HUD fixtures should use voice-input copy instead of recorder copy."
         )
+        XCTAssertFalse(visualAcceptanceSource.contains("正在听你说话"))
         XCTAssertTrue(
             visualAcceptanceSource.contains("已输入"),
             "Visual acceptance HUD fixtures should verify input-focused success copy."

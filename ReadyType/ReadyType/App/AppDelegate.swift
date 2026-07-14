@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         isEnabled: { [settingsStore] in settingsStore.load().isAnonymousAnalyticsEnabled }
     )
     private let keychainService = KeychainService()
+    private let audioRecorderService = AudioRecorderService()
     private var menuBarController: MenuBarController?
     private var voiceInputController: VoiceInputController?
     private var shortcutService: GlobalShortcutService?
@@ -47,7 +48,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController = MenuBarController(appState: appState) { [weak self] in
             self?.showSettingsWindow()
         }
-        recordingHUDWindowController = RecordingHUDWindowController(appState: appState)
+        recordingHUDWindowController = RecordingHUDWindowController(
+            appState: appState,
+            audioLevelProvider: { [weak self] in
+                self?.audioRecorderService.currentLevel() ?? 0
+            }
+        )
         configureVoicePipeline()
         observeVoiceInputCommands()
         if AppDiagnostics.isDebugInsertEnabled() {
@@ -255,7 +261,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         voiceInputController = VoiceInputController(
             appState: appState,
             permissionService: PermissionService(),
-            recorder: AudioRecorderService(),
+            recorder: audioRecorderService,
             transcriber: SpeechTranscriptionService(
                 recordingBackend: RoutedSpeechRecognitionBackend(
                     highAccuracyBackend: LocalHighAccuracySpeechBackend(engine: highAccuracySpeechEngine),

@@ -4,13 +4,18 @@ import SwiftUI
 @MainActor
 final class RecordingHUDWindowController {
     private let appState: AppState
+    private let audioLevelProvider: () -> Double
     private var panel: NSPanel?
     private var hideTask: Task<Void, Never>?
     private var recordingStartedAt = Date()
     private var lastRuntimeState: RuntimeState = .idle
 
-    init(appState: AppState) {
+    init(
+        appState: AppState,
+        audioLevelProvider: @escaping () -> Double = { 0 }
+    ) {
         self.appState = appState
+        self.audioLevelProvider = audioLevelProvider
     }
 
     func update() {
@@ -51,7 +56,11 @@ final class RecordingHUDWindowController {
         self.panel = panel
 
         panel.contentView = NSHostingView(
-            rootView: RecordingHUDView(appState: appState, recordingStartedAt: recordingStartedAt)
+            rootView: RecordingHUDView(
+                appState: appState,
+                recordingStartedAt: recordingStartedAt,
+                audioLevelProvider: audioLevelProvider
+            )
         )
         let targetOrigin = targetOrigin(for: panel)
 

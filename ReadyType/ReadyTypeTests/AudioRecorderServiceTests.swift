@@ -79,11 +79,34 @@ final class AudioRecorderServiceTests: XCTestCase {
             XCTAssertEqual(error as? ReadyTypeError, .recordingFailed("No active recording."))
         }
     }
+
+    func testCurrentLevelUsesActiveRecorderPower() throws {
+        let backend = MockAudioRecorderBackend()
+        backend.currentPower = -27
+        let service = AudioRecorderService(
+            backend: backend,
+            fileURLProvider: { URL(fileURLWithPath: "/tmp/test-recording.m4a") }
+        )
+
+        XCTAssertEqual(service.currentLevel(), 0)
+
+        try service.startRecording()
+
+        XCTAssertEqual(service.currentLevel(), 0.5, accuracy: 0.001)
+    }
+
+    func testAudioLevelNormalizerClampsSilenceAndLoudInput() {
+        XCTAssertEqual(AudioLevelNormalizer.normalize(decibels: -160), 0)
+        XCTAssertEqual(AudioLevelNormalizer.normalize(decibels: -48), 0)
+        XCTAssertEqual(AudioLevelNormalizer.normalize(decibels: -6), 1)
+        XCTAssertEqual(AudioLevelNormalizer.normalize(decibels: 0), 1)
+    }
 }
 
 private final class MockAudioRecorderBackend: AudioRecorderBackend {
     private(set) var startedURLs: [URL] = []
     private(set) var stopCount = 0
+    var currentPower: Float?
 
     func startRecording(to fileURL: URL) throws {
         startedURLs.append(fileURL)
@@ -91,5 +114,9 @@ private final class MockAudioRecorderBackend: AudioRecorderBackend {
 
     func stopRecording() {
         stopCount += 1
+    }
+
+    func currentPowerLevel() -> Float? {
+        currentPower
     }
 }

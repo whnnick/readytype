@@ -285,7 +285,7 @@ capture_window main "about"
 
 for state in recording transcribing processingAI pasted copiedFallback error; do
     case "$state" in
-        recording) message="正在听你说话，再次双击 Option 完成，Esc 取消" ;;
+        recording) message="正在听，再次双击 Option 完成，Esc 取消" ;;
         transcribing) message="正在识别" ;;
         processingAI) message="正在整理" ;;
         pasted) message="已输入" ;;
