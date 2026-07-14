@@ -29,7 +29,18 @@ jobs:
       - name: Run tests
         run: swift test
 
+      - name: Validate analytics release configuration
+        env:
+          READYTYPE_TELEMETRYDECK_APP_ID: ${{ vars.READYTYPE_TELEMETRYDECK_APP_ID }}
+        run: |
+          if [[ ! "$READYTYPE_TELEMETRYDECK_APP_ID" =~ ^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$ ]]; then
+            echo "Set the READYTYPE_TELEMETRYDECK_APP_ID repository variable before publishing." >&2
+            exit 1
+          fi
+
       - name: Build app bundle
+        env:
+          READYTYPE_TELEMETRYDECK_APP_ID: ${{ vars.READYTYPE_TELEMETRYDECK_APP_ID }}
         run: scripts/build-app.sh
 
       - name: Scan for sensitive information

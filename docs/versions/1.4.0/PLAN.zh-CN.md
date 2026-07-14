@@ -33,4 +33,6 @@
 
 官方 Provider 使用 TelemetryDeck Swift SDK 2.14.1；App ID 由 `READYTYPE_TELEMETRYDECK_APP_ID` 在构建时注入 App 的 `Info.plist`。App ID 用于数据路由而非后台管理，但不提交到仓库，以确保普通源码构建保持 No-op。管理 Token 和 Dashboard 凭据不得进入客户端构建。
 
+GitHub Release 工作流从同名 Actions 仓库变量读取 App ID；变量缺失或格式无效时必须停止发布，避免生成未启用统计的官方安装包。正式 Release 构建不得设置 Test Mode。
+
 内部验收构建可额外设置 `READYTYPE_TELEMETRYDECK_TEST_MODE=1`，使事件只进入 TelemetryDeck Test Mode。该标记不用于公开发布构建，也不能在缺少 App ID 时单独启用。

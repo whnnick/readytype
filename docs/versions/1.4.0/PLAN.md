@@ -33,4 +33,6 @@ The event specification, privacy copy, implementation, and tests must agree. A b
 
 The official provider uses TelemetryDeck Swift SDK 2.14.1. `READYTYPE_TELEMETRYDECK_APP_ID` injects the App ID into the app bundle's `Info.plist` at build time. The App ID routes data and is not a dashboard credential, but it remains outside the repository so ordinary source builds stay no-op. Management tokens and dashboard credentials must never enter client builds.
 
+The GitHub Release workflow reads the App ID from the matching Actions repository variable. A missing or malformed variable must stop the release so an official installer cannot be published without analytics enabled. Release builds must not enable Test Mode.
+
 Internal acceptance builds may additionally set `READYTYPE_TELEMETRYDECK_TEST_MODE=1` so events appear only in TelemetryDeck Test Mode. This flag is not used for public release builds and cannot be enabled without an App ID.
