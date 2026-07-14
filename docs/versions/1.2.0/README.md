@@ -20,4 +20,4 @@ ReadyType 1.2.0 focuses on a UI and interaction refresh: moving from a mode-heav
 
 ## Release Boundary
 
-This release does not also add Trending Vocabulary Packs, a new recognition engine, multiple AI providers, or complete transcription history. Trending Vocabulary Packs move to [1.3.0](../1.3.0/README.md).
+This release does not also add Trending Vocabulary Packs, a new recognition engine, multiple AI providers, or complete transcription history. Trending Vocabulary Packs move to [1.4.0](../1.4.0/README.md).

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added bilingual ReadyType 1.4.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.
+- Added bilingual ReadyType 1.3.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.
 - Added a strongly typed anonymous event layer, user control, and No-op default covering launch, input start, completion, cancellation, and fixed error codes; current public builds still send no network analytics.
 - Precomputed contextual-vocabulary ranking context and sort keys so the 2,000-term stress-test P95 remains reliably below the 50 ms gate.
 - Integrated the official TelemetryDeck Swift SDK as an optional analytics provider; its App ID is injected only at build time, missing configuration remains no-op, and automatic session events and session statistics are disabled.
@@ -36,7 +36,7 @@
 - Home now uses a green status dot when high-accuracy recognition is enabled and ready, while recording, processing, and error states keep priority.
 - Advanced the current development build to `1.2.0 (70)` so test artifacts no longer reuse stale build numbers.
 - Enabled VAD chunking for high-accuracy recognition and reject anomalous transcripts made from repeated long segments before they can be pasted.
-- Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.3.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
+- Moved Trending Vocabulary Packs and its UI prototype from 1.2.0 to 1.4.0 so recognition-candidate architecture does not change in the same release as the UI refresh.
 - Reorganized the main window into Home, Common Words, Language & Output, Shortcuts, Speech Recognition, Permissions & Privacy, and About, with settings scoped to each destination.
 - Replaced mode and scenario controls on Home with a quiet summary of runtime status, shortcut, speech package, default output, and recent results.
 - Refined the HUD into a fixed-size adaptive glass capsule with a localized top-edge light sweep and reduced-motion fallback.
@@ -53,9 +53,9 @@
 
 ### Added
 
-- Added bilingual ReadyType 1.3.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
-- Added bilingual ReadyType 1.3.0 interaction flow diagrams for Trending Vocabulary Packs, covering visible Settings interaction, background updates, voice-input candidate decisions, and Settings information structure.
-- Added a ReadyType 1.3.0 Trending Vocabulary Packs HTML UI prototype as a reference for the future SwiftUI Settings implementation.
+- Added bilingual ReadyType 1.4.0 requirements and planning documents for Trending Vocabulary Packs, covering layered vocabulary, background updates, local caching, expiration, and performance boundaries.
+- Added bilingual ReadyType 1.4.0 interaction flow diagrams for Trending Vocabulary Packs, covering visible Settings interaction, background updates, voice-input candidate decisions, and Settings information structure.
+- Added a ReadyType 1.4.0 Trending Vocabulary Packs HTML UI prototype as a reference for the future SwiftUI Settings implementation.
 - Added live high-accuracy speech-package update checks backed by a controlled manifest in the public ReadyType repository, covering not checked, checking, missing, current recommended version, update available, and temporarily unable to check states.
 - Added a safe speech-package update flow that installs only manifest-selected official WhisperKit variants, persists the installed version, removes the previous package after success, and retains the working package on failure.
 - Added 1.1.0 local release-gate records covering unit tests, build, zip, DMG, UI wording, TextEdit paste, Common Words UI, visual screenshots, and sensitive-information checks.
@@ -70,7 +70,7 @@
 
 - Isolated the Common Words UI acceptance gate from user vocabulary data and removed its timing-sensitive notification injection.
 - Non-email cleanup and English translation no longer add unsupported greetings, thanks, acknowledgements, sign-offs, or closings; email keeps its appropriate polite-closing behavior.
-- Updated the 1.3.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
+- Updated the 1.4.0 Trending Vocabulary Packs UI prototype toward a Typeless-inspired light glass style with a light/dark theme toggle.
 - Filtered internal Common Words UI acceptance-test data so diagnostic terms cannot remain visible in real user vocabulary lists.
 - Changed the speech-package status to "current recommended version", shown only when the remote manifest matches the installed version.
 - Added manifest version metadata for the high-accuracy speech package and separated update status from readiness status in Settings.

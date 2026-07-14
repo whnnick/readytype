@@ -68,7 +68,7 @@ The HUD keeps stable dimensions across Ready, Listening, Recognizing, Polishing,
 - No pixel-level Typeless clone.
 - No changes to ASR routing, DeepSeek protocol, paste strategy, or permissions.
 - No full transcript history, account system, or cloud sync.
-- No 1.3.0 Trending Vocabulary Packs implementation.
+- No 1.4.0 Trending Vocabulary Packs implementation.
 
 ### Usage Dashboard Privacy Boundary
 

@@ -1,22 +1,24 @@
 # ReadyType 1.4.0
 
-ReadyType 1.4.0 establishes privacy-first anonymous product analytics so future bilingual work can be guided by verified usage, performance, and reliability data.
+ReadyType 1.4.0 candidate direction is Trending Vocabulary Packs: using the layered vocabulary and cloud-candidate patterns common in mature input methods to improve recognition and cleanup quality for recent movie names, technology products, sports events, and other high-frequency terms without interrupting users.
 
 ## Documents
 
 - [Requirements](./REQUIREMENTS.md)
-- [Anonymous Event Specification](./ANALYTICS_SPEC.md)
 - [Implementation Plan](./PLAN.md)
-- [Black-Box Functional Check](./BLACK_BOX_TESTS.md)
+- [Interaction Flow](./INTERACTION_FLOW.md)
+- [UI Prototype](./ui/hot-vocabulary-packs.html): Typeless-inspired light glass direction with light/dark theme switching.
 
-## Current Boundaries
+## Current Assessment
 
-- 1.4.0 never uploads audio, transcripts, final output, window titles, common words, clipboard content, or API keys.
-- Public source builds use `NoopAnalyticsTracker` by default and send nothing.
-- Only official builds with an explicitly injected analytics configuration can send events.
-- Users can disable anonymous analytics from Permissions & Privacy.
-- This release establishes the data foundation; English recognition and mixed Chinese-English speech remain later work.
+This should not be implemented as live hot-list scraping or by pushing a large trending list directly into the recognizer. The safer direction is:
 
-## Current Status
+- Keep built-in terms and user common words at the highest priority.
+- Treat trending vocabulary as low-priority supplemental candidates.
+- Update in the background without blocking voice input.
+- Store source, category, weight, and expiration metadata for every term.
+- Make the experience silent by default while still allowing users to disable, delete, and inspect update time in Settings.
 
-The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, No-op default, and official ingestion connectivity check are complete. The free plan ingests dashboard data once per day, so initial event visibility and the remote opt-out check remain pending; source builds without injected configuration continue to send nothing.
+## Release Boundary
+
+Version 1.4.0 should implement the vocabulary-pack architecture and the first stable packs. It should not promise real-time whole-web trending terms, upload user input, add complex cloud services, or expose multiple third-party API configurations.

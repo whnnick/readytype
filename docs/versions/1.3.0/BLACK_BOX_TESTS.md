@@ -1,6 +1,6 @@
-# ReadyType 1.4.0 Black-Box Functional Check
+# ReadyType 1.3.0 Black-Box Functional Check
 
-Last updated: July 14, 2026. The current acceptance build is still labeled `1.2.0 (80)` and has not entered the 1.4.0 release stage.
+Last updated: July 14, 2026. The current acceptance build is still labeled `1.2.0 (80)` and has not entered the 1.3.0 release stage.
 
 ## Requirement Mapping and Status
 
@@ -33,6 +33,6 @@ Last updated: July 14, 2026. The current acceptance build is still labeled `1.2.
 ## Release Blockers
 
 - Complete initial dashboard ingestion and the remote opt-out check.
-- Update the release version and build number to the selected 1.4.0 values.
+- Update the release version and build number to the selected 1.3.0 values.
 - Confirm the public release build injects the App ID without Test Mode.
 - Run the full test, app/ZIP/DMG packaging, sensitive-data scan, and GitHub Release verification flow.

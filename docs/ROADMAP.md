@@ -16,9 +16,9 @@ ReadyType 1.1.0 is publicly available. The next goal is to make the complete voi
 
 Version 1.2.0 is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): refresh the UI and interaction model so the HUD becomes the primary experience, the main window becomes a management surface, and Follow System, Light, and Dark appearances are supported.
 
-Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
+Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): establish anonymous product analytics that never collect user content, then use activation, retention, adoption, failure, and latency evidence to guide a bilingual beta.
 
-Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): establish anonymous product analytics that never collect user content, then use activation, retention, adoption, failure, and latency evidence to guide a bilingual beta. Based on the current product decision, 1.4.0 is implemented before the 1.3.0 Trending Vocabulary Packs work.
+Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
 
 ### UI and Interaction Refresh
 

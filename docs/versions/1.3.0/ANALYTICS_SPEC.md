@@ -1,4 +1,4 @@
-# ReadyType 1.4.0 Anonymous Event Specification
+# ReadyType 1.3.0 Anonymous Event Specification
 
 ## Design Rules
 
