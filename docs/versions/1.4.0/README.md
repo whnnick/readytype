@@ -7,6 +7,7 @@ ReadyType 1.4.0 establishes privacy-first anonymous product analytics so future 
 - [Requirements](./REQUIREMENTS.md)
 - [Anonymous Event Specification](./ANALYTICS_SPEC.md)
 - [Implementation Plan](./PLAN.md)
+- [Black-Box Functional Check](./BLACK_BOX_TESTS.md)
 
 ## Current Boundaries
 
@@ -18,4 +19,4 @@ ReadyType 1.4.0 establishes privacy-first anonymous product analytics so future 
 
 ## Current Status
 
-The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, and No-op default are complete. Production App ID verification, release-facing README updates, and 1.4.0 black-box checks remain pending, so current builds without injected configuration do not produce remote analytics data.
+The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, No-op default, and official ingestion connectivity check are complete. The free plan ingests dashboard data once per day, so initial event visibility and the remote opt-out check remain pending; source builds without injected configuration continue to send nothing.

@@ -45,6 +45,13 @@ cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeInfo.plist" "$CONTENTS_DIR/
 if [[ -n "${READYTYPE_TELEMETRYDECK_APP_ID:-}" ]]; then
     plutil -insert ReadyTypeTelemetryDeckAppID -string "$READYTYPE_TELEMETRYDECK_APP_ID" "$CONTENTS_DIR/Info.plist"
 fi
+if [[ "${READYTYPE_TELEMETRYDECK_TEST_MODE:-0}" == "1" ]]; then
+    if [[ -z "${READYTYPE_TELEMETRYDECK_APP_ID:-}" ]]; then
+        echo "READYTYPE_TELEMETRYDECK_TEST_MODE requires READYTYPE_TELEMETRYDECK_APP_ID" >&2
+        exit 1
+    fi
+    plutil -insert ReadyTypeTelemetryDeckTestMode -bool true "$CONTENTS_DIR/Info.plist"
+fi
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeAppIcon.icns" "$RESOURCES_DIR/ReadyTypeAppIcon.icns"
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeBrandLogo.svg" "$RESOURCES_DIR/ReadyTypeBrandLogo.svg"
 cp "$ROOT_DIR/ReadyType/ReadyType/Resources/ReadyTypeMenuBarTemplate.png" "$RESOURCES_DIR/ReadyTypeMenuBarTemplate.png"

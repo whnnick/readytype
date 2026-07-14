@@ -82,13 +82,16 @@ final class ReadyTypeAnalyticsTests: XCTestCase {
         XCTAssertTrue(ReadyTypeAnalyticsFactory.make(appID: "not-a-uuid") is NoopAnalyticsTracker)
 
         var configuredAppID: String?
+        var configuredTestMode: Bool?
         let appID = "6D85C69C-5CA4-47B4-9712-A0B21F28704A"
-        let tracker = ReadyTypeAnalyticsFactory.make(appID: "  \(appID)  ") { appID in
+        let tracker = ReadyTypeAnalyticsFactory.make(appID: "  \(appID)  ", testMode: true) { appID, testMode in
             configuredAppID = appID
+            configuredTestMode = testMode
             return AnalyticsEventRecorder()
         }
 
         XCTAssertEqual(configuredAppID, appID)
+        XCTAssertEqual(configuredTestMode, true)
         XCTAssertTrue(tracker is AnalyticsEventRecorder)
     }
 }

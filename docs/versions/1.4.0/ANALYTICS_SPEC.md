@@ -13,6 +13,8 @@ Official builds use TelemetryDeck Swift SDK 2.14.1. In addition to the ReadyType
 
 Default metadata must be audited again before any SDK upgrade. Scope changes require this specification and the user-facing privacy disclosure to be updated first.
 
+Internal acceptance uses TelemetryDeck Test Mode to isolate test events. Public release builds must disable Test Mode.
+
 ## Allowed Events
 
 | Event | Allowed properties |

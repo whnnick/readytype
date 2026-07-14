@@ -7,13 +7,14 @@ final class TelemetryDeckAnalyticsTracker: AnalyticsTracking {
 
     private let send: SignalSender
 
-    init(appID: String, send: SignalSender? = nil) {
+    init(appID: String, testMode: Bool = false, send: SignalSender? = nil) {
         if let send {
             self.send = send
             return
         }
 
         let configuration = TelemetryDeck.Config(appID: appID)
+        configuration.testMode = testMode
         configuration.sendNewSessionBeganSignal = false
         configuration.sessionStatsEnabled = false
         configuration.logHandler = nil
@@ -31,22 +32,29 @@ final class TelemetryDeckAnalyticsTracker: AnalyticsTracking {
 
 enum ReadyTypeAnalyticsFactory {
     static let telemetryDeckAppIDKey = "ReadyTypeTelemetryDeckAppID"
+    static let telemetryDeckTestModeKey = "ReadyTypeTelemetryDeckTestMode"
 
     @MainActor
     static func make(bundle: Bundle = .main) -> AnalyticsTracking {
-        make(appID: bundle.object(forInfoDictionaryKey: telemetryDeckAppIDKey) as? String)
+        make(
+            appID: bundle.object(forInfoDictionaryKey: telemetryDeckAppIDKey) as? String,
+            testMode: bundle.object(forInfoDictionaryKey: telemetryDeckTestModeKey) as? Bool ?? false
+        )
     }
 
     @MainActor
     static func make(
         appID: String?,
-        configuredTracker: (String) -> AnalyticsTracking = { TelemetryDeckAnalyticsTracker(appID: $0) }
+        testMode: Bool = false,
+        configuredTracker: (String, Bool) -> AnalyticsTracking = {
+            TelemetryDeckAnalyticsTracker(appID: $0, testMode: $1)
+        }
     ) -> AnalyticsTracking {
         let trimmedAppID = appID?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard UUID(uuidString: trimmedAppID) != nil else {
             return NoopAnalyticsTracker()
         }
 
-        return configuredTracker(trimmedAppID)
+        return configuredTracker(trimmedAppID, testMode)
     }
 }
