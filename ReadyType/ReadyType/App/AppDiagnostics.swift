@@ -7,6 +7,7 @@ enum AppDiagnostics {
     static let debugVocabularyFileEnvironmentKey = "READYTYPE_DEBUG_VOCABULARY_FILE"
     static let debugVocabularyValueEnvironmentKey = "READYTYPE_DEBUG_VOCABULARY_VALUE"
     static let suppressLaunchWindowEnvironmentKey = "READYTYPE_SUPPRESS_LAUNCH_WINDOW"
+    static let visualAcceptanceDefaultsSuiteName = "com.readytype.visual-acceptance"
 
     static func isDebugInsertEnabled(
         environment: [String: String] = ProcessInfo.processInfo.environment

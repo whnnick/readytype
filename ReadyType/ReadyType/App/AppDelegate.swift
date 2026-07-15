@@ -55,7 +55,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             },
             onCancel: { [weak self] in
                 self?.cancelRecording()
-            }
+            },
+            escapeHintReminderStore: makeEscapeHintReminderStore()
         )
         configureVoicePipeline()
         observeVoiceInputCommands()
@@ -87,6 +88,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .dark:
             NSApp.appearance = NSAppearance(named: .darkAqua)
         }
+    }
+
+    private func makeEscapeHintReminderStore() -> EscapeHintReminderStore {
+        guard AppDiagnostics.isDebugHUDEnabled(),
+              let defaults = UserDefaults(suiteName: AppDiagnostics.visualAcceptanceDefaultsSuiteName)
+        else {
+            return EscapeHintReminderStore()
+        }
+        return EscapeHintReminderStore(defaults: defaults)
     }
 
     private func syncAppStateWithSettings() {

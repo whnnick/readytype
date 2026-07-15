@@ -13,7 +13,8 @@
 - Added an original rising two-tone activation cue that plays only after permissions pass and immediately before recording begins.
 - `scripts/build-app.sh` now clears stale ZIP, DMG, duplicate app bundles, and Finder metadata from `dist` before keeping the current app build.
 - Upgraded the HUD to native Liquid Glass on macOS 26 with an adaptive-material fallback for older systems, and added a top-right recording cancel button that shares the existing Esc path. A 1.6-second “Press Esc to exit” hint appears on the first use of each day and remains discoverable on hover.
-- Advanced the current development build to `1.2.0 (84)` for this HUD interaction acceptance build.
+- Visual acceptance now uses an isolated preferences domain and cannot consume the user's first Esc hint of the day.
+- Advanced the current development build to `1.2.0 (85)` for this HUD interaction acceptance build.
 
 ## 1.2.0 - 2026-07-13
 

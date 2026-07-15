@@ -32,6 +32,7 @@ quit_readytype_instances() {
 cleanup() {
     quit_readytype_instances
     launchctl unsetenv READYTYPE_ENABLE_DEBUG_HUD >/dev/null 2>&1 || true
+    /usr/bin/defaults delete com.readytype.visual-acceptance >/dev/null 2>&1 || true
     rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
@@ -275,6 +276,7 @@ fi
 quit_readytype_instances
 ditto --norsrc "$APP_PATH" "$CHECK_APP_DIR"
 xattr -cr "$CHECK_APP_DIR"
+/usr/bin/defaults delete com.readytype.visual-acceptance >/dev/null 2>&1 || true
 launchctl setenv READYTYPE_ENABLE_DEBUG_HUD 1
 open -F -n "$CHECK_APP_DIR"
 wait_for_readytype_window

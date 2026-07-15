@@ -177,6 +177,10 @@ final class ReleaseGateScriptTests: XCTestCase {
             visualAcceptanceSource.contains("Recording HUD remained visible after clicking its cancel button."),
             "Visual acceptance must fail when the recording cancel button does not close the HUD."
         )
+        XCTAssertTrue(
+            visualAcceptanceSource.contains("com.readytype.visual-acceptance"),
+            "Visual acceptance must isolate diagnostic preferences from user settings."
+        )
 
         let textEditPasteSource = try String(contentsOf: textEditPasteScript, encoding: .utf8)
         XCTAssertTrue(
