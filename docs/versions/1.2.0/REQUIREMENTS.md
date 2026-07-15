@@ -54,7 +54,7 @@ Users can teach ReadyType the correct spelling of names, brands, products, proje
 
 ## HUD Contract
 
-The HUD keeps stable dimensions across Ready, Listening, Recognizing, Polishing, Outputting, Complete, Copied, Cancelled, and Error states. Voice-reactive waveform motion is limited to active listening. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
+The HUD keeps a stable outer window while Recognizing and Polishing share one compact white processing capsule. The processing capsule omits the timer, mode badge, and waveform. Voice-reactive waveform motion is limited to active listening. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
 
 ## Appearance
 

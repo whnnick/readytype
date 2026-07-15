@@ -8,7 +8,8 @@
 - Integrated the official TelemetryDeck Swift SDK as an optional analytics provider; its App ID is injected only at build time, missing configuration remains no-op, and automatic session events and session statistics are disabled.
 - The build script now copies and verifies TelemetryDeck's privacy-manifest bundle so custom `.app` packaging cannot omit the third-party privacy declaration.
 - Refined the compact voice HUD with a lighter, shorter listening title and a microphone-level waveform that stays quiet in silence and responds to actual speech without opening another audio capture path.
-- Advanced the current development build to `1.2.0 (81)` for this HUD acceptance build.
+- Recognition and polishing now use a Typeless-inspired compact white capsule without the timer, mode badge, colored flow, or waveform; active recording keeps the microphone-reactive waveform.
+- Advanced the current development build to `1.2.0 (82)` for this HUD acceptance build.
 
 ## 1.2.0 - 2026-07-13
 

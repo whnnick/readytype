@@ -13,6 +13,17 @@ enum MotionTokens {
     static let voiceCapsuleCornerRadius: CGFloat = 26
     static let voiceCapsuleHeight: CGFloat = 52
     static let voiceCapsuleWindowSize = NSSize(width: 420, height: 62)
+    static let processingCapsuleWidth: CGFloat = 154
+    static let processingCapsuleHeight: CGFloat = 40
+
+    static func usesMinimalProcessingCapsule(for state: RuntimeState) -> Bool {
+        switch state {
+        case .transcribing, .processingAI:
+            return true
+        case .idle, .recording, .pasted, .copiedFallback, .error:
+            return false
+        }
+    }
 
     static func hudEntranceOffset(for preferences: MotionPreferences = .current) -> CGFloat {
         preferences.reduceMotion ? 0 : 12

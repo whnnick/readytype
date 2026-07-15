@@ -16,81 +16,19 @@ struct RecordingHUDView: View {
                 shortcut: appState.voiceShortcut
             )
 
-            HStack(spacing: 10) {
-                VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        Text(presentation.title)
-                            .font(.system(size: 14, weight: .medium))
-                            .lineLimit(1)
-                            .contentTransition(.opacity)
-                            .foregroundStyle(ReadyTypeTheme.ink)
-
-                        VoiceCapsuleBadge(text: appState.selectedMode.displayName, role: appState.runtimeState.readyTypeStatusRole)
-                    }
-
-                    Text(presentation.subtitle)
-                        .font(.system(size: 11, weight: .regular))
-                        .lineLimit(1)
-                        .foregroundStyle(ReadyTypeTheme.muted)
-                        .contentTransition(.opacity)
-                }
-
-                Spacer(minLength: 4)
-
-                Text(timerText(at: timeline.date))
-                    .font(.system(size: 13, weight: .medium, design: .monospaced))
-                    .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
-                    .frame(width: 42, alignment: .trailing)
-
-                WaveformView(
-                    isActive: appState.runtimeState == .recording,
-                    reduceMotion: preferences.reduceMotion,
-                    audioLevelProvider: audioLevelProvider
-                )
-                    .frame(width: 58, height: 20)
-            }
-            .frame(height: MotionTokens.voiceCapsuleHeight)
-            .padding(.horizontal, 14)
-            .background {
-                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                ReadyTypeTheme.fieldStrong.opacity(0.44),
-                                ReadyTypeTheme.field.opacity(0.30)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+            Group {
+                if MotionTokens.usesMinimalProcessingCapsule(for: appState.runtimeState) {
+                    ProcessingCapsule(
+                        title: presentation.title,
+                        reduceMotion: preferences.reduceMotion
                     )
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                } else {
+                    standardCapsule(presentation: presentation, date: timeline.date)
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                }
             }
-            .overlay(
-                VoiceCapsuleFlowBorder(
-                    state: appState.runtimeState,
-                    preferences: preferences
-                )
-            )
-            .overlay(alignment: .topLeading) {
-                Capsule()
-                    .fill(ReadyTypeTheme.ink.opacity(0.16))
-                    .frame(width: 112, height: 1)
-                    .padding(.leading, 22)
-                    .padding(.top, 1)
-            }
-            .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 10)
-            .shadow(
-                color: ReadyTypeTheme.color(for: appState.runtimeState.readyTypeStatusRole).opacity(
-                    MotionTokens.voiceCapsuleGlowOpacity(for: appState.runtimeState, preferences: preferences)
-                ),
-                radius: 24,
-                x: 0,
-                y: 10
-            )
-            .scaleEffect(MotionTokens.voiceCapsuleScale(for: appState.runtimeState, preferences: preferences))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .offset(x: errorOffset)
             .animation(MotionTokens.crossfadeAnimation(for: preferences), value: presentation)
             .animation(MotionTokens.statusAnimation(for: preferences), value: appState.runtimeState)
@@ -114,6 +52,87 @@ struct RecordingHUDView: View {
         .preferredColorScheme(appearance.colorScheme)
     }
 
+    private func standardCapsule(
+        presentation: VoiceInputHUDPresentation,
+        date: Date
+    ) -> some View {
+        HStack(spacing: 10) {
+            VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(presentation.title)
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(1)
+                        .contentTransition(.opacity)
+                        .foregroundStyle(ReadyTypeTheme.ink)
+
+                    VoiceCapsuleBadge(text: appState.selectedMode.displayName, role: appState.runtimeState.readyTypeStatusRole)
+                }
+
+                Text(presentation.subtitle)
+                    .font(.system(size: 11, weight: .regular))
+                    .lineLimit(1)
+                    .foregroundStyle(ReadyTypeTheme.muted)
+                    .contentTransition(.opacity)
+            }
+
+            Spacer(minLength: 4)
+
+            Text(timerText(at: date))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
+                .frame(width: 42, alignment: .trailing)
+
+            WaveformView(
+                isActive: appState.runtimeState == .recording,
+                reduceMotion: preferences.reduceMotion,
+                audioLevelProvider: audioLevelProvider
+            )
+            .frame(width: 58, height: 20)
+        }
+        .frame(height: MotionTokens.voiceCapsuleHeight)
+        .padding(.horizontal, 14)
+        .background {
+            RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+                .fill(.ultraThinMaterial)
+            RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            ReadyTypeTheme.fieldStrong.opacity(0.44),
+                            ReadyTypeTheme.field.opacity(0.30)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .overlay(
+            VoiceCapsuleFlowBorder(
+                state: appState.runtimeState,
+                preferences: preferences
+            )
+        )
+        .overlay(alignment: .topLeading) {
+            Capsule()
+                .fill(ReadyTypeTheme.ink.opacity(0.16))
+                .frame(width: 112, height: 1)
+                .padding(.leading, 22)
+                .padding(.top, 1)
+        }
+        .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 10)
+        .shadow(
+            color: ReadyTypeTheme.color(for: appState.runtimeState.readyTypeStatusRole).opacity(
+                MotionTokens.voiceCapsuleGlowOpacity(for: appState.runtimeState, preferences: preferences)
+            ),
+            radius: 24,
+            x: 0,
+            y: 10
+        )
+        .scaleEffect(MotionTokens.voiceCapsuleScale(for: appState.runtimeState, preferences: preferences))
+    }
+
     private var appearance: ReadyTypeAppearance {
         ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
     }
@@ -125,6 +144,63 @@ struct RecordingHUDView: View {
 
         let elapsed = max(0, Int(date.timeIntervalSince(recordingStartedAt)))
         return String(format: "%02d:%02d", elapsed / 60, elapsed % 60)
+    }
+}
+
+private struct ProcessingCapsule: View {
+    let title: String
+    let reduceMotion: Bool
+
+    @State private var isRotating = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .stroke(Color.black.opacity(0.10), lineWidth: 1.5)
+
+                Circle()
+                    .trim(from: 0.08, to: 0.72)
+                    .stroke(
+                        Color.black.opacity(0.72),
+                        style: StrokeStyle(lineWidth: 1.8, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(isRotating ? 360 : 0))
+            }
+            .frame(width: 14, height: 14)
+
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color.black.opacity(0.84))
+                .lineLimit(1)
+                .contentTransition(.opacity)
+        }
+        .padding(.horizontal, 12)
+        .frame(width: MotionTokens.processingCapsuleWidth, height: MotionTokens.processingCapsuleHeight)
+        .background(
+            Color.white.opacity(0.97),
+            in: RoundedRectangle(cornerRadius: MotionTokens.processingCapsuleHeight / 2, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: MotionTokens.processingCapsuleHeight / 2, style: .continuous)
+                .stroke(Color.black.opacity(0.10), lineWidth: 0.6)
+        )
+        .overlay(alignment: .top) {
+            Capsule()
+                .fill(Color.white.opacity(0.92))
+                .frame(width: 92, height: 1)
+                .padding(.top, 1)
+        }
+        .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
+        .onAppear {
+            guard !reduceMotion else {
+                return
+            }
+
+            withAnimation(.linear(duration: 0.9).repeatForever(autoreverses: false)) {
+                isRotating = true
+            }
+        }
     }
 }
 

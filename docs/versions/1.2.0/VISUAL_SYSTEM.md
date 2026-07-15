@@ -25,8 +25,8 @@ System-level, restrained, clear, and quietly technical. Borrow low-distraction p
 | --- | --- |
 | Entrance | 10-12 pt rise with a 160-200 ms fade |
 | Listening | Voice-reactive waveform and slow edge highlight |
-| Recognizing | Waveform settles; text crossfades in 120-160 ms |
-| Polishing | Subtle edge-color change with stable layout |
+| Recognizing | Transition to a compact white capsule with one progress indicator and one status line |
+| Polishing | Reuse the white capsule and crossfade the status text in 120-160 ms |
 | Complete | One green confirmation, then fade after about 900 ms |
 | Copied | Amber feedback for about 1.5 seconds |
 | Error | One restrained horizontal response, then stillness |

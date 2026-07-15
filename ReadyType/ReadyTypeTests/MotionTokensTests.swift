@@ -6,6 +6,16 @@ final class MotionTokensTests: XCTestCase {
         XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.width, 420)
         XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.height, 62)
         XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 52)
+        XCTAssertEqual(MotionTokens.processingCapsuleWidth, 154)
+        XCTAssertEqual(MotionTokens.processingCapsuleHeight, 40)
+    }
+
+    func testOnlyRecognitionAndPolishingUseMinimalProcessingCapsule() {
+        XCTAssertTrue(MotionTokens.usesMinimalProcessingCapsule(for: .transcribing))
+        XCTAssertTrue(MotionTokens.usesMinimalProcessingCapsule(for: .processingAI))
+        XCTAssertFalse(MotionTokens.usesMinimalProcessingCapsule(for: .recording))
+        XCTAssertFalse(MotionTokens.usesMinimalProcessingCapsule(for: .pasted))
+        XCTAssertFalse(MotionTokens.usesMinimalProcessingCapsule(for: .error("x")))
     }
 
     func testStandardMotionAllowsExpressiveHUDMovement() {
