@@ -28,4 +28,34 @@ final class RecordingHUDPresentationStateTests: XCTestCase {
 
         XCTAssertEqual(state.processingStartedAt, initialDate)
     }
+
+    func testRecordingActivationUsesPolicyDecisionForEscapeHint() {
+        let state = RecordingHUDPresentationState()
+
+        state.transition(from: .idle, to: .recording, showsEscapeHint: true)
+        XCTAssertTrue(state.isEscapeHintVisible)
+
+        state.dismissEscapeHint()
+        XCTAssertFalse(state.isEscapeHintVisible)
+
+        state.transition(from: .idle, to: .recording)
+        XCTAssertFalse(state.isEscapeHintVisible)
+    }
+
+    func testEscapeHintReminderAppearsOnlyOnFirstActivationOfEachDay() {
+        let suiteName = "RecordingHUDPresentationStateTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let store = EscapeHintReminderStore(defaults: defaults, calendar: calendar)
+        let firstActivation = calendar.date(from: DateComponents(year: 2026, month: 7, day: 15, hour: 9))!
+        let laterSameDay = calendar.date(from: DateComponents(year: 2026, month: 7, day: 15, hour: 22))!
+        let nextDay = calendar.date(from: DateComponents(year: 2026, month: 7, day: 16, hour: 8))!
+
+        XCTAssertTrue(store.shouldShowHint(at: firstActivation))
+        store.recordActivation(at: firstActivation)
+        XCTAssertFalse(store.shouldShowHint(at: laterSameDay))
+        XCTAssertTrue(store.shouldShowHint(at: nextDay))
+    }
 }

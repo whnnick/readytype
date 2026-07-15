@@ -5,6 +5,7 @@ struct RecordingHUDView: View {
     @ObservedObject var appState: AppState
     @ObservedObject var presentationState: RecordingHUDPresentationState
     let audioLevelProvider: () -> Double
+    let onCancel: () -> Void
 
     @State private var errorOffset: CGFloat = 0
     private var preferences: MotionPreferences { .current }
@@ -21,10 +22,13 @@ struct RecordingHUDView: View {
                 title: presentation.title,
                 timerText: timerText(at: timeline.date),
                 processingStartedAt: presentationState.processingStartedAt,
+                showsEscapeHint: presentationState.isEscapeHintVisible,
                 reduceMotion: preferences.reduceMotion,
-                audioLevelProvider: audioLevelProvider
+                audioLevelProvider: audioLevelProvider,
+                onCancel: onCancel
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, 2)
             .offset(x: errorOffset)
             .animation(MotionTokens.crossfadeAnimation(for: preferences), value: presentation)
             .animation(MotionTokens.statusAnimation(for: preferences), value: appState.runtimeState)
@@ -62,25 +66,21 @@ private struct UnifiedVoiceCapsule: View {
     let title: String
     let timerText: String
     let processingStartedAt: Date
+    let showsEscapeHint: Bool
     let reduceMotion: Bool
     let audioLevelProvider: () -> Double
+    let onCancel: () -> Void
 
     var body: some View {
         content
-            .padding(.horizontal, 13)
+            .padding(.leading, 12)
+            .padding(.trailing, state == .recording ? 9 : 13)
             .frame(width: MotionTokens.voiceCapsuleWidth, height: MotionTokens.voiceCapsuleHeight)
-            .background(
-                Color.white.opacity(0.98),
-                in: RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-                    .stroke(Color.black.opacity(0.11), lineWidth: 0.6)
-            )
+            .background(LiquidGlassCapsuleBackground())
             .overlay(alignment: .top) {
                 Capsule()
-                    .fill(Color.white)
-                    .frame(width: 96, height: 1)
+                    .fill(Color.white.opacity(0.84))
+                    .frame(width: 86, height: 1)
                     .padding(.top, 1)
             }
             .overlay(alignment: .bottom) {
@@ -90,26 +90,32 @@ private struct UnifiedVoiceCapsule: View {
                         startedAt: processingStartedAt,
                         reduceMotion: reduceMotion
                     )
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 15)
                     .padding(.bottom, 4)
                     .transition(.opacity)
                 }
             }
-            .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
-            .scaleEffect(MotionTokens.voiceCapsuleScale(for: state, preferences: MotionPreferences(reduceMotion: reduceMotion)))
+            .shadow(color: Color.black.opacity(0.17), radius: 16, x: 0, y: 8)
+            .shadow(color: Color.black.opacity(0.07), radius: 4, x: 0, y: 2)
+            .scaleEffect(
+                MotionTokens.voiceCapsuleScale(
+                    for: state,
+                    preferences: MotionPreferences(reduceMotion: reduceMotion)
+                )
+            )
     }
 
     @ViewBuilder
     private var content: some View {
         switch state {
         case .recording:
-            HStack(spacing: 9) {
+            HStack(spacing: 7) {
                 WaveformView(
                     isActive: true,
                     reduceMotion: reduceMotion,
                     audioLevelProvider: audioLevelProvider
                 )
-                .frame(width: 50, height: 18)
+                .frame(width: 44, height: 18)
 
                 Text(title)
                     .font(.system(size: 13, weight: .medium))
@@ -121,7 +127,14 @@ private struct UnifiedVoiceCapsule: View {
                 Text(timerText)
                     .font(.system(size: 12, weight: .medium, design: .monospaced))
                     .foregroundStyle(Color.black.opacity(0.52))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
                     .frame(width: 38, alignment: .trailing)
+
+                EscapeCancelButton(
+                    showsFirstUseHint: showsEscapeHint,
+                    onCancel: onCancel
+                )
             }
         case .transcribing, .processingAI:
             HStack(spacing: 8) {
@@ -147,6 +160,108 @@ private struct UnifiedVoiceCapsule: View {
 
     private var isProcessing: Bool {
         state == .transcribing || state == .processingAI
+    }
+}
+
+private struct LiquidGlassCapsuleBackground: View {
+    private let shape = RoundedRectangle(
+        cornerRadius: MotionTokens.voiceCapsuleCornerRadius,
+        style: .continuous
+    )
+
+    @ViewBuilder
+    var body: some View {
+        if #available(macOS 26.0, *) {
+            shape
+                .fill(Color.clear)
+                .glassEffect(.regular.tint(Color.white.opacity(0.68)), in: shape)
+                .overlay {
+                    shape.fill(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.52), Color.white.opacity(0.36)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                }
+                .overlay {
+                    shape.stroke(Color.black.opacity(0.08), lineWidth: 0.5)
+                }
+        } else {
+            fallbackBackground
+        }
+    }
+
+    private var fallbackBackground: some View {
+        shape
+            .fill(.ultraThinMaterial)
+            .overlay {
+                shape.fill(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.72), Color.white.opacity(0.52)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
+            .overlay {
+                shape.stroke(Color.black.opacity(0.10), lineWidth: 0.6)
+            }
+            .overlay {
+                shape
+                    .inset(by: 1)
+                    .stroke(Color.white.opacity(0.28), lineWidth: 0.5)
+            }
+    }
+}
+
+private struct EscapeCancelButton: View {
+    let showsFirstUseHint: Bool
+    let onCancel: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: onCancel) {
+            ZStack {
+                Circle()
+                    .fill(Color.black.opacity(isHovered ? 0.12 : 0.055))
+                    .overlay {
+                        Circle().stroke(Color.black.opacity(0.07), lineWidth: 0.5)
+                    }
+
+                Capsule()
+                    .fill(Color.black.opacity(0.52))
+                    .frame(width: 9, height: 1.2)
+                    .rotationEffect(.degrees(45))
+
+                Capsule()
+                    .fill(Color.black.opacity(0.52))
+                    .frame(width: 9, height: 1.2)
+                    .rotationEffect(.degrees(-45))
+            }
+            .frame(width: 24, height: 24)
+        }
+        .buttonStyle(.plain)
+        .contentShape(Circle())
+        .accessibilityLabel("退出语音输入")
+        .onHover { isHovered = $0 }
+        .overlay(alignment: .topTrailing) {
+            if showsFirstUseHint || isHovered {
+                Text("按 Esc 退出")
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color.white.opacity(0.94))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.80), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .fixedSize()
+                    .offset(x: 2, y: -32)
+                    .transition(.opacity.combined(with: .offset(y: 3)))
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+        .animation(.easeOut(duration: 0.12), value: showsFirstUseHint || isHovered)
     }
 }
 
@@ -184,7 +299,7 @@ private struct ThinkingIndicator: View {
             Circle()
                 .trim(from: 0.08, to: 0.72)
                 .stroke(
-                    Color.black.opacity(0.72),
+                    ReadyTypeHUDPalette.progress,
                     style: StrokeStyle(lineWidth: 1.8, lineCap: .round)
                 )
                 .rotationEffect(.degrees(isRotating ? 360 : 0))
@@ -258,7 +373,7 @@ private struct WaveformView: View {
     let reduceMotion: Bool
     let audioLevelProvider: () -> Double
 
-    private let heightProfile: [CGFloat] = [0.48, 0.72, 0.90, 0.66, 1.00, 0.78, 0.58, 0.84]
+    private let heightProfile: [CGFloat] = [0.48, 0.72, 0.90, 1.00, 0.78, 0.58, 0.84]
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1 / 24, paused: !isActive || reduceMotion)) { _ in
@@ -267,7 +382,7 @@ private struct WaveformView: View {
             HStack(alignment: .center, spacing: 3) {
                 ForEach(heightProfile.indices, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .fill(index == 4 ? ReadyTypeHUDPalette.progress : Color.black.opacity(0.62))
+                        .fill(index == 3 ? ReadyTypeHUDPalette.progress : Color.black.opacity(0.58))
                         .frame(width: 3, height: height(for: index, level: level))
                         .opacity(isActive ? 0.95 : 0.30)
                 }

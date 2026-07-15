@@ -12,7 +12,8 @@
 - Unified every HUD phase under one fixed white capsule, added a stage-aware Thinking progress bar, and kept the shell stable while recording content, processing status, and results change.
 - Added an original rising two-tone activation cue that plays only after permissions pass and immediately before recording begins.
 - `scripts/build-app.sh` now clears stale ZIP, DMG, duplicate app bundles, and Finder metadata from `dist` before keeping the current app build.
-- Advanced the current development build to `1.2.0 (83)` for this HUD acceptance build.
+- Upgraded the HUD to native Liquid Glass on macOS 26 with an adaptive-material fallback for older systems, and added a top-right recording cancel button that shares the existing Esc path. A 1.6-second “Press Esc to exit” hint appears on the first use of each day and remains discoverable on hover.
+- Advanced the current development build to `1.2.0 (84)` for this HUD interaction acceptance build.
 
 ## 1.2.0 - 2026-07-13
 

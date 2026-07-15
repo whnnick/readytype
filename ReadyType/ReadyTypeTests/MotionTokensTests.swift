@@ -4,10 +4,11 @@ import XCTest
 final class MotionTokensTests: XCTestCase {
     func testVoiceCapsuleUsesCompactStableDimensions() {
         XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.width, 420)
-        XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.height, 62)
-        XCTAssertEqual(MotionTokens.voiceCapsuleWidth, 220)
-        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 42)
-        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 21)
+        XCTAssertEqual(MotionTokens.voiceCapsuleWindowSize.height, 82)
+        XCTAssertEqual(MotionTokens.voiceCapsuleWidth, 246)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 44)
+        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 22)
+        XCTAssertEqual(MotionTokens.escapeHintDuration, 1.6)
     }
 
     func testStandardMotionAllowsExpressiveHUDMovement() {
@@ -16,8 +17,8 @@ final class MotionTokensTests: XCTestCase {
         XCTAssertEqual(MotionTokens.hudEntranceOffset(for: preferences), 12)
         XCTAssertTrue(MotionTokens.waveAnimationEnabled(for: preferences))
         XCTAssertTrue(MotionTokens.errorShakeEnabled(for: preferences))
-        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 21)
-        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 42)
+        XCTAssertEqual(MotionTokens.voiceCapsuleCornerRadius, 22)
+        XCTAssertEqual(MotionTokens.voiceCapsuleHeight, 44)
     }
 
     func testReducedMotionDisablesLargeMovementAndWaveAnimation() {

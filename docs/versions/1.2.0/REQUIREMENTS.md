@@ -54,7 +54,7 @@ Users can teach ReadyType the correct spelling of names, brands, products, proje
 
 ## HUD Contract
 
-Every visible state shares one neutral white `220 x 42 pt` capsule. Recording starts after a short original audio cue and shows the real microphone waveform plus elapsed time. Recognition and polishing replace that content with stage text and a bottom progress bar while preserving the shell. The bar never claims 100% before actual completion. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
+Every visible state shares one neutral Liquid Glass `246 x 44 pt` capsule, using native Liquid Glass on macOS 26 and adaptive material on older systems. Recording starts after a short original audio cue and shows the real microphone waveform plus elapsed time. A top-right close button shares the Esc cancellation path. Its 1.6-second hint appears on the first use of each day, stays quiet later that day, and remains available on hover. Recognition and polishing replace recording content with stage text and a bottom progress bar while preserving the shell. The bar never claims 100% before actual completion. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
 
 ## Appearance
 

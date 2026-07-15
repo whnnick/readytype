@@ -52,6 +52,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             appState: appState,
             audioLevelProvider: { [weak self] in
                 self?.audioRecorderService.currentLevel() ?? 0
+            },
+            onCancel: { [weak self] in
+                self?.cancelRecording()
             }
         )
         configureVoicePipeline()

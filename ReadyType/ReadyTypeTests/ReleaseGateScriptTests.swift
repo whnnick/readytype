@@ -169,6 +169,14 @@ final class ReleaseGateScriptTests: XCTestCase {
             visualAcceptanceSource.contains("正在录音"),
             "Visual acceptance HUD fixtures should not regress to recorder copy."
         )
+        XCTAssertTrue(
+            visualAcceptanceSource.contains("hud-recording-hover"),
+            "Visual acceptance must preserve the Esc hint hover check."
+        )
+        XCTAssertTrue(
+            visualAcceptanceSource.contains("Recording HUD remained visible after clicking its cancel button."),
+            "Visual acceptance must fail when the recording cancel button does not close the HUD."
+        )
 
         let textEditPasteSource = try String(contentsOf: textEditPasteScript, encoding: .utf8)
         XCTAssertTrue(

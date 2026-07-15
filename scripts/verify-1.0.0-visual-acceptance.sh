@@ -8,6 +8,11 @@ OUT_DIR="${READYTYPE_VISUAL_ACCEPTANCE_DIR:-$ROOT_DIR/tmp/readytype-1.0.0-visual
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/readytype-visual-acceptance.XXXXXX")"
 CHECK_APP_DIR="$TMP_DIR/ReadyType.app"
 OSASCRIPT_TIMEOUT_SECONDS="${OSASCRIPT_TIMEOUT_SECONDS:-8}"
+HUD_CAPSULE_WIDTH=246
+HUD_CAPSULE_HEIGHT=44
+HUD_CANCEL_SIZE=24
+HUD_CANCEL_TRAILING=9
+HUD_BOTTOM_PADDING=2
 
 mkdir -p "$OUT_DIR"
 
@@ -173,7 +178,7 @@ cat > "$TMP_DIR/click-point.swift" <<'SWIFT'
 import CoreGraphics
 import Foundation
 
-guard CommandLine.arguments.count == 3,
+guard CommandLine.arguments.count == 3 || CommandLine.arguments.count == 4,
       let x = Double(CommandLine.arguments[1]),
       let y = Double(CommandLine.arguments[2])
 else {
@@ -185,6 +190,9 @@ let source = CGEventSource(stateID: .hidSystemState)
 
 CGEvent(mouseEventSource: source, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
 Thread.sleep(forTimeInterval: 0.05)
+if CommandLine.arguments.count == 4, CommandLine.arguments[3] == "move" {
+    exit(0)
+}
 CGEvent(mouseEventSource: source, mouseType: .leftMouseDown, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
 Thread.sleep(forTimeInterval: 0.05)
 CGEvent(mouseEventSource: source, mouseType: .leftMouseUp, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
@@ -201,6 +209,10 @@ post_hud_state() {
 
 click_point() {
     CLANG_MODULE_CACHE_PATH="$ROOT_DIR/.build/clang-module-cache" swift "$TMP_DIR/click-point.swift" "$@"
+}
+
+move_point() {
+    CLANG_MODULE_CACHE_PATH="$ROOT_DIR/.build/clang-module-cache" swift "$TMP_DIR/click-point.swift" "$@" move
 }
 
 capture_window() {
@@ -296,6 +308,22 @@ for state in recording transcribing processingAI pasted copiedFallback error; do
     post_hud_state "$state" "$message"
     sleep 0.4
     capture_window hud "hud-$state"
+
+    if [[ "$state" == "recording" ]]; then
+        geometry="$(window_id hud)"
+        read -r id x y width height <<< "$geometry"
+        close_x=$((x + width / 2 + HUD_CAPSULE_WIDTH / 2 - HUD_CANCEL_TRAILING - HUD_CANCEL_SIZE / 2))
+        close_y=$((y + height - HUD_BOTTOM_PADDING - HUD_CAPSULE_HEIGHT / 2))
+        move_point "$close_x" "$close_y"
+        sleep 0.2
+        capture_window hud "hud-recording-hover"
+        click_point "$close_x" "$close_y"
+        sleep 0.3
+        if window_id hud >/dev/null 2>&1; then
+            echo "Recording HUD remained visible after clicking its cancel button." >&2
+            exit 1
+        fi
+    fi
 done
 
 post_hud_state idle
