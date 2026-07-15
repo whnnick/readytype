@@ -54,7 +54,7 @@ Users can teach ReadyType the correct spelling of names, brands, products, proje
 
 ## HUD Contract
 
-The HUD keeps a stable outer window while Recognizing and Polishing share one compact white processing capsule. The processing capsule omits the timer, mode badge, and waveform. Voice-reactive waveform motion is limited to active listening. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
+Every visible state shares one neutral white `220 x 42 pt` capsule. Recording starts after a short original audio cue and shows the real microphone waveform plus elapsed time. Recognition and polishing replace that content with stage text and a bottom progress bar while preserving the shell. The bar never claims 100% before actual completion. Success feedback lasts about 900 ms; copied fallback lasts about 1.5 seconds.
 
 ## Appearance
 

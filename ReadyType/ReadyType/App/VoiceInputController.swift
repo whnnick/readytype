@@ -8,6 +8,7 @@ final class VoiceInputController {
     private let transcriber: SpeechTranscribing
     private let transcriptHandler: TranscriptHandling
     private let analyticsTracker: AnalyticsTracking
+    private let feedbackSoundPlayer: VoiceFeedbackSoundPlaying
     private let now: () -> Date
 
     init(
@@ -17,6 +18,7 @@ final class VoiceInputController {
         transcriber: SpeechTranscribing,
         transcriptHandler: TranscriptHandling,
         analyticsTracker: AnalyticsTracking = NoopAnalyticsTracker(),
+        feedbackSoundPlayer: VoiceFeedbackSoundPlaying = NoopVoiceFeedbackSoundPlayer(),
         now: @escaping () -> Date = Date.init
     ) {
         self.appState = appState
@@ -25,6 +27,7 @@ final class VoiceInputController {
         self.transcriber = transcriber
         self.transcriptHandler = transcriptHandler
         self.analyticsTracker = analyticsTracker
+        self.feedbackSoundPlayer = feedbackSoundPlayer
         self.now = now
     }
 
@@ -51,6 +54,7 @@ final class VoiceInputController {
         }
 
         do {
+            await feedbackSoundPlayer.playActivationCue()
             try recorder.startRecording()
             appState.lastVoiceRunMetrics = VoiceRunMetrics(recordingStartedAt: now())
             appState.runtimeState = .recording

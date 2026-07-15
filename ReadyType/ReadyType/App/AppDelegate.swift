@@ -274,7 +274,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 )
             ),
             transcriptHandler: workflowController,
-            analyticsTracker: analyticsTracker
+            analyticsTracker: analyticsTracker,
+            feedbackSoundPlayer: VoiceFeedbackSoundService()
         )
     }
 

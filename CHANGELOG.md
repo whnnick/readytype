@@ -9,7 +9,10 @@
 - The build script now copies and verifies TelemetryDeck's privacy-manifest bundle so custom `.app` packaging cannot omit the third-party privacy declaration.
 - Refined the compact voice HUD with a lighter, shorter listening title and a microphone-level waveform that stays quiet in silence and responds to actual speech without opening another audio capture path.
 - Recognition and polishing now use a Typeless-inspired compact white capsule without the timer, mode badge, colored flow, or waveform; active recording keeps the microphone-reactive waveform.
-- Advanced the current development build to `1.2.0 (82)` for this HUD acceptance build.
+- Unified every HUD phase under one fixed white capsule, added a stage-aware Thinking progress bar, and kept the shell stable while recording content, processing status, and results change.
+- Added an original rising two-tone activation cue that plays only after permissions pass and immediately before recording begins.
+- `scripts/build-app.sh` now clears stale ZIP, DMG, duplicate app bundles, and Finder metadata from `dist` before keeping the current app build.
+- Advanced the current development build to `1.2.0 (83)` for this HUD acceptance build.
 
 ## 1.2.0 - 2026-07-13
 

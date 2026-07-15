@@ -1,33 +1,29 @@
+import Foundation
 import SwiftUI
 
 struct RecordingHUDView: View {
     @ObservedObject var appState: AppState
-    let recordingStartedAt: Date
+    @ObservedObject var presentationState: RecordingHUDPresentationState
     let audioLevelProvider: () -> Double
 
     @State private var errorOffset: CGFloat = 0
-    @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
     private var preferences: MotionPreferences { .current }
 
     var body: some View {
-        TimelineView(.periodic(from: recordingStartedAt, by: 1)) { timeline in
+        TimelineView(.periodic(from: presentationState.recordingStartedAt, by: 1)) { timeline in
             let presentation = VoiceInputHUDText.presentation(
                 for: appState.runtimeState,
                 shortcut: appState.voiceShortcut
             )
 
-            Group {
-                if MotionTokens.usesMinimalProcessingCapsule(for: appState.runtimeState) {
-                    ProcessingCapsule(
-                        title: presentation.title,
-                        reduceMotion: preferences.reduceMotion
-                    )
-                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
-                } else {
-                    standardCapsule(presentation: presentation, date: timeline.date)
-                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
-                }
-            }
+            UnifiedVoiceCapsule(
+                state: appState.runtimeState,
+                title: presentation.title,
+                timerText: timerText(at: timeline.date),
+                processingStartedAt: presentationState.processingStartedAt,
+                reduceMotion: preferences.reduceMotion,
+                audioLevelProvider: audioLevelProvider
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .offset(x: errorOffset)
             .animation(MotionTokens.crossfadeAnimation(for: preferences), value: presentation)
@@ -49,92 +45,6 @@ struct RecordingHUDView: View {
                 }
             }
         }
-        .preferredColorScheme(appearance.colorScheme)
-    }
-
-    private func standardCapsule(
-        presentation: VoiceInputHUDPresentation,
-        date: Date
-    ) -> some View {
-        HStack(spacing: 10) {
-            VoiceCapsuleStatusLight(role: appState.runtimeState.readyTypeStatusRole)
-
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(presentation.title)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(1)
-                        .contentTransition(.opacity)
-                        .foregroundStyle(ReadyTypeTheme.ink)
-
-                    VoiceCapsuleBadge(text: appState.selectedMode.displayName, role: appState.runtimeState.readyTypeStatusRole)
-                }
-
-                Text(presentation.subtitle)
-                    .font(.system(size: 11, weight: .regular))
-                    .lineLimit(1)
-                    .foregroundStyle(ReadyTypeTheme.muted)
-                    .contentTransition(.opacity)
-            }
-
-            Spacer(minLength: 4)
-
-            Text(timerText(at: date))
-                .font(.system(size: 13, weight: .medium, design: .monospaced))
-                .foregroundStyle(appState.runtimeState == .recording ? ReadyTypeTheme.ink : ReadyTypeTheme.muted)
-                .frame(width: 42, alignment: .trailing)
-
-            WaveformView(
-                isActive: appState.runtimeState == .recording,
-                reduceMotion: preferences.reduceMotion,
-                audioLevelProvider: audioLevelProvider
-            )
-            .frame(width: 58, height: 20)
-        }
-        .frame(height: MotionTokens.voiceCapsuleHeight)
-        .padding(.horizontal, 14)
-        .background {
-            RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-                .fill(.ultraThinMaterial)
-            RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            ReadyTypeTheme.fieldStrong.opacity(0.44),
-                            ReadyTypeTheme.field.opacity(0.30)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-        }
-        .overlay(
-            VoiceCapsuleFlowBorder(
-                state: appState.runtimeState,
-                preferences: preferences
-            )
-        )
-        .overlay(alignment: .topLeading) {
-            Capsule()
-                .fill(ReadyTypeTheme.ink.opacity(0.16))
-                .frame(width: 112, height: 1)
-                .padding(.leading, 22)
-                .padding(.top, 1)
-        }
-        .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 10)
-        .shadow(
-            color: ReadyTypeTheme.color(for: appState.runtimeState.readyTypeStatusRole).opacity(
-                MotionTokens.voiceCapsuleGlowOpacity(for: appState.runtimeState, preferences: preferences)
-            ),
-            radius: 24,
-            x: 0,
-            y: 10
-        )
-        .scaleEffect(MotionTokens.voiceCapsuleScale(for: appState.runtimeState, preferences: preferences))
-    }
-
-    private var appearance: ReadyTypeAppearance {
-        ReadyTypeAppearance(rawValue: appearanceRawValue) ?? .system
     }
 
     private func timerText(at date: Date) -> String {
@@ -142,32 +52,115 @@ struct RecordingHUDView: View {
             return "00:00"
         }
 
-        let elapsed = max(0, Int(date.timeIntervalSince(recordingStartedAt)))
+        let elapsed = max(0, Int(date.timeIntervalSince(presentationState.recordingStartedAt)))
         return String(format: "%02d:%02d", elapsed / 60, elapsed % 60)
     }
 }
 
-private struct ProcessingCapsule: View {
+private struct UnifiedVoiceCapsule: View {
+    let state: RuntimeState
     let title: String
+    let timerText: String
+    let processingStartedAt: Date
     let reduceMotion: Bool
-
-    @State private var isRotating = false
+    let audioLevelProvider: () -> Double
 
     var body: some View {
-        HStack(spacing: 10) {
-            ZStack {
-                Circle()
-                    .stroke(Color.black.opacity(0.10), lineWidth: 1.5)
-
-                Circle()
-                    .trim(from: 0.08, to: 0.72)
-                    .stroke(
-                        Color.black.opacity(0.72),
-                        style: StrokeStyle(lineWidth: 1.8, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(isRotating ? 360 : 0))
+        content
+            .padding(.horizontal, 13)
+            .frame(width: MotionTokens.voiceCapsuleWidth, height: MotionTokens.voiceCapsuleHeight)
+            .background(
+                Color.white.opacity(0.98),
+                in: RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
+                    .stroke(Color.black.opacity(0.11), lineWidth: 0.6)
+            )
+            .overlay(alignment: .top) {
+                Capsule()
+                    .fill(Color.white)
+                    .frame(width: 96, height: 1)
+                    .padding(.top, 1)
             }
-            .frame(width: 14, height: 14)
+            .overlay(alignment: .bottom) {
+                if isProcessing {
+                    ThinkingProgressBar(
+                        state: state,
+                        startedAt: processingStartedAt,
+                        reduceMotion: reduceMotion
+                    )
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 4)
+                    .transition(.opacity)
+                }
+            }
+            .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
+            .scaleEffect(MotionTokens.voiceCapsuleScale(for: state, preferences: MotionPreferences(reduceMotion: reduceMotion)))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch state {
+        case .recording:
+            HStack(spacing: 9) {
+                WaveformView(
+                    isActive: true,
+                    reduceMotion: reduceMotion,
+                    audioLevelProvider: audioLevelProvider
+                )
+                .frame(width: 50, height: 18)
+
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.black.opacity(0.84))
+                    .lineLimit(1)
+
+                Spacer(minLength: 2)
+
+                Text(timerText)
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundStyle(Color.black.opacity(0.52))
+                    .frame(width: 38, alignment: .trailing)
+            }
+        case .transcribing, .processingAI:
+            HStack(spacing: 8) {
+                ThinkingIndicator(reduceMotion: reduceMotion)
+
+                Text(title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.black.opacity(0.84))
+                    .lineLimit(1)
+                    .contentTransition(.opacity)
+            }
+            .padding(.bottom, 3)
+        case .pasted:
+            FeedbackContent(symbol: "checkmark", title: title, tint: ReadyTypeHUDPalette.success)
+        case .copiedFallback:
+            FeedbackContent(symbol: "doc.on.clipboard", title: title, tint: ReadyTypeHUDPalette.warning)
+        case .error:
+            FeedbackContent(symbol: "exclamationmark", title: title, tint: ReadyTypeHUDPalette.danger)
+        case .idle:
+            FeedbackContent(symbol: "waveform", title: title, tint: Color.black.opacity(0.62))
+        }
+    }
+
+    private var isProcessing: Bool {
+        state == .transcribing || state == .processingAI
+    }
+}
+
+private struct FeedbackContent: View {
+    let symbol: String
+    let title: String
+    let tint: Color
+
+    var body: some View {
+        HStack(spacing: 9) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 18, height: 18)
 
             Text(title)
                 .font(.system(size: 13, weight: .medium))
@@ -175,23 +168,28 @@ private struct ProcessingCapsule: View {
                 .lineLimit(1)
                 .contentTransition(.opacity)
         }
-        .padding(.horizontal, 12)
-        .frame(width: MotionTokens.processingCapsuleWidth, height: MotionTokens.processingCapsuleHeight)
-        .background(
-            Color.white.opacity(0.97),
-            in: RoundedRectangle(cornerRadius: MotionTokens.processingCapsuleHeight / 2, style: .continuous)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: MotionTokens.processingCapsuleHeight / 2, style: .continuous)
-                .stroke(Color.black.opacity(0.10), lineWidth: 0.6)
-        )
-        .overlay(alignment: .top) {
-            Capsule()
-                .fill(Color.white.opacity(0.92))
-                .frame(width: 92, height: 1)
-                .padding(.top, 1)
+    }
+}
+
+private struct ThinkingIndicator: View {
+    let reduceMotion: Bool
+
+    @State private var isRotating = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.black.opacity(0.10), lineWidth: 1.5)
+
+            Circle()
+                .trim(from: 0.08, to: 0.72)
+                .stroke(
+                    Color.black.opacity(0.72),
+                    style: StrokeStyle(lineWidth: 1.8, lineCap: .round)
+                )
+                .rotationEffect(.degrees(isRotating ? 360 : 0))
         }
-        .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
+        .frame(width: 14, height: 14)
         .onAppear {
             guard !reduceMotion else {
                 return
@@ -204,182 +202,55 @@ private struct ProcessingCapsule: View {
     }
 }
 
-private struct VoiceCapsuleFlowBorder: View {
+private struct ThinkingProgressBar: View {
     let state: RuntimeState
-    let preferences: MotionPreferences
-
-    @State private var sweepPhase = false
-    @State private var errorPulse = false
-
-    private var role: StatusRole {
-        state.readyTypeStatusRole
-    }
+    let startedAt: Date
+    let reduceMotion: Bool
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                baseBorder
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { timeline in
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.black.opacity(0.07))
 
-                if MotionTokens.voiceCapsuleFlowEnabled(for: state, preferences: preferences) {
-                    horizontalSweep(in: proxy.size)
-                        .frame(maxHeight: .infinity, alignment: .top)
-                        .padding(.top, 1)
-                }
-
-                if MotionTokens.voiceCapsuleErrorPulseEnabled(for: state, preferences: preferences) {
-                    errorPulseBorder
+                    Capsule()
+                        .fill(ReadyTypeHUDPalette.progress)
+                        .frame(width: proxy.size.width * progress(at: timeline.date))
                 }
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
         }
-        .allowsHitTesting(false)
-        .onAppear {
-            restartMotion()
-        }
-        .onChange(of: state) { _, _ in
-            restartMotion()
-        }
+        .frame(height: 2)
+        .accessibilityHidden(true)
     }
 
-    private var baseBorder: some View {
-        RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-            .stroke(
-                LinearGradient(
-                    colors: [
-                        ReadyTypeTheme.ink.opacity(0.20),
-                        ReadyTypeTheme.color(for: role).opacity(0.34),
-                        ReadyTypeTheme.strokeSoft.opacity(0.42)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                lineWidth: 0.6
-            )
-    }
+    private func progress(at date: Date) -> CGFloat {
+        let elapsed = max(0, date.timeIntervalSince(startedAt))
+        let range: (start: Double, end: Double, duration: Double)
 
-    private var errorPulseBorder: some View {
-        RoundedRectangle(cornerRadius: MotionTokens.voiceCapsuleCornerRadius, style: .continuous)
-            .stroke(
-                ReadyTypeTheme.warning.opacity(errorPulse ? 0.54 : 0.16),
-                lineWidth: errorPulse ? 2.2 : 1.1
-            )
-            .shadow(
-                color: ReadyTypeTheme.warning.opacity(errorPulse ? 0.24 : 0.08),
-                radius: errorPulse ? 16 : 8,
-                x: 0,
-                y: 0
-            )
-            .animation(.easeOut(duration: 0.24).repeatCount(2, autoreverses: true), value: errorPulse)
-    }
-
-    private func horizontalSweep(in size: CGSize) -> some View {
-        let tint = ReadyTypeTheme.color(for: role)
-        let opacity = MotionTokens.voiceCapsuleFlowOpacity(for: state, preferences: preferences)
-        let sweepWidth = max(size.width * 0.30, 120)
-        let startX = -sweepWidth * 1.15
-        let endX = size.width + sweepWidth * 0.65
-
-        return Capsule()
-            .fill(
-                LinearGradient(
-                    colors: [
-                        .clear,
-                        tint.opacity(opacity * 0.12),
-                        ReadyTypeTheme.ink.opacity(opacity * 0.34),
-                        tint.opacity(opacity),
-                        ReadyTypeTheme.info.opacity(opacity * 0.45),
-                        .clear
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .frame(width: sweepWidth, height: 2.4)
-            .blur(radius: 1.2)
-            .offset(x: sweepPhase ? endX : startX)
-            .shadow(
-                color: tint.opacity(MotionTokens.voiceCapsuleGlowOpacity(for: state, preferences: preferences)),
-                radius: 15,
-                x: 0,
-                y: 0
-            )
-            .animation(
-                .linear(duration: MotionTokens.voiceCapsuleFlowDuration(for: state))
-                .repeatForever(autoreverses: false),
-                value: sweepPhase
-            )
-    }
-
-    private func restartMotion() {
-        guard !preferences.reduceMotion else {
-            sweepPhase = false
-            errorPulse = false
-            return
+        switch state {
+        case .transcribing:
+            range = (0.08, 0.58, 1.4)
+        case .processingAI:
+            range = (0.60, 0.94, 2.2)
+        default:
+            return 0
         }
 
-        sweepPhase = false
-        errorPulse = false
-
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(24))
-            sweepPhase = true
-            if MotionTokens.voiceCapsuleErrorPulseEnabled(for: state, preferences: preferences) {
-                errorPulse = true
-            }
+        if reduceMotion {
+            return CGFloat(range.start)
         }
+
+        let eased = 1 - exp(-elapsed * 2.4 / range.duration)
+        return CGFloat(range.start + (range.end - range.start) * eased)
     }
 }
 
-private struct VoiceCapsuleStatusLight: View {
-    let role: StatusRole
-
-    @State private var pulse = false
-    private var preferences: MotionPreferences { .current }
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0.10 : 0.20))
-                .frame(width: 28, height: 28)
-                .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.12 : 1)
-
-            Circle()
-                .stroke(ReadyTypeTheme.color(for: role).opacity(0.26), lineWidth: 1)
-                .frame(width: 22, height: 22)
-
-            Circle()
-                .fill(ReadyTypeTheme.color(for: role))
-                .frame(width: 8, height: 8)
-                .shadow(color: ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0 : 0.70), radius: 7, x: 0, y: 0)
-                .scaleEffect(role == .recording && !preferences.reduceMotion && pulse ? 1.34 : 1)
-        }
-        .animation(
-            role == .recording && !preferences.reduceMotion
-            ? .easeInOut(duration: 0.92).repeatForever(autoreverses: true)
-            : .default,
-            value: pulse
-        )
-        .onAppear { pulse = true }
-    }
-}
-
-private struct VoiceCapsuleBadge: View {
-    let text: String
-    let role: StatusRole
-
-    var body: some View {
-        Text(text)
-            .font(.system(size: 10, weight: .semibold))
-            .lineLimit(1)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 2)
-            .background(ReadyTypeTheme.field.opacity(0.82), in: Capsule())
-            .foregroundStyle(role == .neutral ? ReadyTypeTheme.muted : ReadyTypeTheme.color(for: role))
-            .overlay(
-                Capsule()
-                    .stroke(ReadyTypeTheme.color(for: role).opacity(role == .neutral ? 0.18 : 0.30), lineWidth: 1)
-            )
-    }
+private enum ReadyTypeHUDPalette {
+    static let progress = Color(red: 0.25, green: 0.62, blue: 0.42)
+    static let success = Color(red: 0.18, green: 0.56, blue: 0.36)
+    static let warning = Color(red: 0.84, green: 0.55, blue: 0.18)
+    static let danger = Color(red: 0.78, green: 0.27, blue: 0.24)
 }
 
 private struct WaveformView: View {
@@ -396,17 +267,7 @@ private struct WaveformView: View {
             HStack(alignment: .center, spacing: 3) {
                 ForEach(heightProfile.indices, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    ReadyTypeTheme.info.opacity(0.82),
-                                    ReadyTypeTheme.accentStrong,
-                                    ReadyTypeTheme.accent.opacity(0.72)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .fill(index == 4 ? ReadyTypeHUDPalette.progress : Color.black.opacity(0.62))
                         .frame(width: 3, height: height(for: index, level: level))
                         .opacity(isActive ? 0.95 : 0.30)
                 }
@@ -423,6 +284,6 @@ private struct WaveformView: View {
         }
 
         let clampedLevel = CGFloat(min(max(level, 0), 1))
-        return 4 + clampedLevel * 16 * heightProfile[index]
+        return 4 + clampedLevel * 14 * heightProfile[index]
     }
 }

@@ -13,20 +13,19 @@ System-level, restrained, clear, and quietly technical. Borrow low-distraction p
 
 ## HUD
 
-- Target height: 56-64 pt with stable minimum and maximum width.
-- Use native glass material where available and a translucent solid fallback.
-- Combine one base stroke, one local highlight, and one state-driven light sweep.
-- The sweep moves along the long edge rather than rotating around the border.
-- Shadows separate the HUD from the active app without a large colored glow.
+- Every state shares one neutral white `220 x 42 pt` capsule that does not follow the main-window appearance, preventing light/dark jumps between phases.
+- Recording shows the live microphone waveform, a short status, and elapsed time. Recognition and polishing show status plus a bottom Thinking progress bar.
+- The bar advances by real pipeline stage and remains below 100% until completion rather than claiming a fake exact percentage.
+- A thin stroke, top highlight, neutral shadow, and restrained ReadyType green provide separation and identity.
 
 ## Motion
 
 | State | Motion |
 | --- | --- |
 | Entrance | 10-12 pt rise with a 160-200 ms fade |
-| Listening | Voice-reactive waveform and slow edge highlight |
-| Recognizing | Transition to a compact white capsule with one progress indicator and one status line |
-| Polishing | Reuse the white capsule and crossfade the status text in 120-160 ms |
+| Listening | Appear after an original two-tone cue; waveform follows actual input level |
+| Recognizing | Keep the same shell and advance the Thinking bar through the first stage |
+| Polishing | Keep the same shell, crossfade the status, and continue the progress bar |
 | Complete | One green confirmation, then fade after about 900 ms |
 | Copied | Amber feedback for about 1.5 seconds |
 | Error | One restrained horizontal response, then stillness |

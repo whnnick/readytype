@@ -191,6 +191,23 @@ final class ReleaseGateScriptTests: XCTestCase {
         )
     }
 
+    func testBuildAppRemovesStaleDistributionArtifacts() throws {
+        let buildScript = repositoryRoot().appendingPathComponent("scripts/build-app.sh")
+        let source = try String(contentsOf: buildScript, encoding: .utf8)
+
+        for artifactPattern in [
+            "$APP_NAME*.app",
+            "$APP_NAME*.app.zip",
+            "$APP_NAME*.dmg",
+            ".DS_Store",
+        ] {
+            XCTAssertTrue(
+                source.contains(artifactPattern),
+                "The app build must remove stale distribution artifact: \(artifactPattern)"
+            )
+        }
+    }
+
     private func repositoryRoot() -> URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

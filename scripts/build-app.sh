@@ -24,6 +24,9 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$SWIFTPM_CACHE_DIR" "$SWIFTPM_CONFIG_DIR" "$SWIFTPM_SECURITY_DIR" "$CLANG_MODULE_CACHE_DIR"
+mkdir -p "$DIST_DIR"
+find "$DIST_DIR" -maxdepth 1 -type d -name "$APP_NAME*.app" -exec rm -rf {} +
+find "$DIST_DIR" -maxdepth 1 -type f \( -name "$APP_NAME*.app.zip" -o -name "$APP_NAME*.dmg" -o -name '.DS_Store' \) -delete
 
 export CLANG_MODULE_CACHE_PATH="$CLANG_MODULE_CACHE_DIR"
 
@@ -36,8 +39,6 @@ swift build \
     --security-path "$SWIFTPM_SECURITY_DIR" \
     --manifest-cache local
 
-mkdir -p "$DIST_DIR"
-find "$DIST_DIR" -maxdepth 1 -type d -name "$APP_NAME*.app" -exec rm -rf {} +
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
 cp "$ROOT_DIR/.build/$BUILD_CONFIG/$APP_NAME" "$MACOS_DIR/$APP_NAME"

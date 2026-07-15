@@ -53,6 +53,29 @@ final class VoiceInputControllerTests: XCTestCase {
         XCTAssertEqual(appState.runtimeState, .recording)
     }
 
+    func testBeginRecordingPlaysActivationCueAfterPermissionsPass() async throws {
+        let appState = AppState()
+        let soundPlayer = MockVoiceFeedbackSoundPlayer()
+        let controller = VoiceInputController(
+            appState: appState,
+            permissionService: PermissionService(
+                microphoneStatus: { .granted },
+                speechRecognitionStatus: { .granted },
+                accessibilityStatus: { .granted }
+            ),
+            recorder: MockAudioRecordingManaging(
+                recording: AudioRecording(fileURL: URL(fileURLWithPath: "/tmp/test.m4a"), duration: 1)
+            ),
+            transcriber: MockSpeechTranscribing(transcript: "hello"),
+            transcriptHandler: MockTranscriptHandling(),
+            feedbackSoundPlayer: soundPlayer
+        )
+
+        try await controller.beginRecording()
+
+        XCTAssertEqual(soundPlayer.playCount, 1)
+    }
+
     func testBeginRecordingClearsPreviousVocabularySuggestions() async throws {
         let appState = AppState(
             userVocabularySuggestions: [
@@ -217,6 +240,15 @@ private final class VoiceInputAnalyticsRecorder: AnalyticsTracking {
 
     func track(_ event: ReadyTypeAnalyticsEvent) {
         events.append(event)
+    }
+}
+
+@MainActor
+private final class MockVoiceFeedbackSoundPlayer: VoiceFeedbackSoundPlaying {
+    private(set) var playCount = 0
+
+    func playActivationCue() async {
+        playCount += 1
     }
 }
 

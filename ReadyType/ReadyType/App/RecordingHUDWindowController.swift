@@ -1,13 +1,31 @@
 import AppKit
+import Combine
 import SwiftUI
+
+@MainActor
+final class RecordingHUDPresentationState: ObservableObject {
+    @Published private(set) var recordingStartedAt = Date()
+    @Published private(set) var processingStartedAt = Date()
+
+    func transition(from previousState: RuntimeState, to state: RuntimeState, now: Date = Date()) {
+        if state == .recording && previousState != .recording {
+            recordingStartedAt = now
+        }
+
+        if state != previousState,
+           state == .transcribing || state == .processingAI {
+            processingStartedAt = now
+        }
+    }
+}
 
 @MainActor
 final class RecordingHUDWindowController {
     private let appState: AppState
     private let audioLevelProvider: () -> Double
+    private let presentationState = RecordingHUDPresentationState()
     private var panel: NSPanel?
     private var hideTask: Task<Void, Never>?
-    private var recordingStartedAt = Date()
     private var lastRuntimeState: RuntimeState = .idle
 
     init(
@@ -20,10 +38,7 @@ final class RecordingHUDWindowController {
 
     func update() {
         let state = appState.runtimeState
-
-        if state == .recording && lastRuntimeState != .recording {
-            recordingStartedAt = Date()
-        }
+        presentationState.transition(from: lastRuntimeState, to: state)
 
         lastRuntimeState = state
 
@@ -54,14 +69,6 @@ final class RecordingHUDWindowController {
     private func showOrRefresh() {
         let panel = panel ?? makePanel()
         self.panel = panel
-
-        panel.contentView = NSHostingView(
-            rootView: RecordingHUDView(
-                appState: appState,
-                recordingStartedAt: recordingStartedAt,
-                audioLevelProvider: audioLevelProvider
-            )
-        )
         let targetOrigin = targetOrigin(for: panel)
 
         if !panel.isVisible {
@@ -122,6 +129,13 @@ final class RecordingHUDWindowController {
         panel.backgroundColor = .clear
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
+        panel.contentView = NSHostingView(
+            rootView: RecordingHUDView(
+                appState: appState,
+                presentationState: presentationState,
+                audioLevelProvider: audioLevelProvider
+            )
+        )
         return panel
     }
 
