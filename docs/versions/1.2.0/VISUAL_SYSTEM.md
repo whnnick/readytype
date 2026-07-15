@@ -13,7 +13,7 @@ System-level, restrained, clear, and quietly technical. Borrow low-distraction p
 
 ## HUD
 
-- Every state shares one neutral Liquid Glass `246 x 44 pt` capsule that does not follow the main-window appearance, preventing light/dark jumps between phases.
+- Every state shares one monochrome Liquid Glass `246 x 44 pt` capsule that does not follow the main-window appearance. A black glass shell uses white text, progress, and controls, while only the waveform's center bar carries the ReadyType green accent. This avoids muddy gray layers and prevents light/dark jumps between phases.
 - Recording shows the live microphone waveform, a short status, and elapsed time. Recognition and polishing show status plus a bottom Thinking progress bar.
 - The bar advances by real pipeline stage and remains below 100% until completion rather than claiming a fake exact percentage.
 - A thin stroke, top highlight, neutral shadow, and restrained ReadyType green provide separation and identity.

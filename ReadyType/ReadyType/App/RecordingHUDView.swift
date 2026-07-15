@@ -79,7 +79,7 @@ private struct UnifiedVoiceCapsule: View {
             .background(LiquidGlassCapsuleBackground())
             .overlay(alignment: .top) {
                 Capsule()
-                    .fill(Color.white.opacity(0.84))
+                    .fill(Color.white.opacity(0.46))
                     .frame(width: 86, height: 1)
                     .padding(.top, 1)
             }
@@ -119,14 +119,14 @@ private struct UnifiedVoiceCapsule: View {
 
                 Text(title)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.black.opacity(0.84))
+                    .foregroundStyle(Color.white.opacity(0.94))
                     .lineLimit(1)
 
                 Spacer(minLength: 2)
 
                 Text(timerText)
                     .font(.system(size: 12, weight: .medium, design: .monospaced))
-                    .foregroundStyle(Color.black.opacity(0.52))
+                    .foregroundStyle(Color.white.opacity(0.58))
                     .lineLimit(1)
                     .minimumScaleFactor(0.9)
                     .frame(width: 38, alignment: .trailing)
@@ -142,7 +142,7 @@ private struct UnifiedVoiceCapsule: View {
 
                 Text(title)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.black.opacity(0.84))
+                    .foregroundStyle(Color.white.opacity(0.94))
                     .lineLimit(1)
                     .contentTransition(.opacity)
             }
@@ -154,7 +154,7 @@ private struct UnifiedVoiceCapsule: View {
         case .error:
             FeedbackContent(symbol: "exclamationmark", title: title, tint: ReadyTypeHUDPalette.danger)
         case .idle:
-            FeedbackContent(symbol: "waveform", title: title, tint: Color.black.opacity(0.62))
+            FeedbackContent(symbol: "waveform", title: title, tint: Color.white.opacity(0.78))
         }
     }
 
@@ -174,18 +174,23 @@ private struct LiquidGlassCapsuleBackground: View {
         if #available(macOS 26.0, *) {
             shape
                 .fill(Color.clear)
-                .glassEffect(.regular.tint(Color.white.opacity(0.68)), in: shape)
+                .glassEffect(.regular.tint(Color.black.opacity(0.78)), in: shape)
                 .overlay {
                     shape.fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.52), Color.white.opacity(0.36)],
+                            colors: [Color.black.opacity(0.54), Color.black.opacity(0.72)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
                 }
                 .overlay {
-                    shape.stroke(Color.black.opacity(0.08), lineWidth: 0.5)
+                    shape.stroke(Color.white.opacity(0.24), lineWidth: 0.6)
+                }
+                .overlay {
+                    shape
+                        .inset(by: 1)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
                 }
         } else {
             fallbackBackground
@@ -198,19 +203,19 @@ private struct LiquidGlassCapsuleBackground: View {
             .overlay {
                 shape.fill(
                     LinearGradient(
-                        colors: [Color.white.opacity(0.72), Color.white.opacity(0.52)],
+                        colors: [Color.black.opacity(0.78), Color.black.opacity(0.88)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
             }
             .overlay {
-                shape.stroke(Color.black.opacity(0.10), lineWidth: 0.6)
+                shape.stroke(Color.white.opacity(0.22), lineWidth: 0.6)
             }
             .overlay {
                 shape
                     .inset(by: 1)
-                    .stroke(Color.white.opacity(0.28), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
             }
     }
 }
@@ -225,18 +230,18 @@ private struct EscapeCancelButton: View {
         Button(action: onCancel) {
             ZStack {
                 Circle()
-                    .fill(Color.black.opacity(isHovered ? 0.12 : 0.055))
+                    .fill(Color.white.opacity(isHovered ? 0.22 : 0.14))
                     .overlay {
-                        Circle().stroke(Color.black.opacity(0.07), lineWidth: 0.5)
+                        Circle().stroke(Color.white.opacity(0.14), lineWidth: 0.5)
                     }
 
                 Capsule()
-                    .fill(Color.black.opacity(0.52))
+                    .fill(Color.white.opacity(0.88))
                     .frame(width: 9, height: 1.2)
                     .rotationEffect(.degrees(45))
 
                 Capsule()
-                    .fill(Color.black.opacity(0.52))
+                    .fill(Color.white.opacity(0.88))
                     .frame(width: 9, height: 1.2)
                     .rotationEffect(.degrees(-45))
             }
@@ -279,7 +284,7 @@ private struct FeedbackContent: View {
 
             Text(title)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.black.opacity(0.84))
+                .foregroundStyle(Color.white.opacity(0.94))
                 .lineLimit(1)
                 .contentTransition(.opacity)
         }
@@ -294,7 +299,7 @@ private struct ThinkingIndicator: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.black.opacity(0.10), lineWidth: 1.5)
+                .stroke(Color.white.opacity(0.16), lineWidth: 1.5)
 
             Circle()
                 .trim(from: 0.08, to: 0.72)
@@ -327,7 +332,7 @@ private struct ThinkingProgressBar: View {
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.black.opacity(0.07))
+                        .fill(Color.white.opacity(0.13))
 
                     Capsule()
                         .fill(ReadyTypeHUDPalette.progress)
@@ -362,10 +367,11 @@ private struct ThinkingProgressBar: View {
 }
 
 private enum ReadyTypeHUDPalette {
-    static let progress = Color(red: 0.25, green: 0.62, blue: 0.42)
-    static let success = Color(red: 0.18, green: 0.56, blue: 0.36)
-    static let warning = Color(red: 0.84, green: 0.55, blue: 0.18)
-    static let danger = Color(red: 0.78, green: 0.27, blue: 0.24)
+    static let waveformAccent = Color(red: 0.25, green: 0.72, blue: 0.45)
+    static let progress = Color.white.opacity(0.92)
+    static let success = Color.white.opacity(0.94)
+    static let warning = Color.white.opacity(0.86)
+    static let danger = Color.white.opacity(0.94)
 }
 
 private struct WaveformView: View {
@@ -382,7 +388,7 @@ private struct WaveformView: View {
             HStack(alignment: .center, spacing: 3) {
                 ForEach(heightProfile.indices, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .fill(index == 3 ? ReadyTypeHUDPalette.progress : Color.black.opacity(0.58))
+                        .fill(index == 3 ? ReadyTypeHUDPalette.waveformAccent : Color.white.opacity(0.72))
                         .frame(width: 3, height: height(for: index, level: level))
                         .opacity(isActive ? 0.95 : 0.30)
                 }
