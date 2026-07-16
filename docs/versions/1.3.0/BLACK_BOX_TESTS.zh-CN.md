@@ -1,6 +1,6 @@
 # ReadyType 1.3.0 黑盒功能检查
 
-最后更新：2026-07-16。当前发布候选为 `1.3.0 (87)`。
+最后更新：2026-07-16。当前发布版本为 `1.3.0 (87)`。
 
 ## 需求对应与状态
 
@@ -33,6 +33,9 @@
 - 新增 `scripts/verify-release-local.sh` 和 `scripts/verify-ui.sh`，后续版本复用同一套发布门禁。
 - `scripts/verify-ui.sh`：通过；八个主页面均可打开且核心文案可见。
 - `scripts/verify-release-local.sh`：完整通过。
+- GitHub CI 第 51 次运行与 Release 第 2 次运行：通过。
+- 公开 `v1.3.0` Release 已成为 latest，且不是草稿或预发布；`ReadyType.app.zip`、`ReadyType.dmg` 和 `SHA256SUMS.txt` 均已上传。
+- 实际下载的发布附件通过 SHA-256 校验；DMG 校验有效，ZIP 内应用为 `1.3.0 (87)`，包含正式统计 App ID、不含 Test Mode，且代码签名结构有效。
 - `git diff --check`：通过。
 
 ## 真实环境待验收
@@ -41,5 +44,4 @@
 
 ## 发布前阻塞项
 
-- 提交并推送发布候选，创建 `v1.3.0` tag。
-- 等待 Release workflow 上传 ZIP、DMG 和 SHA-256 文件，并执行远端发布状态验证。
+- 无。`v1.3.0` 已公开发布，远端 Release 状态和可下载附件均已验证。

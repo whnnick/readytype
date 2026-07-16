@@ -1,6 +1,6 @@
 # ReadyType 1.3.0 Black-Box Functional Check
 
-Last updated: July 16, 2026. The current release candidate is `1.3.0 (87)`.
+Last updated: July 16, 2026. The released build is `1.3.0 (87)`.
 
 ## Requirement Mapping and Status
 
@@ -33,6 +33,9 @@ Last updated: July 16, 2026. The current release candidate is `1.3.0 (87)`.
 - Added reusable `scripts/verify-release-local.sh` and `scripts/verify-ui.sh` gates for future releases.
 - `scripts/verify-ui.sh`: passed; all eight main pages opened with their core copy visible.
 - `scripts/verify-release-local.sh`: passed end to end.
+- GitHub CI run 51 and Release run 2: passed.
+- The public `v1.3.0` Release is latest, non-draft, and non-prerelease; `ReadyType.app.zip`, `ReadyType.dmg`, and `SHA256SUMS.txt` are present.
+- Downloaded release assets passed SHA-256 verification; the DMG checksum is valid, and the ZIP contains `1.3.0 (87)` with the official analytics App ID, no Test Mode, and a valid code-signature structure.
 - `git diff --check`: passed.
 
 ## Real-Environment Acceptance Pending
@@ -41,5 +44,4 @@ Last updated: July 16, 2026. The current release candidate is `1.3.0 (87)`.
 
 ## Release Blockers
 
-- Commit and push the release candidate, then create the `v1.3.0` tag.
-- Wait for the Release workflow to upload ZIP, DMG, and SHA-256 assets, then run remote release-state verification.
+- None. `v1.3.0` is published and the remote release state and downloadable assets have been verified.
