@@ -19,4 +19,4 @@ ReadyType 1.3.0 establishes privacy-first anonymous product analytics so future 
 
 ## Current Status
 
-The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, No-op default, and official ingestion connectivity check are complete. The free plan ingests dashboard data once per day, so initial event visibility and the remote opt-out check remain pending; source builds without injected configuration continue to send nothing.
+The event allowlist, user control, core input funnel instrumentation, TelemetryDeck provider, No-op default, and official server-side acceptance are complete. Test Mode now shows the real `app_launched` event, and the event-detail field audit found no prohibited content fields; source builds without injected configuration continue to send nothing. Full tests, the official analytics build, ZIP, DMG, eight-page UI gate, and sensitive-information checks have passed for `1.3.0 (87)`; only GitHub Release closeout remains.

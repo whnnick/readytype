@@ -2,11 +2,14 @@
 
 ## Unreleased
 
+## 1.3.0 - 2026-07-16
+
 - Added bilingual ReadyType 1.3.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.
-- Added a strongly typed anonymous event layer, user control, and No-op default covering launch, input start, completion, cancellation, and fixed error codes; current public builds still send no network analytics.
+- Added a strongly typed anonymous event layer, user control, and No-op default covering launch, input start, completion, cancellation, and fixed error codes; source builds without an injected App ID still send no network analytics.
 - Precomputed contextual-vocabulary ranking context and sort keys so the 2,000-term stress-test P95 remains reliably below the 50 ms gate.
 - Integrated the official TelemetryDeck Swift SDK as an optional analytics provider; its App ID is injected only at build time, missing configuration remains no-op, and automatic session events and session statistics are disabled.
 - The build script now copies and verifies TelemetryDeck's privacy-manifest bundle so custom `.app` packaging cannot omit the third-party privacy declaration.
+- Added version-independent local release and eight-page UI smoke gates covering official analytics configuration, tests, signature structure, ZIP, DMG, privacy, and sensitive-information checks.
 - Refined the compact voice HUD with a lighter, shorter listening title and a microphone-level waveform that stays quiet in silence and responds to actual speech without opening another audio capture path.
 - Recognition and polishing now use a Typeless-inspired compact white capsule without the timer, mode badge, colored flow, or waveform; active recording keeps the microphone-reactive waveform.
 - Unified every HUD phase under one fixed white capsule, added a stage-aware Thinking progress bar, and kept the shell stable while recording content, processing status, and results change.
@@ -15,7 +18,7 @@
 - Upgraded the HUD to native Liquid Glass on macOS 26 with an adaptive-material fallback for older systems, and added a top-right recording cancel button that shares the existing Esc path. A 1.6-second “Press Esc to exit” hint appears on the first use of each day and remains discoverable on hover.
 - Visual acceptance now uses an isolated preferences domain and cannot consume the user's first Esc hint of the day.
 - Kept the current HUD layout and interaction while switching to a Typeless-inspired monochrome Liquid Glass palette, removing muddy gray-white overlays. Text, progress, and controls use white, with only the waveform's center bar retaining a ReadyType green accent.
-- Advanced the current development build to `1.2.0 (86)` for this monochrome HUD acceptance build.
+- Advanced the release build to `1.3.0 (87)`.
 
 ## 1.2.0 - 2026-07-13
 

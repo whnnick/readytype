@@ -1,6 +1,6 @@
 # Roadmap
 
-ReadyType 1.1.0 is publicly available. The next goal is to make the complete voice-input experience quieter, more context-aware, and less decision-heavy.
+ReadyType 1.3.0 establishes privacy-first anonymous product analytics. The next goal is to use real usage evidence to improve recognition quality, response time, and context awareness.
 
 ## Current Version
 
@@ -12,11 +12,11 @@ ReadyType 1.1.0 is publicly available. The next goal is to make the complete voi
 - Automatic paste with clipboard fallback.
 - Unsigned and non-notarized DMG distribution.
 
-## Next Focus Areas
+## Version Plan
 
 Version 1.2.0 is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): refresh the UI and interaction model so the HUD becomes the primary experience, the main window becomes a management surface, and Follow System, Light, and Dark appearances are supported.
 
-Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): establish anonymous product analytics that never collect user content, then use activation, retention, adoption, failure, and latency evidence to guide a bilingual beta.
+Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): establish anonymous product analytics that never collect user content, covering activation, retention, adoption, failures, and latency.
 
 Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
 
