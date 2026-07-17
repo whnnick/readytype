@@ -51,28 +51,36 @@ Apple Speech contextualStrings / post-processing / DeepSeek terminology hints
 - `SmartTermDictionary.mergingHotVocabulary`: merges valid trending terms into the existing unified dictionary at low priority.
 - `HotVocabularySettingsViewModel`: exposes only user-readable state and actions inside Speech Recognition.
 
-## Data Format Draft
+## Data Format
+
+The remote entry point is a small manifest and the terms live in a separate content file. The signature covers the schema, version, generated/expiry timestamps, minimum app version, and content hash. The client must verify both SHA-256 and Ed25519 before switching the active version.
 
 ```json
 {
   "schemaVersion": 1,
+  "packVersion": "2026.07.07",
   "generatedAt": "2026-07-07T00:00:00Z",
-  "packs": [
+  "expiresAt": "2026-08-07T00:00:00Z",
+  "minimumAppVersion": "1.4.0",
+  "contentSHA256": "<sha256>",
+  "signature": "<ed25519-signature>"
+}
+```
+
+Pack content format:
+
+```json
+{
+  "packVersion": "2026.07.07",
+  "terms": [
     {
-      "id": "entertainment-cn",
-      "displayName": "Entertainment",
-      "version": "2026.07.07",
-      "terms": [
-        {
-          "value": "Example Movie Title",
-          "aliases": ["example movie"],
-          "category": "movie",
-          "scopes": ["chat", "document"],
-          "source": "public-curated",
-          "weight": 70,
-          "expiresAt": "2026-08-07T00:00:00Z"
-        }
-      ]
+      "value": "Example Movie Title",
+      "aliases": ["example movie", "示例电影"],
+      "category": "movie",
+      "scopes": ["chat", "document"],
+      "sourceID": "wikidata:Q000000",
+      "weight": 70,
+      "expiresAt": "2026-08-07T00:00:00Z"
     }
   ]
 }
@@ -131,8 +139,8 @@ Trending-term adjustments:
 
 ## Implementation Steps
 
-1. Freeze the 1.4.0 sources, AI boundary, publishing endpoint, and UI direction.
-2. Add manifest, signature-validation, and store tests without networking.
+1. Completed: freeze the 1.4.0 sources, AI boundary, publishing endpoint, and UI direction.
+2. Completed: add manifest, Ed25519 validation, atomic storage, and previous-valid-version fallback tests without networking.
 3. Merge valid packs into the unified dictionary as a low-priority `SmartTermSource`.
 4. Extend `ContextualVocabularyProvider` and test ranking, expiration filtering, and caps.
 5. Add a compact section inside Speech Recognition, with no new sidebar destination.

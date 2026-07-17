@@ -51,28 +51,36 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 - `SmartTermDictionary.mergingHotVocabulary`：把有效热门词作为低优先级来源并入现有统一词典。
 - `HotVocabularySettingsViewModel`：只向「语音识别」页暴露用户可理解的状态和操作。
 
-## 数据格式草案
+## 数据格式
+
+远端入口使用小型 manifest，词条内容放在独立文件中。签名覆盖 schema、版本、生成/过期时间、最低 App 版本和内容 hash；客户端必须先校验 hash 与 Ed25519 签名，再切换当前版本。
 
 ```json
 {
   "schemaVersion": 1,
+  "packVersion": "2026.07.07",
   "generatedAt": "2026-07-07T00:00:00Z",
-  "packs": [
+  "expiresAt": "2026-08-07T00:00:00Z",
+  "minimumAppVersion": "1.4.0",
+  "contentSHA256": "<sha256>",
+  "signature": "<ed25519-signature>"
+}
+```
+
+词包内容格式：
+
+```json
+{
+  "packVersion": "2026.07.07",
+  "terms": [
     {
-      "id": "entertainment-cn",
-      "displayName": "影视娱乐",
-      "version": "2026.07.07",
-      "terms": [
-        {
-          "value": "示例电影名",
-          "aliases": ["示例电影", "example movie"],
-          "category": "movie",
-          "scopes": ["chat", "document"],
-          "source": "public-curated",
-          "weight": 70,
-          "expiresAt": "2026-08-07T00:00:00Z"
-        }
-      ]
+      "value": "示例电影名",
+      "aliases": ["示例电影", "example movie"],
+      "category": "movie",
+      "scopes": ["chat", "document"],
+      "sourceID": "wikidata:Q000000",
+      "weight": 70,
+      "expiresAt": "2026-08-07T00:00:00Z"
     }
   ]
 }
@@ -131,8 +139,8 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 
 ## 实施步骤
 
-1. 冻结 1.4.0 数据源、AI 边界、发布地址和 UI 方案。
-2. 增加 manifest、签名校验和 store 测试，不接网络。
+1. 已完成：冻结 1.4.0 数据源、AI 边界、发布地址和 UI 方案。
+2. 已完成：增加 manifest、Ed25519 签名校验、原子 store 和上一有效版本回退测试，不接网络。
 3. 将有效热门词作为新的 `SmartTermSource` 低优先级并入统一词典。
 4. 扩展 `ContextualVocabularyProvider`，验证排序、过期过滤和裁剪。
 5. 在「语音识别」页增加紧凑状态区，不新增侧栏入口。
