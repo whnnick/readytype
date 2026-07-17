@@ -115,10 +115,10 @@ final class ContextualVocabularyLatencyBudgetTests: XCTestCase {
             SmartTerm(value: "Xcode", source: .builtIn, weight: 36)
         ]
 
-        let generatedTerms = (0..<2_000).map { index in
+        let generatedTerms = (0..<5_000).map { index in
             SmartTerm(
                 value: "ProjectTerm\(index)",
-                source: index.isMultiple(of: 3) ? .projectFile : .builtIn,
+                source: index.isMultiple(of: 3) ? .trending : .builtIn,
                 weight: Double(index % 17)
             )
         }

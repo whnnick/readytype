@@ -75,7 +75,8 @@ struct TermCorrectionService {
     }
 
     private func suggestions(for term: SmartTerm, in text: String) -> [TermCorrectionSuggestion] {
-        guard term.value.count > 3 || !term.aliases.isEmpty else {
+        guard term.allowsPostRecognitionCorrection,
+              term.value.count > 3 || !term.aliases.isEmpty else {
             return []
         }
 

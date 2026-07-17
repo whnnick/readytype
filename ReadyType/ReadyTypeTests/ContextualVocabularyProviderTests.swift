@@ -182,4 +182,27 @@ final class ContextualVocabularyProviderTests: XCTestCase {
 
         XCTAssertEqual(terms, [])
     }
+
+    func testTrendingTermsAreCappedAtTwentyAndRankBelowBuiltInTerms() {
+        let trendingTerms = (0..<40).map { index in
+            SmartTerm(value: "Trending\(index)", source: .trending, weight: 100)
+        }
+        let provider = ContextualVocabularyProvider(
+            dictionary: SmartTermDictionary(
+                terms: [SmartTerm(value: "BuiltIn", source: .builtIn, weight: 1)] + trendingTerms
+            )
+        )
+
+        let terms = provider.termsImmediately(
+            for: ContextualVocabularyRequest(
+                scenario: .generic,
+                transcriptPrefix: "",
+                maximumTerms: 100
+            )
+        )
+
+        XCTAssertEqual(terms.first, "BuiltIn")
+        XCTAssertEqual(terms.filter { $0.hasPrefix("Trending") }.count, 20)
+        XCTAssertEqual(terms.count, 21)
+    }
 }

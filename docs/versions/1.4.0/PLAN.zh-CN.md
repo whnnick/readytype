@@ -141,8 +141,8 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 
 1. 已完成：冻结 1.4.0 数据源、AI 边界、发布地址和 UI 方案。
 2. 已完成：增加 manifest、Ed25519 签名校验、原子 store 和上一有效版本回退测试，不接网络。
-3. 将有效热门词作为新的 `SmartTermSource` 低优先级并入统一词典。
-4. 扩展 `ContextualVocabularyProvider`，验证排序、过期过滤和裁剪。
+3. 已完成：将有效热门词作为新的 `SmartTermSource` 低优先级并入统一词典，用户常用词保持最高优先级。
+4. 已完成：扩展 `ContextualVocabularyProvider`，热门词每次最多 20 个，过期词单独过滤，热门别名不触发识别后自动替换。
 5. 在「语音识别」页增加紧凑状态区，不新增侧栏入口。
 6. 建立正式词包发布地址与生成检查，再接入后台 updater。
 7. 增加原子替换、回滚、离线和性能测试。

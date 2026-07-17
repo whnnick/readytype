@@ -90,7 +90,7 @@ struct HotVocabularyVerifier {
 
         var termKeys: Set<String> = []
         for term in pack.terms {
-            try validate(term: term, now: now)
+            try validate(term: term)
             guard termKeys.insert(term.value.normalizedSmartTermKey).inserted else {
                 throw HotVocabularyVerificationError.duplicateTerm
             }
@@ -105,7 +105,7 @@ struct HotVocabularyVerifier {
             .joined()
     }
 
-    private func validate(term: HotVocabularyTerm, now: Date) throws {
+    private func validate(term: HotVocabularyTerm) throws {
         let value = term.value.trimmingCharacters(in: .whitespacesAndNewlines)
         let category = term.category.trimmingCharacters(in: .whitespacesAndNewlines)
         let sourceID = term.sourceID.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -123,8 +123,7 @@ struct HotVocabularyVerifier {
               sourceID.count <= 128,
               !term.scopes.isEmpty,
               term.weight.isFinite,
-              (0...1_000).contains(term.weight),
-              term.expiresAt.map({ now < $0 }) ?? true
+              (0...100).contains(term.weight)
         else {
             throw HotVocabularyVerificationError.invalidTerm
         }

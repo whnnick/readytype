@@ -141,8 +141,8 @@ Trending-term adjustments:
 
 1. Completed: freeze the 1.4.0 sources, AI boundary, publishing endpoint, and UI direction.
 2. Completed: add manifest, Ed25519 validation, atomic storage, and previous-valid-version fallback tests without networking.
-3. Merge valid packs into the unified dictionary as a low-priority `SmartTermSource`.
-4. Extend `ContextualVocabularyProvider` and test ranking, expiration filtering, and caps.
+3. Completed: merge valid packs into the unified dictionary as a low-priority `SmartTermSource` while keeping Common Words at the highest priority.
+4. Completed: cap trending terms at 20 per request, filter individual expired terms, and prevent trending aliases from triggering automatic post-recognition replacement.
 5. Add a compact section inside Speech Recognition, with no new sidebar destination.
 6. Establish the production pack endpoint and publishing checks, then connect the background updater.
 7. Add atomic replacement, rollback, offline, and performance tests.

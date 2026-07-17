@@ -76,19 +76,30 @@ struct ContextualVocabularyProvider {
 
         let context = RankingContext(request: request)
 
-        return dictionary.terms
+        let ranked = dictionary.terms
             .filter { $0.isAllowed(for: context) }
             .map { term in
                 RankedSmartTerm(
                     value: term.value,
                     sortKey: term.value.lowercased(),
-                    score: score(term, for: context)
+                    score: score(term, for: context),
+                    source: term.source
                 )
             }
             .filter { $0.score > 0 }
             .sorted()
-            .prefix(limit)
-            .map(\.value)
+
+        var terms: [String] = []
+        var trendingCount = 0
+        let trendingLimit = min(20, limit)
+        for term in ranked where terms.count < limit {
+            if term.source == .trending {
+                guard trendingCount < trendingLimit else { continue }
+                trendingCount += 1
+            }
+            terms.append(term.value)
+        }
+        return terms
     }
 
     private func effectiveLimit(for request: ContextualVocabularyRequest) -> Int {
@@ -113,6 +124,8 @@ struct ContextualVocabularyProvider {
                 score += 30
             case .userDefined, .recentCorrection:
                 score += 40
+            case .trending:
+                break
             }
         }
 
@@ -132,6 +145,7 @@ private struct RankedSmartTerm: Comparable {
     var value: String
     var sortKey: String
     var score: Double
+    var source: SmartTermSource
 
     static func < (lhs: RankedSmartTerm, rhs: RankedSmartTerm) -> Bool {
         if lhs.score == rhs.score {

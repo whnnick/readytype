@@ -7,6 +7,7 @@ struct SmartTerm: Equatable, Hashable {
     var aliases: [String] = []
     var scopes: [UserVocabularyScope] = [.all]
     var aliasConfidence: Double = 0.82
+    var allowsPostRecognitionCorrection: Bool = true
 }
 
 enum SmartTermSource: String, Codable {
@@ -15,6 +16,7 @@ enum SmartTermSource: String, Codable {
     case projectFile
     case userDefined
     case recentCorrection
+    case trending
 }
 
 struct SmartTermDictionary: Equatable {
@@ -55,7 +57,8 @@ struct SmartTermDictionary: Equatable {
             weight: preferred.weight,
             aliases: mergedAliases(preferred.aliases + fallback.aliases, excluding: preferred.value),
             scopes: mergedScopes(preferred.scopes + fallback.scopes),
-            aliasConfidence: max(preferred.aliasConfidence, fallback.aliasConfidence)
+            aliasConfidence: max(preferred.aliasConfidence, fallback.aliasConfidence),
+            allowsPostRecognitionCorrection: preferred.allowsPostRecognitionCorrection
         )
     }
 
@@ -92,6 +95,26 @@ struct SmartTermDictionary: Equatable {
 
     func mergingUserVocabulary(_ entries: [UserVocabularyEntry]) -> SmartTermDictionary {
         SmartTermDictionary(terms: terms + entries.map(\.smartTerm))
+    }
+
+    func mergingHotVocabulary(
+        _ verifiedPack: VerifiedHotVocabularyPack,
+        now: Date = Date()
+    ) -> SmartTermDictionary {
+        let activeTerms = verifiedPack.pack.terms
+            .filter { $0.expiresAt.map { now < $0 } ?? true }
+            .map { term in
+                SmartTerm(
+                    value: term.value,
+                    source: .trending,
+                    weight: min(max(term.weight, 0), 100),
+                    aliases: term.aliases,
+                    scopes: term.scopes,
+                    aliasConfidence: 0.9,
+                    allowsPostRecognitionCorrection: false
+                )
+            }
+        return SmartTermDictionary(terms: terms + activeTerms)
     }
 }
 
@@ -159,6 +182,8 @@ extension SmartTermSource {
             return 300
         case .builtIn:
             return 100
+        case .trending:
+            return -1
         }
     }
 }
