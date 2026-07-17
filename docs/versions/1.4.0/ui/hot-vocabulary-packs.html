@@ -3,848 +3,219 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ReadyType 1.4.0 热门词包 UI</title>
+  <title>ReadyType 1.4.0 热门词包</title>
   <style>
     :root {
-      color-scheme: dark light;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      color-scheme: light dark;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
       letter-spacing: 0;
     }
-
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-
-    .theme-input {
-      position: fixed;
-      inset: auto;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
+    body { margin: 0; min-height: 100vh; background: #080b09; }
+    button { font: inherit; letter-spacing: 0; }
+    .theme-check, .details-check { position: fixed; opacity: 0; pointer-events: none; }
     .stage {
-      --bg: #070908;
-      --bg2: #0f1411;
-      --surface: rgba(19, 24, 21, 0.72);
-      --surface-strong: rgba(29, 35, 31, 0.78);
-      --surface-soft: rgba(255, 255, 255, 0.055);
-      --line: rgba(222, 238, 222, 0.14);
-      --line-strong: rgba(222, 238, 222, 0.22);
-      --text: #f0f4ee;
-      --muted: #a6b2a7;
-      --dim: #758174;
-      --green: #93d99d;
-      --green2: #64c780;
-      --blue: #7bb8ff;
-      --amber: #f2bc69;
-      --danger: #ff796f;
-      --button: rgba(255, 255, 255, 0.08);
-      --shadow: rgba(0, 0, 0, 0.44);
-      --glass-highlight: rgba(255, 255, 255, 0.12);
+      --canvas: #111311;
+      --sidebar: #1b1d1b;
+      --panel: #1b1f1c;
+      --field: #252925;
+      --line: #373d38;
+      --ink: #f0f2ef;
+      --muted: #9ea69f;
+      --accent: #5ca861;
+      --accent-soft: #203124;
+      --blue: #72a9d9;
+      --warning: #f2a445;
+      --danger: #ef6256;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      padding: 28px;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 18% 8%, rgba(147, 217, 157, 0.14), transparent 26%),
-        radial-gradient(circle at 82% 12%, rgba(123, 184, 255, 0.10), transparent 30%),
-        linear-gradient(135deg, var(--bg), var(--bg2));
+      padding: 24px;
+      color: var(--ink);
+      background: #080b09;
+      transition: background-color 220ms ease, color 220ms ease;
     }
-
-    #theme-toggle:checked ~ .stage {
-      --bg: #f5f7f2;
-      --bg2: #e9eee7;
-      --surface: rgba(255, 255, 255, 0.62);
-      --surface-strong: rgba(255, 255, 255, 0.76);
-      --surface-soft: rgba(17, 25, 20, 0.045);
-      --line: rgba(42, 63, 47, 0.13);
-      --line-strong: rgba(42, 63, 47, 0.22);
-      --text: #142019;
-      --muted: #5f6f62;
-      --dim: #7b897e;
-      --green: #2f9f55;
-      --green2: #1c8f45;
-      --blue: #0a84ff;
-      --amber: #bc7528;
-      --danger: #d7433b;
-      --button: rgba(20, 32, 25, 0.065);
-      --shadow: rgba(28, 42, 32, 0.16);
-      --glass-highlight: rgba(255, 255, 255, 0.86);
+    #theme:checked ~ .stage {
+      --canvas: #f1f3f5;
+      --sidebar: #e5e9ec;
+      --panel: #fafbfc;
+      --field: #f0f3f5;
+      --line: #d1d7da;
+      --ink: #171b18;
+      --muted: #677069;
+      --accent: #366e3d;
+      --accent-soft: #dce9de;
+      --blue: #3978a9;
+      --warning: #b46b24;
+      --danger: #c43d34;
+      background: #dde2e5;
     }
-
-    .app {
-      width: min(1060px, 100%);
-      min-height: 708px;
-      border-radius: 26px;
-      background:
-        linear-gradient(180deg, var(--glass-highlight), transparent 72px),
-        var(--surface);
-      border: 1px solid var(--line-strong);
-      box-shadow:
-        0 34px 90px var(--shadow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(34px) saturate(1.2);
+    .window {
+      width: min(900px, calc(100vw - 32px));
+      height: min(680px, calc(100vh - 32px));
+      min-height: 600px;
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
       overflow: hidden;
-    }
-
-    .topbar {
-      height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 0 24px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .traffic {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .traffic span {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-    }
-
-    .red { background: #ff5f57; }
-    .yellow { background: #ffbd2e; }
-    .green-light { background: #28c840; }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 220px;
-    }
-
-    .mark {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      color: #15301d;
-      background: linear-gradient(180deg, #f7faf4, #dfe8dc);
-      box-shadow:
-        inset 0 0 0 1px rgba(22, 40, 28, 0.12),
-        0 8px 22px rgba(0, 0, 0, 0.12);
-      font-weight: 900;
-    }
-
-    .brand-text {
-      display: grid;
-      gap: 2px;
-    }
-
-    .brand-text strong {
-      font-size: 15px;
-      line-height: 1.1;
-    }
-
-    .brand-text span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .nav {
-      height: 40px;
-      display: flex;
-      align-items: center;
-      padding: 4px;
-      gap: 4px;
-      border-radius: 20px;
-      background: var(--surface-soft);
       border: 1px solid var(--line);
-    }
-
-    .nav button,
-    .theme-toggle,
-    .small-button {
-      appearance: none;
-      border: 0;
-      color: var(--muted);
-      background: transparent;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 760;
-      letter-spacing: 0;
-    }
-
-    .nav button {
-      height: 30px;
-      padding: 0 13px;
-      border-radius: 15px;
-      white-space: nowrap;
-    }
-
-    .nav .active {
-      color: var(--text);
-      background: var(--surface-strong);
-      box-shadow:
-        inset 0 0 0 1px var(--line),
-        0 5px 16px var(--shadow);
-    }
-
-    .theme-toggle {
-      height: 40px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px;
-      border-radius: 20px;
-      cursor: pointer;
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-    }
-
-    .theme-option {
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 54px;
-      border-radius: 15px;
-      color: var(--dim);
-      transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
-    }
-
-    .theme-option.dark {
-      color: var(--text);
-      background: var(--surface-strong);
-      box-shadow: inset 0 0 0 1px var(--line);
-    }
-
-    #theme-toggle:checked ~ .stage .theme-option.dark {
-      color: var(--dim);
-      background: transparent;
-      box-shadow: none;
-    }
-
-    #theme-toggle:checked ~ .stage .theme-option.light {
-      color: var(--text);
-      background: var(--surface-strong);
-      box-shadow: inset 0 0 0 1px var(--line);
-    }
-
-    .content {
-      padding: 30px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.32fr) minmax(286px, 0.68fr);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 24px;
-      padding: 25px;
-      min-height: 178px;
-      background:
-        linear-gradient(135deg, rgba(147, 217, 157, 0.17), transparent 56%),
-        linear-gradient(180deg, var(--surface-strong), var(--surface));
-      border: 1px solid var(--line-strong);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: 34px;
-      line-height: 1.08;
-      letter-spacing: 0;
-    }
-
-    .hero p {
-      width: min(560px, 100%);
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.6;
-      font-weight: 620;
-    }
-
-    .hero-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .status-pill {
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 0 13px;
-      border-radius: 18px;
-      color: var(--green);
-      background: color-mix(in srgb, var(--green) 13%, transparent);
-      border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
-      font-size: 13px;
-      font-weight: 780;
-    }
-
-    .dot {
-      width: 9px;
-      height: 9px;
-      flex: 0 0 auto;
-      border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 18px color-mix(in srgb, var(--green) 42%, transparent);
-    }
-
-    .small-button {
-      height: 36px;
-      padding: 0 14px;
-      border-radius: 18px;
-      color: var(--text);
-      background: var(--button);
-      border: 1px solid var(--line);
-      cursor: default;
-    }
-
-    .small-button.primary {
-      color: #ffffff;
-      background: linear-gradient(180deg, #2694ff, #0878ea);
-      border-color: rgba(255, 255, 255, 0.16);
-      box-shadow: 0 8px 20px rgba(10, 132, 255, 0.25);
-    }
-
-    .glass {
-      margin-top: 18px;
-      border-radius: 22px;
-      padding: 18px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
-      backdrop-filter: blur(28px) saturate(1.16);
-    }
-
-    .section-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 15px;
-    }
-
-    .section-title {
-      display: grid;
-      gap: 5px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.2;
-    }
-
-    .section-title span {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 620;
-      line-height: 1.45;
-    }
-
-    .switch {
-      width: 48px;
-      height: 28px;
-      padding: 3px;
-      flex: 0 0 auto;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #37b96a, #209551);
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-        0 8px 18px rgba(32, 149, 81, 0.20);
-    }
-
-    .switch::after {
-      content: "";
-      display: block;
-      width: 22px;
-      height: 22px;
-      margin-left: 20px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
-    }
-
-    .status-card {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 16px;
-      min-height: 72px;
-      padding: 14px;
-      border-radius: 18px;
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-    }
-
-    .status-main {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .status-main strong {
-      display: block;
-      font-size: 15px;
-      line-height: 1.2;
-    }
-
-    .status-main span {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 610;
-    }
-
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .danger {
-      color: var(--danger);
-    }
-
-    .pack-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .pack {
-      min-height: 116px;
-      display: grid;
-      align-content: space-between;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--surface-strong), var(--surface-soft));
-      border: 1px solid var(--line);
-    }
-
-    .pack strong {
-      display: block;
-      font-size: 14px;
-      line-height: 1.25;
-    }
-
-    .pack p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-      font-weight: 610;
-    }
-
-    .pack-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .badge {
-      height: 24px;
-      display: inline-flex;
-      align-items: center;
-      padding: 0 9px;
-      border-radius: 12px;
-      color: var(--green);
-      background: color-mix(in srgb, var(--green) 11%, transparent);
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .meter {
-      height: 5px;
-      flex: 1;
-      min-width: 46px;
-      overflow: hidden;
-      border-radius: 99px;
-      background: color-mix(in srgb, var(--text) 9%, transparent);
-    }
-
-    .meter i {
-      display: block;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--green), var(--blue));
-    }
-
-    .privacy {
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 11px 13px;
-      border-radius: 18px;
-      color: var(--muted);
-      background: color-mix(in srgb, var(--green) 8%, transparent);
-      border: 1px solid color-mix(in srgb, var(--green) 16%, transparent);
-      font-size: 12px;
-      line-height: 1.45;
-      font-weight: 620;
-    }
-
-    .icon-circle {
-      width: 28px;
-      height: 28px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      color: var(--green);
-      background: color-mix(in srgb, var(--green) 11%, transparent);
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .right {
-      display: grid;
-      gap: 18px;
-    }
-
-    .priority-list {
-      display: grid;
-      gap: 9px;
-    }
-
-    .priority-item {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 10px;
-      align-items: center;
-      min-height: 38px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 640;
-    }
-
-    .rank {
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      color: var(--muted);
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .rank.top {
-      color: #ffffff;
-      border: 0;
-      background: linear-gradient(180deg, var(--green), var(--green2));
-    }
-
-    .term-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      min-height: 50px;
-      padding: 11px 12px;
-      border-radius: 17px;
-      background: var(--surface-soft);
-      border: 1px solid var(--line);
-    }
-
-    .term-row strong {
-      display: block;
-      font-size: 14px;
-    }
-
-    .term-row span {
-      color: var(--muted);
-      display: block;
-      margin-top: 3px;
-      font-size: 12px;
-      font-weight: 620;
-    }
-
-    .hud-demo {
-      min-height: 154px;
-      display: grid;
-      align-items: end;
-      padding-top: 20px;
-    }
-
-    .hud-pill {
-      height: 58px;
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      padding: 0 16px;
-      border-radius: 29px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent),
-        color-mix(in srgb, var(--surface-strong) 82%, transparent);
-      border: 1px solid var(--line-strong);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        0 16px 38px var(--shadow);
-      backdrop-filter: blur(32px) saturate(1.2);
-    }
-
-    .waves {
-      height: 28px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .waves span {
-      width: 4px;
-      border-radius: 999px;
-      background: var(--green);
-    }
-
-    .waves span:nth-child(1) { height: 12px; }
-    .waves span:nth-child(2) { height: 22px; }
-    .waves span:nth-child(3) { height: 16px; }
-    .waves span:nth-child(4) { height: 26px; }
-    .waves span:nth-child(5) { height: 18px; }
-
-    .hud-text {
-      min-width: 0;
-      flex: 1;
-      display: grid;
-      gap: 2px;
-    }
-
-    .hud-text strong {
-      font-size: 14px;
-      line-height: 1.2;
-    }
-
-    .hud-text span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 620;
-    }
-
-    .time {
-      height: 26px;
-      display: inline-flex;
-      align-items: center;
-      padding: 0 9px;
       border-radius: 13px;
-      color: var(--blue);
-      background: color-mix(in srgb, var(--blue) 10%, transparent);
-      font-variant-numeric: tabular-nums;
-      font-size: 12px;
-      font-weight: 820;
+      background: var(--canvas);
+      box-shadow: 0 24px 72px rgba(0, 0, 0, .42);
+      transition: background-color 220ms ease, border-color 220ms ease;
     }
-
-    @media (max-width: 940px) {
-      body { overflow: auto; }
-      .stage { padding: 12px; }
-      .app { min-height: auto; border-radius: 22px; }
-      .topbar { height: auto; align-items: flex-start; flex-wrap: wrap; padding: 18px; }
-      .traffic { display: none; }
-      .brand { min-width: 0; }
-      .nav { order: 3; width: 100%; overflow: auto; }
-      .content { grid-template-columns: 1fr; padding: 18px; }
-      .hero h1 { font-size: 28px; }
-      .pack-grid { grid-template-columns: 1fr; }
-      .status-card { grid-template-columns: 1fr; }
-      .actions { justify-content: flex-start; }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 19px 14px 14px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+      transition: background-color 220ms ease, border-color 220ms ease;
     }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 2px 17px; }
+    .mark {
+      width: 38px; height: 38px; display: grid; place-items: center;
+      border-radius: 8px; color: #17301e; background: #f1f5ec;
+      border: 1px solid #cbd3c7; font-weight: 800;
+    }
+    .brand strong { font-size: 15px; font-weight: 650; }
+    .nav { display: grid; gap: 4px; }
+    .nav-item {
+      height: 36px; display: flex; align-items: center; gap: 10px;
+      padding: 0 12px; border-radius: 8px; color: var(--ink);
+      font-size: 14px; font-weight: 470;
+    }
+    .nav-item .icon { width: 20px; text-align: center; color: var(--muted); font-size: 14px; }
+    .nav-item.active { color: var(--accent); background: var(--accent-soft); font-weight: 650; }
+    .nav-item.active .icon { color: var(--accent); }
+    .appearance {
+      margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px; padding: 2px; border-radius: 7px; background: var(--field);
+      border: 1px solid var(--line);
+    }
+    .appearance span { padding: 5px 3px; border-radius: 5px; color: var(--muted); text-align: center; font-size: 11px; }
+    .appearance .dark { color: var(--ink); background: var(--panel); }
+    #theme:checked ~ .stage .appearance .dark { color: var(--muted); background: transparent; }
+    #theme:checked ~ .stage .appearance .light { color: var(--ink); background: var(--panel); }
+    .page { min-width: 0; overflow: auto; padding: 26px 30px 32px; }
+    .page-head { margin-bottom: 18px; }
+    .page-head h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 680; }
+    .page-head p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+    .panel {
+      padding: 16px; border-radius: 8px; background: var(--panel);
+      border: 1px solid var(--line); transition: background-color 220ms ease, border-color 220ms ease;
+    }
+    .panel + .panel { margin-top: 14px; }
+    .panel h2 { margin: 0; font-size: 16px; line-height: 1.25; font-weight: 650; }
+    .panel-sub { margin: 4px 0 15px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .setting-row { display: grid; grid-template-columns: 136px 1fr; align-items: center; gap: 14px; min-height: 38px; }
+    .setting-row + .setting-row { margin-top: 10px; }
+    .setting-label { color: var(--muted); font-size: 13px; }
+    .select {
+      width: 220px; height: 34px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 11px; border-radius: 7px; background: var(--field); border: 1px solid var(--line); font-size: 13px;
+    }
+    .check-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; }
+    .box { width: 16px; height: 16px; display: grid; place-items: center; border-radius: 4px; color: white; background: #1683ef; font-size: 11px; }
+    .model-status, .pack-status {
+      display: flex; align-items: center; gap: 10px; min-height: 58px;
+      margin-top: 13px; padding: 11px 12px; border-radius: 8px;
+      background: var(--field); border: 1px solid var(--line);
+    }
+    .dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: var(--accent); }
+    .status-copy { min-width: 0; flex: 1; }
+    .status-copy strong { display: block; font-size: 13px; font-weight: 620; }
+    .status-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .pack-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .switch { width: 38px; height: 22px; flex: 0 0 auto; padding: 2px; border-radius: 11px; background: var(--accent); }
+    .switch::after { content: ""; display: block; width: 18px; height: 18px; margin-left: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+    .pack-status { margin-top: 14px; }
+    .inline-action { color: var(--blue); font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .privacy { margin: 11px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .more-label { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 12px; cursor: pointer; }
+    .more-label::before { content: "›"; font-size: 16px; line-height: 1; transform: rotate(0); transition: transform 150ms ease; }
+    .details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+    #details:checked ~ .stage .more-label::before { transform: rotate(90deg); }
+    #details:checked ~ .stage .details { display: block; }
+    .details-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+    .buttons { display: flex; gap: 8px; margin-top: 11px; }
+    .button { height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: var(--field); font-size: 12px; }
+    .button.danger { color: var(--danger); }
+    .state-switcher {
+      position: fixed; right: 18px; bottom: 18px; display: flex; gap: 6px;
+      padding: 5px; border-radius: 9px; background: rgba(20, 22, 20, .86);
+      border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(18px);
+    }
+    .state-switcher label { padding: 6px 9px; border-radius: 6px; color: #d9ddd9; font-size: 11px; cursor: pointer; }
+    .state-switcher label:hover { background: rgba(255,255,255,.09); }
+    @media (max-height: 650px) { .page { padding-top: 20px; } .panel { padding: 13px; } }
+    @media (max-width: 760px) { .window { grid-template-columns: 170px 1fr; } .sidebar { padding-inline: 10px; } .page { padding-inline: 20px; } }
   </style>
 </head>
 <body>
-  <input id="theme-toggle" class="theme-input" type="checkbox" aria-label="切换浅色界面">
+  <input class="theme-check" type="checkbox" id="theme">
+  <input class="details-check" type="checkbox" id="details">
   <div class="stage">
-    <main class="app">
-      <header class="topbar">
-        <div class="traffic" aria-hidden="true">
-          <span class="red"></span>
-          <span class="yellow"></span>
-          <span class="green-light"></span>
-        </div>
-
-        <div class="brand">
-          <div class="mark">R</div>
-          <div class="brand-text">
-            <strong>ReadyType</strong>
-            <span>系统级语音输入</span>
-          </div>
-        </div>
-
-        <nav class="nav" aria-label="ReadyType">
-          <button>控制台</button>
-          <button class="active">设置</button>
-          <button>权限</button>
-          <button>关于</button>
+    <main class="window" aria-label="ReadyType 语音识别设置原型">
+      <aside class="sidebar">
+        <div class="brand"><div class="mark">R</div><strong>ReadyType</strong></div>
+        <nav class="nav">
+          <div class="nav-item"><span class="icon">⌂</span>首页</div>
+          <div class="nav-item"><span class="icon">⌁</span>使用概览</div>
+          <div class="nav-item"><span class="icon">▤</span>常用词</div>
+          <div class="nav-item"><span class="icon">文</span>语言与输出</div>
+          <div class="nav-item"><span class="icon">⌨</span>快捷键</div>
+          <div class="nav-item active"><span class="icon">▥</span>语音识别</div>
+          <div class="nav-item"><span class="icon">◇</span>权限与隐私</div>
+          <div class="nav-item"><span class="icon">ⓘ</span>关于</div>
         </nav>
-
-        <label class="theme-toggle" for="theme-toggle" title="切换浅色/深色方案">
-          <span class="theme-option dark">深色</span>
-          <span class="theme-option light">浅色</span>
+        <label class="appearance" for="theme" title="切换浅色与深色">
+          <span>跟随</span><span class="light">浅色</span><span class="dark">深色</span>
         </label>
-      </header>
+      </aside>
 
-      <section class="content">
-        <div>
-          <section class="hero">
-            <h1>热门词包</h1>
-            <p>ReadyType 会在后台更新近期常用词，让电影名、产品名和赛事名更容易被保留下来。正常输入时无弹窗、无等待。</p>
-            <div class="hero-row">
-              <div class="status-pill"><span class="dot"></span>已更新 · 今天 09:18</div>
-              <button class="small-button primary">立即更新</button>
-              <button class="small-button danger">删除词包</button>
-            </div>
-          </section>
+      <section class="page">
+        <header class="page-head">
+          <h1>语音识别</h1>
+          <p>管理识别方式、高精度语音包和近期常用词。</p>
+        </header>
 
-          <section class="glass">
-            <div class="section-head">
-              <div class="section-title">
-                <h2>自动更新热门词</h2>
-                <span>空闲时后台更新，失败时继续使用旧词包。</span>
-              </div>
-              <div class="switch" aria-label="自动更新热门词已开启"></div>
-            </div>
+        <section class="panel">
+          <h2>识别方式</h2>
+          <p class="panel-sub">默认保持快速响应，遇到长文、邮件和专业词时自动提高准确率。</p>
+          <div class="setting-row"><span class="setting-label">当前识别方式</span><div class="select"><span>自动选择</span><span>⌃⌄</span></div></div>
+          <div class="check-row"><span class="box">✓</span><span>启用更准确的本机识别</span></div>
+          <div class="check-row"><span class="box">✓</span><span>空闲时提前准备，降低第一次等待</span></div>
+          <div class="model-status">
+            <span class="dot"></span>
+            <div class="status-copy"><strong>高精度识别已准备好</strong><span>ReadyType 正在后台运行</span></div>
+          </div>
+        </section>
 
-            <div class="status-card">
-              <div class="status-main">
-                <span class="dot"></span>
-                <div>
-                  <strong>124 个近期词条已准备好</strong>
-                  <span>影视娱乐 58 · 科技产品 41 · 体育赛事 25</span>
-                </div>
-              </div>
-              <div class="actions">
-                <button class="small-button">查看更新</button>
-                <button class="small-button">管理分类</button>
-              </div>
-            </div>
-
-            <div class="pack-grid">
-              <article class="pack">
-                <div>
-                  <strong>影视娱乐</strong>
-                  <p>电影、剧集、综艺与近期角色名</p>
-                </div>
-                <div class="pack-bottom">
-                  <span class="badge">已启用</span>
-                  <span class="meter"><i style="width: 78%"></i></span>
-                </div>
-              </article>
-              <article class="pack">
-                <div>
-                  <strong>科技产品</strong>
-                  <p>产品、模型、应用和常见英文名</p>
-                </div>
-                <div class="pack-bottom">
-                  <span class="badge">已启用</span>
-                  <span class="meter"><i style="width: 62%"></i></span>
-                </div>
-              </article>
-              <article class="pack">
-                <div>
-                  <strong>体育赛事</strong>
-                  <p>赛事、队名、运动员和缩写</p>
-                </div>
-                <div class="pack-bottom">
-                  <span class="badge">已启用</span>
-                  <span class="meter"><i style="width: 46%"></i></span>
-                </div>
-              </article>
-            </div>
-
-            <div class="privacy">
-              <span class="icon-circle">✓</span>
-              <span>只下载公开来源整理的词条，不上传你的语音、转写、聊天内容或常用词。</span>
-            </div>
-          </section>
-
-          <section class="glass">
-            <div class="section-head">
-              <div class="section-title">
-                <h2>常用词优先</h2>
-                <span>你添加或确认过的词始终高于热门词包。</span>
-              </div>
-            </div>
-            <div class="term-row">
-              <div>
-                <strong>ReadyType</strong>
-                <span>产品 · 用户添加</span>
-              </div>
-              <span class="badge">最高优先级</span>
-            </div>
-            <div style="height: 9px"></div>
-            <div class="term-row">
-              <div>
-                <strong>DeepSeek V4 Flash</strong>
-                <span>技术词 · 用户确认</span>
-              </div>
-              <span class="badge">最高优先级</span>
-            </div>
-          </section>
-        </div>
-
-        <aside class="right">
-          <section class="glass" style="margin-top: 0">
-            <div class="section-title" style="margin-bottom: 14px">
-              <h2>候选顺序</h2>
-              <span>热门词只做低优先级补充。</span>
-            </div>
-            <div class="priority-list">
-              <div class="priority-item"><span class="rank top">1</span><span>用户常用词</span></div>
-              <div class="priority-item"><span class="rank top">2</span><span>确认式建议</span></div>
-              <div class="priority-item"><span class="rank">3</span><span>ReadyType 内置词</span></div>
-              <div class="priority-item"><span class="rank">4</span><span>当前场景词</span></div>
-              <div class="priority-item"><span class="rank">5</span><span>热门词包</span></div>
-            </div>
-          </section>
-
-          <section class="glass" style="margin-top: 0">
-            <div class="section-title">
-              <h2>输入浮层</h2>
-              <span>热门词更新不改变录音体验。</span>
-            </div>
-            <div class="hud-demo">
-              <div class="hud-pill">
-                <div class="waves" aria-hidden="true">
-                  <span></span><span></span><span></span><span></span><span></span>
-                </div>
-                <div class="hud-text">
-                  <strong>正在听</strong>
-                  <span>整理成文 · 自动选择</span>
-                </div>
-                <div class="time">00:06</div>
-              </div>
-            </div>
-          </section>
-        </aside>
+        <section class="panel">
+          <div class="pack-head">
+            <div><h2>热门词包</h2><p class="panel-sub">自动补充近期常用的电影、产品和赛事名称。</p></div>
+            <div class="switch" aria-label="自动更新已开启"></div>
+          </div>
+          <div class="pack-status">
+            <span class="dot"></span>
+            <div class="status-copy"><strong>热门词包已更新</strong><span>会在空闲时自动保持最新，不影响语音输入</span></div>
+            <span class="inline-action">检查更新</span>
+          </div>
+          <p class="privacy">ReadyType 只下载公开词语，不会上传你的语音、输入内容或常用词。</p>
+          <label class="more-label" for="details">更多</label>
+          <div class="details">
+            <div class="details-row"><span>上次更新</span><span>今天 09:18</span></div>
+            <div class="buttons"><button class="button">立即更新</button><button class="button danger">删除本地词包</button></div>
+          </div>
+        </section>
       </section>
     </main>
+
+    <div class="state-switcher" aria-label="原型控制">
+      <label for="theme">切换浅色 / 深色</label>
+      <label for="details">展开 / 收起更多</label>
+    </div>
   </div>
 </body>
 </html>

@@ -21,13 +21,20 @@ ReadyType should borrow these patterns without copying Pinyin IME internals. Rea
 - Conservative post-recognition term correction.
 - DeepSeek terminology hints for AI output modes.
 
+## Fixed Sources
+
+- Wikimedia Analytics API: top pages and pageview metrics for `zh.wikipedia.org` and `en.wikipedia.org`.
+- Wikidata: canonical names, language aliases, entity types, and date fields; its structured data is CC0.
+- The first release does not use TMDB. Its free developer API terms do not cover commercial products unless a commercial license is obtained later.
+- See [Pack Generation and AI Curation](./VOCABULARY_PIPELINE.md) for source, license, and API details.
+
 ## Technical Architecture
 
 ```text
 ReadyType built-in vocabulary
 + user common words
 + confirmed learning terms
-+ local trending vocabulary cache
++ in-memory trending vocabulary snapshot
         ↓
 SmartTermDictionary merge
         ↓
@@ -38,12 +45,11 @@ Apple Speech contextualStrings / post-processing / DeepSeek terminology hints
 
 ## New Modules
 
-- `HotVocabularyTerm`: trending term model.
-- `HotVocabularyManifest`: pack manifest with version, generation time, category, and hash.
-- `HotVocabularyStore`: local read/write, expiration cleanup, and pack deletion.
-- `HotVocabularyUpdater`: background download, ETag/hash checks, and failure state.
-- `HotVocabularyProvider`: selects Top N terms based on app, scenario, and weight.
-- `HotVocabularySettingsViewModel`: Settings state, toggle, and manual update action.
+- `HotVocabularyManifest`: decodable manifest with release-signature verification.
+- `HotVocabularyStore`: atomic writes, last-valid-version retention, expiration cleanup, and an in-memory snapshot.
+- `HotVocabularyUpdater`: idle-time download with ETag, hash, and signature validation.
+- `SmartTermDictionary.mergingHotVocabulary`: merges valid trending terms into the existing unified dictionary at low priority.
+- `HotVocabularySettingsViewModel`: exposes only user-readable state and actions inside Speech Recognition.
 
 ## Data Format Draft
 
@@ -79,7 +85,24 @@ Apple Speech contextualStrings / post-processing / DeepSeek terminology hints
 - Check at most once per day by default.
 - Keep the old pack if download fails; show missing only if no local pack exists.
 - Network failures do not show alerts; Settings shows "Unable to update right now".
-- If a server exists later, the server aggregates TMDb, Wikidata, public lists, or manual curation. The client must not call third-party APIs directly.
+- Download into a temporary file and atomically replace the active pack only after every validation succeeds; retain the last valid pack on any failure.
+- Build one immutable in-memory snapshot at launch; the recording path reads that snapshot without network or disk access.
+- The maintainer-side job reads the last complete calendar day and combines a 7-day popularity window with a 28-day baseline. The client never calls upstream APIs directly.
+
+## Publishing and Trust
+
+- A separate ReadyType publishing workflow generates packs; the client never scrapes trending lists.
+- Generated files are published from this repository's `gh-pages` branch, with the planned entry point `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
+- Sign manifests and content with a fixed private key while the app embeds only the public key; repositories and CI must not store the production private key in plaintext.
+- Publishing validates source licenses, duplicates, sensitive terms, and expiration before generating hashes, signatures, and versions.
+- Version 1.4.0 must establish a stable, rollback-capable production pack URL and release check before the updater ships; no temporary URL is embedded in the app.
+
+## AI Curation
+
+- AI runs only in the maintainer-side generation workflow, never in the app hot path, and never with the user's API key.
+- First-release automatically published names and aliases must come from Wikidata. AI performs classification review, ambiguity flags, and review suggestions.
+- AI-proposed new aliases can only enter a human review queue; they cannot be published directly.
+- The published result must remain reproducible and verifiable by deterministic scripts with AI disabled.
 
 ## Ranking Strategy
 
@@ -104,18 +127,23 @@ Trending-term adjustments:
 - Before recognition, only filter in memory; no network call.
 - Candidate selection should stay within the existing `ContextualVocabularyProvider` budget.
 - Apple Speech contextual terms must stay under 100 total terms.
-- Chat scenarios should use a lower cap to reduce false corrections.
+- Trending terms are capped at 10-20 per request, with a lower cap for chat scenarios to reduce false corrections.
 
 ## Implementation Steps
 
-1. Add 1.4.0 documents and scope boundaries.
-2. Add local data models and store tests without networking.
-3. Merge packs into `SmartTermDictionary` as a low-priority `SmartTermSource`.
-4. Extend `ContextualVocabularyProvider` and test ranking/capping.
-5. Add Settings toggle, status, and deletion action.
-6. Add background updater, starting with local or GitHub-hosted manifests.
-7. Add sample packs and performance tests.
+1. Freeze the 1.4.0 sources, AI boundary, publishing endpoint, and UI direction.
+2. Add manifest, signature-validation, and store tests without networking.
+3. Merge valid packs into the unified dictionary as a low-priority `SmartTermSource`.
+4. Extend `ContextualVocabularyProvider` and test ranking, expiration filtering, and caps.
+5. Add a compact section inside Speech Recognition, with no new sidebar destination.
+6. Establish the production pack endpoint and publishing checks, then connect the background updater.
+7. Add atomic replacement, rollback, offline, and performance tests.
 8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
+
+## Follow-Up Release
+
+- Personal correction memory, cross-session counters, and confirm-first learning are candidates for 1.5.0.
+- Version 1.4.0 does not observe user edits in other apps, upload personal corrections, or perform silent learning.
 
 ## Verification Commands
 

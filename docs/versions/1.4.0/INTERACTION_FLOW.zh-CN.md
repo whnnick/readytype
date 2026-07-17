@@ -10,7 +10,7 @@ flowchart TD
     B --> C{"用户是否进入设置"}
     C -- "否" --> D["后台按空闲状态检查热门词包"]
     D --> E["用户继续双击 Option 语音输入"]
-    C -- "是" --> F["设置 > 热门词包"]
+    C -- "是" --> F["语音识别 > 热门词包"]
     F --> G["显示状态：已更新 / 正在更新 / 暂时无法更新 / 已关闭"]
     G --> H{"用户操作"}
     H -- "保持默认" --> I["自动更新开启，后台处理"]
@@ -35,7 +35,7 @@ stateDiagram-v2
     WaitingIdle --> NoCheck: 今日已检查
     CheckNeeded --> Downloading: 自动更新开启
     CheckNeeded --> Off: 自动更新关闭
-    Downloading --> Updated: 下载成功且 hash 有效
+    Downloading --> Updated: hash 和签名均有效，原子替换成功
     Downloading --> KeepOld: 下载失败但已有旧包
     Downloading --> Unavailable: 下载失败且无本地词包
     Updated --> [*]: 设置页显示已更新
@@ -74,16 +74,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["设置"] --> B["识别方式"]
-    A --> C["DeepSeek"]
-    A --> D["输出方式"]
-    A --> E["常用词"]
-    A --> F["热门词包"]
-    F --> G["自动更新热门词开关"]
-    F --> H["状态和最后更新时间"]
-    F --> I["立即更新"]
-    F --> J["删除词包"]
-    F --> K["说明：不会上传你的输入内容"]
+    A["侧栏：语音识别"] --> B["识别方式"]
+    A --> C["高精度语音包"]
+    A --> D["热门词包"]
+    D --> E["默认显示：状态、说明、自动更新开关"]
+    D --> F["更多：最后更新时间、立即更新、删除词包"]
+    D --> G["说明：不会上传你的输入内容"]
 ```
 
 ## 交互原则

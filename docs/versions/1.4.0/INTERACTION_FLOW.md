@@ -10,7 +10,7 @@ flowchart TD
     B --> C{"Does the user open Settings?"}
     C -- "No" --> D["Background checks packs while idle"]
     D --> E["User continues double-press Option voice input"]
-    C -- "Yes" --> F["Settings > Trending Vocabulary Packs"]
+    C -- "Yes" --> F["Speech Recognition > Trending Vocabulary Packs"]
     F --> G["Show status: Updated / Updating / Unable to update right now / Off"]
     G --> H{"User action"}
     H -- "Keep default" --> I["Auto-update stays on; background handles it"]
@@ -35,7 +35,7 @@ stateDiagram-v2
     WaitingIdle --> NoCheck: Already checked today
     CheckNeeded --> Downloading: Auto-update is on
     CheckNeeded --> Off: Auto-update is off
-    Downloading --> Updated: Download succeeds and hash is valid
+    Downloading --> Updated: Hash and signature are valid; atomic replacement succeeds
     Downloading --> KeepOld: Download fails but old packs exist
     Downloading --> Unavailable: Download fails and no local pack exists
     Updated --> [*]: Settings shows updated
@@ -74,16 +74,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["Settings"] --> B["Recognition"]
-    A --> C["DeepSeek"]
-    A --> D["Output"]
-    A --> E["Common Words"]
-    A --> F["Trending Vocabulary Packs"]
-    F --> G["Auto-update toggle"]
-    F --> H["Status and last updated time"]
-    F --> I["Update now"]
-    F --> J["Delete packs"]
-    F --> K["Copy: your input content is not uploaded"]
+    A["Sidebar: Speech Recognition"] --> B["Recognition mode"]
+    A --> C["High-accuracy speech package"]
+    A --> D["Trending Vocabulary Packs"]
+    D --> E["Default: status, explanation, auto-update toggle"]
+    D --> F["More: last update, update now, delete packs"]
+    D --> G["Copy: your input content is not uploaded"]
 ```
 
 ## Interaction Principles

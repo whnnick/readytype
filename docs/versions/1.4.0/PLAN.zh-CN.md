@@ -21,13 +21,20 @@ ReadyType 应吸收这些模式，但不照搬拼音输入法实现。ReadyType 
 - 识别后的保守术语修正。
 - DeepSeek 输出模式的术语提示。
 
+## 确定来源
+
+- Wikimedia Analytics API：读取 `zh.wikipedia.org` 和 `en.wikipedia.org` 的热门页面及页面访问量。
+- Wikidata：补齐规范名称、语言别名、实体类型和日期字段；结构化数据使用 CC0。
+- 第一版不接 TMDB。其开发者接口的免费范围不覆盖商业产品，除非后续取得商业许可。
+- 数据源、许可与 API 规范详见[词包生成与 AI 整理方案](./VOCABULARY_PIPELINE.zh-CN.md)。
+
 ## 技术架构
 
 ```text
 ReadyType 内置词库
 + 用户常用词
 + 确认式学习词
-+ 热门词包本地缓存
++ 热门词包内存快照
         ↓
 SmartTermDictionary 合并
         ↓
@@ -38,12 +45,11 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 
 ## 新增模块
 
-- `HotVocabularyTerm`：热门词条模型。
-- `HotVocabularyManifest`：词包清单，包含版本、生成时间、分类、hash。
-- `HotVocabularyStore`：本地读写、过期清理、删除词包。
-- `HotVocabularyUpdater`：后台下载、ETag/hash 校验、失败状态。
-- `HotVocabularyProvider`：根据 App、场景和词条权重选出 Top N。
-- `HotVocabularySettingsViewModel`：设置页状态、开关、手动更新。
+- `HotVocabularyManifest`：可解码、可签名校验的词包清单。
+- `HotVocabularyStore`：原子写入、上一有效版本保留、过期清理和内存快照。
+- `HotVocabularyUpdater`：空闲时下载，执行 ETag、hash 和签名校验。
+- `SmartTermDictionary.mergingHotVocabulary`：把有效热门词作为低优先级来源并入现有统一词典。
+- `HotVocabularySettingsViewModel`：只向「语音识别」页暴露用户可理解的状态和操作。
 
 ## 数据格式草案
 
@@ -79,7 +85,24 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 - 默认每日最多检查一次。
 - 下载失败保持旧包；没有旧包则显示未更新。
 - 网络错误不弹窗；设置页显示“暂时无法更新”。
-- 后续如有服务端，服务端负责聚合 TMDb、Wikidata、公开榜单或人工整理，客户端不直接抓第三方 API。
+- 下载到临时文件，全部校验通过后再原子替换当前词包；任何失败都保留上一份有效词包。
+- App 启动时从磁盘构建一次不可变内存快照；录音热路径只读取快照，不访问网络和磁盘。
+- 维护侧生成任务每天读取上一完整自然日数据，结合最近 7 天热度与过去 28 天基线；客户端不直接抓取第三方 API。
+
+## 发布与可信来源
+
+- 词包由 ReadyType 的独立发布流程生成，不由客户端抓取热榜。
+- 生成产物发布到同一 GitHub 仓库的 `gh-pages` 分支，计划入口为 `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
+- manifest 和内容文件使用固定私钥签名，App 只内置公钥；仓库和 CI 不保存生产私钥明文。
+- 发布流程先做来源许可、去重、敏感词和过期时间检查，再生成 hash、签名与版本。
+- 1.4.0 必须先建立可回滚的正式词包地址和发布检查，不能把临时 URL 写进客户端。
+
+## AI 整理
+
+- AI 只运行在维护侧生成流程中，不进入 App 热路径，也不使用用户 API Key。
+- 第一版自动发布的词名与别名必须来自 Wikidata；AI 负责分类复核、歧义标记和审核建议。
+- AI 提出的新别名只能进入人工审核队列，不能直接进入发布包。
+- 发布结果必须可在不启用 AI 的情况下由确定性脚本重建和验证。
 
 ## 排序策略
 
@@ -104,18 +127,23 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 - 识别前只做内存筛选，不做网络请求。
 - 单次候选选择目标低于现有 `ContextualVocabularyProvider` 预算。
 - Apple Speech 总 contextual terms 不超过 100。
-- 聊天场景保守上限更低，避免误伤。
+- 热门词每次最多 10-20 个，聊天场景使用更低上限，避免误伤。
 
 ## 实施步骤
 
-1. 增加 1.4.0 文档和需求边界。
-2. 增加本地数据模型和 store 测试，不接网络。
-3. 将热门词包作为新的 `SmartTermSource` 低优先级合并。
-4. 扩展 `ContextualVocabularyProvider`，验证排序和裁剪。
-5. 增加设置页开关、状态、删除入口。
-6. 增加后台 updater，先支持本地或 GitHub-hosted manifest。
-7. 增加样例词包和性能测试。
+1. 冻结 1.4.0 数据源、AI 边界、发布地址和 UI 方案。
+2. 增加 manifest、签名校验和 store 测试，不接网络。
+3. 将有效热门词作为新的 `SmartTermSource` 低优先级并入统一词典。
+4. 扩展 `ContextualVocabularyProvider`，验证排序、过期过滤和裁剪。
+5. 在「语音识别」页增加紧凑状态区，不新增侧栏入口。
+6. 建立正式词包发布地址与生成检查，再接入后台 updater。
+7. 增加原子替换、回滚、离线和性能测试。
 8. 做真实语音回归：有热词、无热词、过期热词、聊天误伤场景。
+
+## 后续版本
+
+- 个人纠正记忆、跨使用次数统计和确认式学习进入 1.5.0 候选。
+- 1.4.0 不监听其他 App 中的用户修改，不上传个人纠正数据，不做静默学习。
 
 ## 验收命令
 

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Froze the ReadyType 1.4.0 Trending Vocabulary Packs source and publishing boundary around Wikimedia Pageviews and Wikidata, daily offline generation, and signed pack delivery, excluding TMDB and other sources without an obtained commercial license.
+- Added bilingual pack-generation and AI-curation specifications: AI only assists maintainer-side classification review and ambiguity flags and cannot enter the real-time input path, use the user's API key, or directly publish new terms.
+- Tightened runtime trending candidates to 10-20 per request and moved personal correction memory and confirm-first learning to a 1.5.0 candidate.
+- Redrew the 1.4.0 pack prototype inside the existing Speech Recognition page, removing a separate navigation destination and user-facing category-management burden.
+
 ## 1.3.0 - 2026-07-16
 
 - Added bilingual ReadyType 1.3.0 requirements, anonymous event specification, and implementation plan, defining that public source builds send nothing by default and that audio, text content, window titles, common words, clipboard content, and API keys are prohibited.

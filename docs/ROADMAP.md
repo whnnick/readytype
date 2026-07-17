@@ -18,7 +18,7 @@ Version 1.2.0 is tracked in [ReadyType 1.2.0](./versions/1.2.0/README.md): refre
 
 Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): establish anonymous product analytics that never collect user content, covering activation, retention, adoption, failures, and latency.
 
-Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): add Trending Vocabulary Packs based on mature input-method patterns so recent movies, technology products, and sports terms can participate as low-priority recognition candidates.
+Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): generate and sign Trending Vocabulary Packs from Wikimedia Pageviews and Wikidata so recent movies, technology products, and sports terms can participate as low-priority recognition candidates. AI only assists offline curation before publishing.
 
 ### UI and Interaction Refresh
 
@@ -31,6 +31,8 @@ Let users maintain their own words, such as names, projects, products, technical
 ### Learning Suggestions
 
 After user confirmation, repeatedly corrected terms can be added to common words. This must stay explicit and controllable, without silently collecting private content or polluting the word list with bad corrections.
+
+Personal correction memory and cross-session learning remain a 1.5.0 candidate and are outside the 1.4.0 Trending Vocabulary Packs release scope.
 
 ### Context-Aware Tone
 
@@ -46,7 +48,7 @@ Provide clearer status, version, update prompts, and re-download controls so use
 
 ### Trending Vocabulary Packs
 
-Update publicly curated recent terms in the background to improve recognition of movie names, product names, sports events, and similar proper nouns. This must be locally cached, optional, deletable, expiring, and must not upload user input.
+Update recent terms generated from Wikimedia Pageviews and Wikidata in the background to improve recognition of movie names, product names, sports events, and similar proper nouns. Packs must be signed, locally cached, optional, deletable, expiring, and must not upload user input.
 
 ### Voice Input HUD
 
