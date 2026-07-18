@@ -101,7 +101,7 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 ## 发布与可信来源
 
 - 词包由 ReadyType 的独立发布流程生成，不由客户端抓取热榜。
-- 生成产物发布到同一 GitHub 仓库的 `gh-pages` 分支，计划入口为 `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
+- 生成产物通过 GitHub 官方 Pages Artifact 工作流发布，不写入源码分支；固定入口为 `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
 - manifest 和内容文件使用固定私钥签名，App 只内置公钥；仓库和 CI 不保存生产私钥明文。
 - 发布流程先做来源许可、去重、敏感词和过期时间检查，再生成 hash、签名与版本。
 - 1.4.0 必须先建立可回滚的正式词包地址和发布检查，不能把临时 URL 写进客户端。
@@ -145,7 +145,7 @@ Apple Speech contextualStrings / 后处理 / DeepSeek 术语提示
 3. 已完成：将有效热门词作为新的 `SmartTermSource` 低优先级并入统一词典，用户常用词保持最高优先级。
 4. 已完成：扩展 `ContextualVocabularyProvider`，热门词每次最多 20 个，过期词单独过滤，热门别名不触发识别后自动替换。
 5. 在「语音识别」页增加紧凑状态区，不新增侧栏入口。
-6. 进行中：后台 updater 已支持 HTTPS 同源下载、ETag、每日最多检查一次、手动强制检查和失败保留旧包；仍需建立正式词包发布地址、生产公钥与生成检查后接入 App。
+6. 进行中：后台 updater 已支持 HTTPS 同源下载、ETag、每日最多检查一次、手动强制检查和失败保留旧包；生产公钥、确定性生成/签名脚本和 Pages 发布工作流已建立，仍需完成首次线上发布并接入 App。
 7. 增加原子替换、回滚、离线和性能测试。
 8. 做真实语音回归：有热词、无热词、过期热词、聊天误伤场景。
 

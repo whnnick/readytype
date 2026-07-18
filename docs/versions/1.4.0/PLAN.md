@@ -101,7 +101,7 @@ Pack content format:
 ## Publishing and Trust
 
 - A separate ReadyType publishing workflow generates packs; the client never scrapes trending lists.
-- Generated files are published from this repository's `gh-pages` branch, with the planned entry point `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
+- Generated files are deployed through GitHub's official Pages Artifact workflow without writing generated files into a source branch. The stable entry point is `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
 - Sign manifests and content with a fixed private key while the app embeds only the public key; repositories and CI must not store the production private key in plaintext.
 - Publishing validates source licenses, duplicates, sensitive terms, and expiration before generating hashes, signatures, and versions.
 - Version 1.4.0 must establish a stable, rollback-capable production pack URL and release check before the updater ships; no temporary URL is embedded in the app.
@@ -145,7 +145,7 @@ Trending-term adjustments:
 3. Completed: merge valid packs into the unified dictionary as a low-priority `SmartTermSource` while keeping Common Words at the highest priority.
 4. Completed: cap trending terms at 20 per request, filter individual expired terms, and prevent trending aliases from triggering automatic post-recognition replacement.
 5. Add a compact section inside Speech Recognition, with no new sidebar destination.
-6. In progress: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention. Establish the production endpoint, production public key, and generation checks before wiring it into the app.
+6. In progress: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention. The production public key, deterministic generation/signing scripts, and Pages workflow are in place; complete the first live deployment before wiring it into the app.
 7. Add atomic replacement, rollback, offline, and performance tests.
 8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
 

@@ -11,6 +11,7 @@
 - 用途：取得中文和英文 Wikipedia 的热门页面及页面访问量。
 - 项目：`zh.wikipedia.org`、`en.wikipedia.org`。
 - 时间：每天读取上一完整自然日，同时保留最近 7 天和过去 28 天聚合值。
+- 若上一日任一语言项目尚未完成数据发布，自动回退到最近 4 天内双方都完整的日期；找不到时终止发布并保留线上旧包。
 - 官方文档：[Wikimedia Analytics API](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/) 和[页面访问量接口](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html)。
 
 ### Wikidata
@@ -18,6 +19,11 @@
 - 用途：把热门页面映射为实体，并取得简体中文、繁体中文、英文名称、别名、实体类型和日期。
 - 许可：结构化数据采用 CC0，可用于商业产品和重新分发。
 - 官方说明：[Wikidata Licensing](https://www.wikidata.org/wiki/Wikidata:Licensing) 和[数据访问方式](https://www.wikidata.org/wiki/Help:Data_access)。
+
+### OpenCC
+
+- 用途：在维护侧把 Wikidata 的中文名称和别名统一转换为简体中文，避免词包混入繁体写法；不进入 App，也不处理用户输入。
+- 生成环境固定使用 `opencc-python-reimplemented 0.1.7`，版本变更必须先通过词包差异审核。
 
 ### 首版明确排除
 
@@ -52,6 +58,7 @@ AI 分类复核与歧义标记（可选）
 - 至少在最近 7 天中具有持续热度，或相对 28 天基线出现明确增长。
 - 有可用于当前输出语言的规范名称。
 - 未命中敏感词、广告词、歧义冲突和人工阻止列表。
+- 首版采用保守分类上限并过滤少于 3 个字符的纯中日韩短词，避免人物或短标题挤占词包并误伤普通表达。
 
 趋势排序使用成熟的高频项与时间衰减思路。首版采用可解释的计数、7 天窗口和 28 天基线，不在发布前引入不可解释的在线模型。高频项算法参考 [Space-Saving](https://www.cs.ucsb.edu/research/tech-reports/2005-23)。
 
@@ -75,8 +82,8 @@ AI 不可以：
 
 ## 发布与安全
 
-- 产物发布到同一仓库的 `gh-pages` 分支，与应用源码提交历史分离。
-- 计划入口：`https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
+- 产物通过 GitHub 官方 Pages Artifact 工作流发布，不写入源码分支和应用源码提交历史。
+- 固定入口：`https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
 - manifest 包含 schema 版本、词包版本、生成与过期时间、同目录 `contentPath`、内容 hash、签名和最低兼容 App 版本；`contentPath` 同样纳入签名。
 - 使用 Ed25519 签名；App 只内置公钥。
 - 下载到临时文件，校验全部通过后原子替换；失败时保留上一份有效词包。

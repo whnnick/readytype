@@ -11,6 +11,7 @@ Generate public trending vocabulary packs with explicit provenance, reproducible
 - Purpose: obtain top pages and pageview metrics for Chinese and English Wikipedia.
 - Projects: `zh.wikipedia.org` and `en.wikipedia.org`.
 - Timing: read the previous complete calendar day and retain 7-day and 28-day aggregates.
+- If either language project has not published the previous day yet, use the newest complete shared date within four days; otherwise fail the deployment and keep the current live pack.
 - Official documentation: [Wikimedia Analytics API](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/) and [Page Views API](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html).
 
 ### Wikidata
@@ -18,6 +19,11 @@ Generate public trending vocabulary packs with explicit provenance, reproducible
 - Purpose: map popular pages to entities and obtain Simplified Chinese, Traditional Chinese, and English labels, aliases, entity types, and date fields.
 - License: structured data is CC0 and can be used commercially and redistributed.
 - Official documentation: [Wikidata Licensing](https://www.wikidata.org/wiki/Wikidata:Licensing) and [Data Access](https://www.wikidata.org/wiki/Help:Data_access).
+
+### OpenCC
+
+- Purpose: normalize Wikidata Chinese labels and aliases to Simplified Chinese on the maintainer side so packs do not mix scripts. It is not shipped in the app and never processes user input.
+- Generation pins `opencc-python-reimplemented 0.1.7`; dependency upgrades require a pack-diff review first.
 
 ### Explicit First-Release Exclusions
 
@@ -52,6 +58,7 @@ Candidates must:
 - Show sustained activity within the last 7 days or a clear increase over the 28-day baseline.
 - Have a canonical label for the active output language.
 - Avoid sensitive, advertising, ambiguous-conflict, and manually blocked terms.
+- The first release uses conservative category caps and excludes pure CJK labels shorter than three characters so people or short titles cannot dominate the pack or bias ordinary phrases.
 
 Ranking uses mature frequent-item and time-decay ideas. The first release uses explainable counts, a 7-day window, and a 28-day baseline rather than an opaque online model. See the [Space-Saving frequent-items work](https://www.cs.ucsb.edu/research/tech-reports/2005-23).
 
@@ -75,8 +82,8 @@ The generation script must still fetch, map, filter, package, and validate with 
 
 ## Publishing and Security
 
-- Publish generated files from this repository's `gh-pages` branch, separate from application-source history.
-- Planned entry point: `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
+- Deploy generated files through GitHub's official Pages Artifact workflow without writing them into application-source history.
+- Stable entry point: `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
 - The manifest includes schema version, pack version, generation and expiry times, same-directory `contentPath`, content hash, signature, and minimum compatible app version. The signature also covers `contentPath`.
 - Use Ed25519 signatures; the app embeds only the public key.
 - Download to a temporary file and atomically replace the active pack only after all validation passes; keep the last valid pack on failure.
