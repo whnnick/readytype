@@ -1,6 +1,6 @@
 # ReadyType 1.4.0 Black-box Acceptance
 
-Last updated: 2026-07-18. The current candidate build is `1.4.0 (88)`; no public Release has been created yet.
+Last updated: 2026-07-18. The current release is `1.4.0 (88)`.
 
 ## Requirement Coverage
 
@@ -27,6 +27,9 @@ Last updated: 2026-07-18. The current candidate build is `1.4.0 (88)`; no public
 - GitHub CI [29628788739](https://github.com/whnnick/readytype/actions/runs/29628788739): tests, build, sensitive scan, ZIP, DMG, and artifact uploads all passed.
 - Real-app manual update transitioned from updating back to automatically updated and persisted the live pack in the user cache.
 - `scripts/verify-release-local.sh`: fully passed, including official analytics configuration, UI, ZIP, DMG, and `hdiutil verify`.
+- GitHub Release run [29630374845](https://github.com/whnnick/readytype/actions/runs/29630374845): tests, official build, sensitive scan, packaging, and publishing all passed.
+- The public [v1.4.0 Release](https://github.com/whnnick/readytype/releases/tag/v1.4.0) is latest, neither draft nor prerelease, and contains all three expected assets.
+- Freshly downloaded ZIP and DMG files passed `SHA256SUMS.txt`; the ZIP contains `1.4.0 (88)` with official analytics configuration, Test Mode disabled, valid signature structure, and a valid DMG checksum.
 
 ## Real-environment Follow-up
 
@@ -35,4 +38,4 @@ Last updated: 2026-07-18. The current candidate build is `1.4.0 (88)`; no public
 
 ## Release Blockers
 
-1. Create and verify the public `v1.4.0` Release, latest status, SHA-256, and downloaded attachments.
+- None. `v1.4.0` is public, and both remote state and downloaded artifacts have been verified.

@@ -1,6 +1,6 @@
 # ReadyType 1.4.0 黑盒功能检查
 
-最后更新：2026-07-18。当前候选构建为 `1.4.0 (88)`，尚未创建公开 Release。
+最后更新：2026-07-18。当前发布版本为 `1.4.0 (88)`。
 
 ## 需求对应与状态
 
@@ -27,6 +27,9 @@
 - GitHub CI [29628788739](https://github.com/whnnick/readytype/actions/runs/29628788739)：测试、构建、敏感信息扫描、ZIP、DMG 及附件上传全部通过。
 - 真实 App 手动更新：状态从“正在更新热门词”恢复为“热门词已自动更新”，线上词包已写入用户缓存目录。
 - `scripts/verify-release-local.sh`：完整通过；正式统计配置、UI、ZIP、DMG 与 `hdiutil verify` 均通过。
+- GitHub Release [29630374845](https://github.com/whnnick/readytype/actions/runs/29630374845)：测试、正式构建、敏感信息扫描、打包和发布全部通过。
+- 公开 [v1.4.0 Release](https://github.com/whnnick/readytype/releases/tag/v1.4.0) 已成为 latest，且不是草稿或预发布；三个附件均已上传。
+- 重新下载的 ZIP 与 DMG 通过 `SHA256SUMS.txt` 校验；ZIP 内应用为 `1.4.0 (88)`，包含正式统计配置、不含 Test Mode，代码签名结构和 DMG 完整性有效。
 
 ## 真实环境待验收
 
@@ -35,4 +38,4 @@
 
 ## 发布前阻塞项
 
-1. 创建并验证公开 `v1.4.0` Release、latest 状态、SHA-256 和实际下载附件。
+- 无。`v1.4.0` 已公开发布，远端状态与实际下载附件均已验证。

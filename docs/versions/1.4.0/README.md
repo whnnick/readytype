@@ -27,3 +27,7 @@ This should not be implemented as live hot-list scraping or by pushing a large t
 ## Release Boundary
 
 Version 1.4.0 implements public trending-pack architecture and the first stable packs. It does not promise real-time whole-web trends, upload user input, add complex cloud services, or expose multiple third-party API configurations. Personal correction memory and confirm-first learning remain a 1.5.0 candidate and do not block this release.
+
+## Release Status
+
+`1.4.0 (88)` passed the local release gate, real-voice acceptance, GitHub Release workflow, and independently downloaded artifact verification. [Download v1.4.0](https://github.com/whnnick/readytype/releases/tag/v1.4.0).
