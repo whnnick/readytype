@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var recordingHUDWindowController: RecordingHUDWindowController?
     private var autoFinishRecordingTask: Task<Void, Never>?
     private var idlePrewarmController: IdlePrewarmController?
+    private var hotVocabularyUpdateTask: Task<Void, Never>?
     private let maximumRecordingDuration = RecordingPolicy.defaultMaximumDuration
     private let pasteTargetActivator = SystemPasteTargetActivator()
     private let localSpeechModelManager = LocalSpeechModelManager()
@@ -31,6 +32,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fileURL: AppDiagnostics.debugVocabularyFileURL() ?? UserVocabularyStore.defaultFileURL()
     )
     private lazy var highAccuracySpeechEngine = CoreMLHighAccuracySpeechEngine(modelManager: localSpeechModelManager)
+    private lazy var hotVocabularyCoordinator: HotVocabularyCoordinator? = {
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.4.0"
+        guard let verifier = try? HotVocabularyProductionConfiguration.makeVerifier(
+            currentAppVersion: appVersion
+        ) else {
+            return nil
+        }
+        let store = HotVocabularyStore(verifier: verifier)
+        let updater = HotVocabularyUpdater(
+            manifestURL: HotVocabularyProductionConfiguration.manifestURL,
+            store: store
+        )
+        return HotVocabularyCoordinator(store: store, updater: updater)
+    }()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
@@ -76,6 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         startGlobalShortcut()
         startIdlePrewarmIfConfigured()
+        startHotVocabularyUpdates()
     }
 
     private func applySavedAppearance() {
@@ -172,6 +188,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         escapeKeyCancelMonitor?.stop()
         autoFinishRecordingTask?.cancel()
         idlePrewarmController?.cancel()
+        hotVocabularyUpdateTask?.cancel()
         commandObservers.forEach(NotificationCenter.default.removeObserver)
         stateObservers.removeAll()
         recordingHUDWindowController?.hideImmediately()
@@ -191,6 +208,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             settingsStore: settingsStore,
             localSpeechModelManager: localSpeechModelManager,
             userVocabularyStore: userVocabularyStore,
+            hotVocabularyCoordinator: hotVocabularyCoordinator,
             postDownloadPrewarm: { [weak self] in
                 await self?.prewarmHighAccuracySpeechModelAfterDownload() ?? .failed(reason: "应用状态不可用")
             },
@@ -332,7 +350,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func currentSmartTermDictionary() -> SmartTermDictionary {
         let entries = (try? userVocabularyStore.load()) ?? []
-        return SmartTermDictionary.readyTypeDefault.mergingUserVocabulary(entries)
+        var dictionary = SmartTermDictionary.readyTypeDefault.mergingUserVocabulary(entries)
+        if let activePack = hotVocabularyCoordinator?.activePack {
+            dictionary = dictionary.mergingHotVocabulary(activePack)
+        }
+        return dictionary
+    }
+
+    private func startHotVocabularyUpdates() {
+        guard let coordinator = hotVocabularyCoordinator else {
+            return
+        }
+
+        coordinator.loadCachedPack()
+        hotVocabularyUpdateTask?.cancel()
+        hotVocabularyUpdateTask = Task { [weak self, coordinator] in
+            try? await Task.sleep(for: .seconds(8))
+            while !Task.isCancelled {
+                guard let self else {
+                    return
+                }
+                if self.appState.runtimeState == .idle {
+                    await coordinator.update()
+                    try? await Task.sleep(for: .seconds(HotVocabularyUpdater.automaticCheckInterval))
+                    continue
+                }
+                try? await Task.sleep(for: .seconds(5))
+            }
+        }
     }
 
     private func currentLocalSpeechModelState(isHighAccuracyEnabled: Bool) -> LocalSpeechModelState {

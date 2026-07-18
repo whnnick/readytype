@@ -9,6 +9,56 @@ enum StatusRole: Equatable {
     case danger
 }
 
+extension HotVocabularyStatus {
+    var readyTypeStatusRole: StatusRole {
+        switch self {
+        case .notDownloaded:
+            return .neutral
+        case .checking:
+            return .progress
+        case .ready:
+            return .success
+        case .unavailable(let currentVersion):
+            return currentVersion == nil ? .warning : .success
+        }
+    }
+
+    var readyTypeTitle: String {
+        switch self {
+        case .notDownloaded:
+            return "热门词尚未更新"
+        case .checking:
+            return "正在更新热门词"
+        case .ready:
+            return "热门词已自动更新"
+        case .unavailable(let currentVersion):
+            return currentVersion == nil ? "热门词暂时无法更新" : "热门词已可使用"
+        }
+    }
+
+    var readyTypeDetail: String {
+        switch self {
+        case .notDownloaded:
+            return "ReadyType 会在空闲时自动获取近期常见的人名、作品名和产品名。"
+        case .checking:
+            return "更新在后台完成，不影响语音输入。"
+        case .ready:
+            return "近期常见名称会作为低优先级提示，常用词仍然优先。"
+        case .unavailable(let currentVersion):
+            return currentVersion == nil
+                ? "网络恢复后会自动重试，不影响现有语音输入。"
+                : "这次更新未完成，ReadyType 会继续使用上次的有效内容。"
+        }
+    }
+
+    var isChecking: Bool {
+        if case .checking = self {
+            return true
+        }
+        return false
+    }
+}
+
 struct VoiceInputHUDPresentation: Equatable {
     let title: String
     let subtitle: String

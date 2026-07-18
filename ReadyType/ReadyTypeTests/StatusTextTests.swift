@@ -157,4 +157,23 @@ final class StatusTextTests: XCTestCase {
             .warning
         )
     }
+
+    func testHotVocabularyStatusUsesStableUserFacingCopy() {
+        let generatedAt = Date(timeIntervalSince1970: 1_800_000_000)
+
+        XCTAssertEqual(HotVocabularyStatus.notDownloaded.readyTypeTitle, "热门词尚未更新")
+        XCTAssertEqual(HotVocabularyStatus.checking(currentVersion: nil).readyTypeTitle, "正在更新热门词")
+        XCTAssertEqual(
+            HotVocabularyStatus.ready(version: "2027.01.14", generatedAt: generatedAt).readyTypeTitle,
+            "热门词已自动更新"
+        )
+        XCTAssertEqual(
+            HotVocabularyStatus.unavailable(currentVersion: "2027.01.13").readyTypeTitle,
+            "热门词已可使用"
+        )
+        XCTAssertFalse(
+            HotVocabularyStatus.ready(version: "2027.01.14", generatedAt: generatedAt)
+                .readyTypeDetail.contains("2027")
+        )
+    }
 }

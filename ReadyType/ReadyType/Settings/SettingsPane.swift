@@ -59,10 +59,6 @@ struct SettingsPane: View {
                         }
                     }
 
-                    Text("空格属于词语本身，不会自动分隔。添加多个词时，请使用下方的“一次添加多个”，并用换行、逗号、顿号或分号分隔。")
-                        .font(.footnote)
-                        .foregroundStyle(ReadyTypeTheme.muted)
-
                     VStack(alignment: .leading, spacing: 5) {
                         Text(viewModel.speechRecognitionMode.userDescription)
                         Text("语音识别本身不需要额外付费接口；只有整理、翻译和写给 AI 会使用 DeepSeek 处理当前文本。")
@@ -144,6 +140,34 @@ struct SettingsPane: View {
                     }
 
                     Text("高精度语音包保存在 \(LocalSpeechModelManager.defaultModelsDirectoryPath())。可在这里删除；以后需要更新时可重新下载。")
+                        .font(.footnote)
+                        .foregroundStyle(ReadyTypeTheme.muted)
+                }
+
+                ReadyTypePanel("近期常用名称", subtitle: "自动补充近期常见的人名、作品名和产品名，无需手动维护。") {
+                    HStack(spacing: 10) {
+                        StatusDot(role: viewModel.hotVocabularyStatus.readyTypeStatusRole)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(viewModel.hotVocabularyStatus.readyTypeTitle)
+                                .font(.callout.weight(.medium))
+                                .foregroundStyle(ReadyTypeTheme.ink)
+                            Text(viewModel.hotVocabularyStatus.readyTypeDetail)
+                                .font(.footnote)
+                                .foregroundStyle(ReadyTypeTheme.muted)
+                        }
+                        Spacer()
+                        Button(viewModel.hotVocabularyStatus.isChecking ? "更新中..." : "立即更新") {
+                            checkHotVocabularyUpdate()
+                        }
+                        .disabled(
+                            viewModel.hotVocabularyStatus.isChecking ||
+                                appState.runtimeState == .recording ||
+                                appState.runtimeState == .transcribing ||
+                                appState.runtimeState == .processingAI
+                        )
+                    }
+
+                    Text("内容来自 Wikimedia 与 Wikidata 的公开趋势数据，每天在后台最多检查一次；不会上传你的语音、文字或常用词。")
                         .font(.footnote)
                         .foregroundStyle(ReadyTypeTheme.muted)
                 }
@@ -681,6 +705,12 @@ struct SettingsPane: View {
         errorMessage = nil
         Task {
             await viewModel.testAPIConnection()
+        }
+    }
+
+    private func checkHotVocabularyUpdate() {
+        Task {
+            await viewModel.checkHotVocabularyUpdate()
         }
     }
 }

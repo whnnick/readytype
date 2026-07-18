@@ -10,6 +10,8 @@
 - Trending terms can now merge into the unified dictionary at low priority: Common Words and built-ins remain ahead, each request selects at most 20 trending terms, individual expiry does not invalidate a pack, and public aliases inform recognition without automatically rewriting the user's words. The 5,000-term stress test remains within the candidate-latency gate.
 - Added the Trending Vocabulary background-update core with same-origin HTTPS enforcement, one automatic check per day, ETag, and forced manual checks. Download, signature, or storage failures keep the old pack, and a 304 response with missing local content triggers one unconditional refetch.
 - Added the production Ed25519 public key, deterministic Wikimedia/Wikidata candidate generation, a standalone signer, and a GitHub Pages publishing workflow. The workflow verifies the real signed artifact with the app's own verifier before deployment, while the production private key remains only in the maintainer Keychain and GitHub Secret.
+- Integrated trending terms into the app's shared in-memory dictionary: load a valid local pack at startup, check after eight idle seconds and every 24 hours thereafter without networking on the recording path, expose user-facing status and a manual refresh in Settings, and keep the previous valid pack after failures.
+- Advanced the current 1.4.0 development build to `1.4.0 (88)` so it can load the live pack whose minimum compatible version is 1.4.0.
 
 ## 1.3.0 - 2026-07-16
 

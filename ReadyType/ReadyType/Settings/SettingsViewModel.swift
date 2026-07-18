@@ -27,6 +27,7 @@ final class SettingsViewModel: ObservableObject {
     @Published private(set) var isDownloadingSpeechModel: Bool
     @Published private(set) var isCheckingSpeechModelUpdate: Bool
     @Published private(set) var userVocabularyEntries: [UserVocabularyEntry]
+    @Published private(set) var hotVocabularyStatus: HotVocabularyStatus
     @Published var newVocabularyText: String
     @Published var importVocabularyText: String
     @Published var selectedVocabularyKind: UserVocabularyKind
@@ -38,9 +39,11 @@ final class SettingsViewModel: ObservableObject {
     private let localSpeechModelInstaller: LocalSpeechModelInstalling
     private let localSpeechModelUpdateChecker: LocalSpeechModelUpdateChecking
     private let userVocabularyStore: UserVocabularyStore
+    private let hotVocabularyCoordinator: HotVocabularyCoordinator?
     private let postDownloadPrewarm: PostDownloadPrewarm?
     private let onVoiceShortcutChange: VoiceShortcutChangeHandler?
     private var userVocabularyCancellables: Set<AnyCancellable> = []
+    private var hotVocabularyCancellables: Set<AnyCancellable> = []
 
     init(
         settingsStore: SettingsStore = SettingsStore(),
@@ -50,6 +53,7 @@ final class SettingsViewModel: ObservableObject {
         localSpeechModelInstaller: LocalSpeechModelInstalling = CoreMLSpeechModelInstaller(),
         localSpeechModelUpdateChecker: LocalSpeechModelUpdateChecking? = nil,
         userVocabularyStore: UserVocabularyStore = UserVocabularyStore(),
+        hotVocabularyCoordinator: HotVocabularyCoordinator? = nil,
         postDownloadPrewarm: PostDownloadPrewarm? = nil,
         onVoiceShortcutChange: VoiceShortcutChangeHandler? = nil
     ) {
@@ -62,6 +66,7 @@ final class SettingsViewModel: ObservableObject {
             manager: localSpeechModelManager
         )
         self.userVocabularyStore = userVocabularyStore
+        self.hotVocabularyCoordinator = hotVocabularyCoordinator
         self.postDownloadPrewarm = postDownloadPrewarm
         self.onVoiceShortcutChange = onVoiceShortcutChange
 
@@ -88,6 +93,7 @@ final class SettingsViewModel: ObservableObject {
         self.isDownloadingSpeechModel = false
         self.isCheckingSpeechModelUpdate = false
         self.userVocabularyEntries = (try? userVocabularyStore.load()) ?? []
+        self.hotVocabularyStatus = hotVocabularyCoordinator?.status ?? .notDownloaded
         self.newVocabularyText = ""
         self.importVocabularyText = ""
         self.selectedVocabularyKind = .general
@@ -100,6 +106,12 @@ final class SettingsViewModel: ObservableObject {
                 }
             }
             .store(in: &userVocabularyCancellables)
+        hotVocabularyCoordinator?.$status
+            .receive(on: RunLoop.main)
+            .sink { [weak self] status in
+                self?.hotVocabularyStatus = status
+            }
+            .store(in: &hotVocabularyCancellables)
     }
 
     func save() throws {
@@ -283,6 +295,10 @@ final class SettingsViewModel: ObservableObject {
         localSpeechModelState = localSpeechModelManager.state()
         localSpeechModelUpdateStatus = .notInstalled
         statusMessage = "高精度语音包已删除"
+    }
+
+    func checkHotVocabularyUpdate() async {
+        await hotVocabularyCoordinator?.update(force: true)
     }
 
     func addUserVocabularyEntry() throws {

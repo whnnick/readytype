@@ -144,9 +144,9 @@ Trending-term adjustments:
 2. Completed: add manifest, Ed25519 validation, atomic storage, and previous-valid-version fallback tests without networking.
 3. Completed: merge valid packs into the unified dictionary as a low-priority `SmartTermSource` while keeping Common Words at the highest priority.
 4. Completed: cap trending terms at 20 per request, filter individual expired terms, and prevent trending aliases from triggering automatic post-recognition replacement.
-5. Add a compact section inside Speech Recognition, with no new sidebar destination.
-6. In progress: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention. The production public key, deterministic generation/signing scripts, and Pages workflow are in place; complete the first live deployment before wiring it into the app.
-7. Add atomic replacement, rollback, offline, and performance tests.
+5. Completed: add a compact section inside Speech Recognition without a new sidebar destination or technical version dates.
+6. Completed: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention; production signing, deterministic generation, Pages deployment, and the app's in-memory dictionary integration are complete.
+7. Completed: add atomic replacement, rollback, offline, and performance tests; the live pack has been downloaded from the public endpoint and accepted by the app's own verifier.
 8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
 
 ## Follow-Up Release
