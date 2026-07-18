@@ -20,12 +20,13 @@ Last updated: 2026-07-18. The current candidate build is `1.4.0 (88)`; no public
 
 - Live pack: `packVersion=2026.07.16`, `minimumAppVersion=1.4.0`, 174 terms, production signature accepted.
 - Real-network acceptance downloaded, verified, installed into a temporary store, and loaded through the coordinator.
-- `swift test`: 398 executed, 16 conditionally skipped for real environments, 0 failures.
-- Contextual-vocabulary performance: P95 19.633 ms; timeout benchmark 85.445 ms.
+- Final release-gate `swift test`: 398 executed, 13 conditionally skipped for real environments, 0 failures.
+- Final contextual-vocabulary performance: P95 18.060 ms; timeout benchmark 83.667 ms.
 - `scripts/build-app.sh`: passed and produced `1.4.0 (88)`.
 - Strict app-bundle signature structure and sensitive-information scans: passed.
 - GitHub CI [29628788739](https://github.com/whnnick/readytype/actions/runs/29628788739): tests, build, sensitive scan, ZIP, DMG, and artifact uploads all passed.
 - Real-app manual update transitioned from updating back to automatically updated and persisted the live pack in the user cache.
+- `scripts/verify-release-local.sh`: fully passed, including official analytics configuration, UI, ZIP, DMG, and `hdiutil verify`.
 
 ## Real-environment Follow-up
 
@@ -34,6 +35,4 @@ Last updated: 2026-07-18. The current candidate build is `1.4.0 (88)`; no public
 
 ## Release Blockers
 
-1. Run the complete local release gate and generate final ZIP, DMG, and SHA-256 files.
-2. Create and verify the public `v1.4.0` Release, latest status, and downloaded attachments.
-
+1. Create and verify the public `v1.4.0` Release, latest status, SHA-256, and downloaded attachments.

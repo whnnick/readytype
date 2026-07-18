@@ -20,12 +20,13 @@
 
 - 线上词包：`packVersion=2026.07.16`、`minimumAppVersion=1.4.0`、174 个词条，生产验签通过。
 - 真实网络验收：下载、验签、临时安装和 Coordinator 加载通过。
-- `swift test`：398 项执行，16 项按真实环境条件跳过，0 失败。
-- 上下文词汇性能：P95 为 19.633 ms；超时基准为 85.445 ms。
+- 最终发布门禁 `swift test`：398 项执行，13 项按真实环境条件跳过，0 失败。
+- 最终上下文词汇性能：P95 为 18.060 ms；超时基准为 83.667 ms。
 - `scripts/build-app.sh`：通过，产物为 `1.4.0 (88)`。
 - App Bundle 严格签名结构与敏感信息检查：通过。
 - GitHub CI [29628788739](https://github.com/whnnick/readytype/actions/runs/29628788739)：测试、构建、敏感信息扫描、ZIP、DMG 及附件上传全部通过。
 - 真实 App 手动更新：状态从“正在更新热门词”恢复为“热门词已自动更新”，线上词包已写入用户缓存目录。
+- `scripts/verify-release-local.sh`：完整通过；正式统计配置、UI、ZIP、DMG 与 `hdiutil verify` 均通过。
 
 ## 真实环境待验收
 
@@ -34,6 +35,4 @@
 
 ## 发布前阻塞项
 
-1. 执行完整本地发布门禁并生成最终 ZIP、DMG 和 SHA-256。
-2. 创建并验证公开 `v1.4.0` Release、latest 状态和实际下载附件。
-
+1. 创建并验证公开 `v1.4.0` Release、latest 状态、SHA-256 和实际下载附件。

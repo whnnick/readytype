@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.4.0 - 2026-07-18
+
 - Froze the ReadyType 1.4.0 Trending Vocabulary Packs source and publishing boundary around Wikimedia Pageviews and Wikidata, daily offline generation, and signed pack delivery, excluding TMDB and other sources without an obtained commercial license.
 - Added bilingual pack-generation and AI-curation specifications: AI only assists maintainer-side classification review and ambiguity flags and cannot enter the real-time input path, use the user's API key, or directly publish new terms.
 - Tightened runtime trending candidates to 10-20 per request and moved personal correction memory and confirm-first learning to a 1.5.0 candidate.
