@@ -8,6 +8,7 @@ struct HotVocabularyManifest: Codable, Equatable {
     var minimumAppVersion: String
     var contentSHA256: String
     var signature: String
+    var contentPath: String = "pack.json"
 
     var signedPayload: Data {
         let fields = [
@@ -16,6 +17,7 @@ struct HotVocabularyManifest: Codable, Equatable {
             "generatedAt=\(HotVocabularyCoding.timestamp(generatedAt))",
             "expiresAt=\(HotVocabularyCoding.timestamp(expiresAt))",
             "minimumAppVersion=\(minimumAppVersion)",
+            "contentPath=\(contentPath)",
             "contentSHA256=\(contentSHA256)"
         ]
         return Data((fields.joined(separator: "\n") + "\n").utf8)

@@ -5,7 +5,8 @@ enum HotVocabularyStoreError: Error {
     case noValidPack
 }
 
-final class HotVocabularyStore {
+// Version directories are immutable and active pointers are replaced atomically.
+final class HotVocabularyStore: @unchecked Sendable {
     private struct Pointer: Codable, Equatable {
         var directoryName: String
         var packVersion: String

@@ -77,14 +77,14 @@ AI 不可以：
 
 - 产物发布到同一仓库的 `gh-pages` 分支，与应用源码提交历史分离。
 - 计划入口：`https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`。
-- manifest 包含 schema 版本、词包版本、生成时间、内容 hash、签名和最低兼容 App 版本。
+- manifest 包含 schema 版本、词包版本、生成与过期时间、同目录 `contentPath`、内容 hash、签名和最低兼容 App 版本；`contentPath` 同样纳入签名。
 - 使用 Ed25519 签名；App 只内置公钥。
 - 下载到临时文件，校验全部通过后原子替换；失败时保留上一份有效词包。
 - 私钥和 DeepSeek Key 只保存在维护者控制的加密发布环境中，不写入仓库、日志或发布产物。
 
 ## App 运行时边界
 
-- App 每天最多检查一次更新，只在空闲时执行。
+- App 每天最多自动检查一次更新，只在空闲时执行；使用 ETag 避免重复下载，手动检查可绕过时间限制。
 - 录音热路径只读取已解析的内存快照。
 - 每次最多选择 10-20 个热门词，全部上下文候选不超过 Apple 建议的 100 个上限。参考 [Apple contextualStrings](https://developer.apple.com/documentation/speech/analysiscontext/contextualstrings)。
 - 热门词优先级低于用户常用词和确认式学习词。

@@ -79,7 +79,7 @@
 - `aliases`：常见别名或中英混说形式。
 - `category`：例如影视娱乐、科技产品、体育赛事、网络流行词。
 - `scopes`：适用场景，例如聊天、文档、AI 工具。
-- `source`：公开来源标识。
+- `sourceID`：可追溯的公开来源标识，例如 Wikidata 实体 ID。
 - `weight`：词条权重。
 - `expiresAt`：过期时间。
 
@@ -96,7 +96,7 @@
 - 不上传用户转写、最终输出、App 名称、窗口标题或个人词库。
 - 客户端不内置第三方私有 API key。
 - 词包来源应由 ReadyType 维护侧生成，客户端只下载整理后的 manifest。
-- 词包需要 schema 版本、内容 hash 和 ReadyType 发布密钥签名；校验失败时拒绝新包并继续使用上一份有效词包。
+- manifest 需要 schema 版本、词包版本、同目录内容路径、有效期、最低 App 版本、内容 hash 和 ReadyType 发布密钥签名；校验失败时拒绝新包并继续使用上一份有效词包。
 
 ### 7. AI 整理边界
 

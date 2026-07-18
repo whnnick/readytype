@@ -8,6 +8,7 @@
 - Redrew the 1.4.0 pack prototype inside the existing Speech Recognition page, removing a separate navigation destination and user-facing category-management burden.
 - Added the Trending Vocabulary Pack protocol, SHA-256 and Ed25519 validation, size/expiry/minimum-version gates, and immutable-version storage with an atomic active pointer and previous-valid-version fallback. This milestone adds no networking and does not change the current recognition path.
 - Trending terms can now merge into the unified dictionary at low priority: Common Words and built-ins remain ahead, each request selects at most 20 trending terms, individual expiry does not invalidate a pack, and public aliases inform recognition without automatically rewriting the user's words. The 5,000-term stress test remains within the candidate-latency gate.
+- Added the Trending Vocabulary background-update core with same-origin HTTPS enforcement, one automatic check per day, ETag, and forced manual checks. Download, signature, or storage failures keep the old pack, and a 304 response with missing local content triggers one unconditional refetch.
 
 ## 1.3.0 - 2026-07-16
 

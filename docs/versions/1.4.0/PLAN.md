@@ -62,6 +62,7 @@ The remote entry point is a small manifest and the terms live in a separate cont
   "generatedAt": "2026-07-07T00:00:00Z",
   "expiresAt": "2026-08-07T00:00:00Z",
   "minimumAppVersion": "1.4.0",
+  "contentPath": "pack.json",
   "contentSHA256": "<sha256>",
   "signature": "<ed25519-signature>"
 }
@@ -144,7 +145,7 @@ Trending-term adjustments:
 3. Completed: merge valid packs into the unified dictionary as a low-priority `SmartTermSource` while keeping Common Words at the highest priority.
 4. Completed: cap trending terms at 20 per request, filter individual expired terms, and prevent trending aliases from triggering automatic post-recognition replacement.
 5. Add a compact section inside Speech Recognition, with no new sidebar destination.
-6. Establish the production pack endpoint and publishing checks, then connect the background updater.
+6. In progress: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention. Establish the production endpoint, production public key, and generation checks before wiring it into the app.
 7. Add atomic replacement, rollback, offline, and performance tests.
 8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
 

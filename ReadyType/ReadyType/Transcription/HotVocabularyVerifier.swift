@@ -50,6 +50,7 @@ struct HotVocabularyVerifier {
             throw HotVocabularyVerificationError.unsupportedSchema
         }
         guard Self.isSafeIdentifier(manifest.packVersion),
+              Self.isSafeContentPath(manifest.contentPath),
               Self.isSHA256(manifest.contentSHA256),
               manifest.generatedAt <= manifest.expiresAt,
               manifest.generatedAt <= now.addingTimeInterval(86_400),
@@ -137,6 +138,12 @@ struct HotVocabularyVerifier {
 
     private static func isSHA256(_ value: String) -> Bool {
         value.range(of: #"^[A-Fa-f0-9]{64}$"#, options: .regularExpression) != nil
+    }
+
+    static func isSafeContentPath(_ value: String) -> Bool {
+        ![".", ".."].contains(value) &&
+            value.count <= 128 &&
+            value.range(of: #"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$"#, options: .regularExpression) != nil
     }
 }
 

@@ -79,7 +79,7 @@ Each term should include:
 - `aliases`: common aliases or mixed Chinese/English forms.
 - `category`: entertainment, technology, sports, internet phrases, etc.
 - `scopes`: applicable scenarios such as chat, document, or AI tool.
-- `source`: public source identifier.
+- `sourceID`: traceable public source identifier, such as a Wikidata entity ID.
 - `weight`: ranking weight.
 - `expiresAt`: expiration time.
 
@@ -96,7 +96,7 @@ Before each voice input, select only a small relevant subset:
 - Do not upload transcripts, final output, app names, window titles, or personal vocabulary.
 - Do not embed third-party private API keys in the client.
 - ReadyType-maintained generation should prepare the manifest; the client only downloads prepared packs.
-- Packs require schema versioning, content hashes, and a ReadyType release-key signature. Invalid updates are rejected while the last valid pack remains active.
+- The manifest requires a schema version, pack version, same-directory content path, expiry, minimum app version, content hash, and ReadyType release-key signature. Invalid updates are rejected while the last valid pack remains active.
 
 ### 7. AI Curation Boundary
 

@@ -77,14 +77,14 @@ The generation script must still fetch, map, filter, package, and validate with 
 
 - Publish generated files from this repository's `gh-pages` branch, separate from application-source history.
 - Planned entry point: `https://whnnick.github.io/readytype/vocabulary/v1/manifest.json`.
-- The manifest includes schema version, pack version, generation time, content hash, signature, and minimum compatible app version.
+- The manifest includes schema version, pack version, generation and expiry times, same-directory `contentPath`, content hash, signature, and minimum compatible app version. The signature also covers `contentPath`.
 - Use Ed25519 signatures; the app embeds only the public key.
 - Download to a temporary file and atomically replace the active pack only after all validation passes; keep the last valid pack on failure.
 - Store the private signing key and DeepSeek key only in maintainer-controlled encrypted publishing infrastructure, never in the repository, logs, or release artifacts.
 
 ## App Runtime Boundary
 
-- Check for updates at most once per day and only while idle.
+- Check automatically at most once per day and only while idle. Use ETag to avoid repeat downloads; manual checks can bypass the interval.
 - The recording path reads only a parsed in-memory snapshot.
 - Select at most 10-20 trending terms per request while keeping total contextual candidates under Apple's recommended cap of 100. See [Apple contextualStrings](https://developer.apple.com/documentation/speech/analysiscontext/contextualstrings).
 - Trending terms rank below user common words and confirmed learning terms.
