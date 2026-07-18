@@ -27,15 +27,24 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install deterministic text conversion dependency
-        run: python3 -m pip install --disable-pip-version-check --require-hashes -r scripts/vocabulary/requirements.txt
+        run: |
+          python3 -m venv "$RUNNER_TEMP/vocabulary-venv"
+          "$RUNNER_TEMP/vocabulary-venv/bin/python" -m pip install \
+            --disable-pip-version-check \
+            --require-hashes \
+            -r scripts/vocabulary/requirements.txt
 
       - name: Fetch and rank public vocabulary
+        env:
+          SOURCE_DATE: ${{ inputs.source_date }}
         run: |
           date_argument=()
-          if [[ -n "${{ inputs.source_date }}" ]]; then
-            date_argument=(--date "${{ inputs.source_date }}")
+          if [[ -n "$SOURCE_DATE" ]]; then
+            date_argument=(--date "$SOURCE_DATE")
           fi
-          python3 scripts/vocabulary/fetch-wikimedia.py "${date_argument[@]}" --output "$RUNNER_TEMP/unsigned-pack.json"
+          "$RUNNER_TEMP/vocabulary-venv/bin/python" scripts/vocabulary/fetch-wikimedia.py \
+            "${date_argument[@]}" \
+            --output "$RUNNER_TEMP/unsigned-pack.json"
 
       - name: Sign vocabulary pack
         env:
