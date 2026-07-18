@@ -12,7 +12,7 @@ Publicly verifiable input-method designs point to layered vocabulary: built-in v
 - Voice input must not show extra waiting, popovers, or setup burden.
 - Recent proper nouns should be recognized better, especially entertainment, technology, and sports terms.
 - Trending terms must not override user common words or aggressively rewrite ordinary text.
-- Users can disable automatic updates, delete downloaded packs, and inspect the last update time.
+- Users can inspect current status and trigger an update without managing pack versions, categories, or storage.
 - Users do not need to understand pack categories, sources, versions, or candidate counts.
 
 ## User-Facing Copy
@@ -23,14 +23,14 @@ Suggested Settings copy:
 
 - Title: Trending Vocabulary Packs
 - Description: ReadyType updates recently common public terms in the background to improve recognition and cleanup. Your input content is not uploaded.
-- Status: Updated / Updating / Unable to update right now / Off
-- Actions: Auto-update trending terms, Update now, Delete packs
+- Status: Not updated / Updating / Automatically updated / Unable to update right now
+- Action: Update now
 
 Information architecture:
 
 - Entry: `Speech Recognition > Trending Vocabulary Packs`; do not add a sidebar destination.
-- Default view: status, plain-language description, and the auto-update toggle.
-- Secondary actions: reveal Update now, last update time, and delete local packs only under More.
+- Default view: status, source and privacy explanation, and Update now.
+- Do not expose version numbers, term counts, category toggles, or local file management.
 
 ## Scope
 
@@ -124,4 +124,4 @@ Before each voice input, select only a small relevant subset:
 - Expired trending terms no longer participate in candidates.
 - Candidate selection stays within the existing contextual vocabulary latency budget.
 - Chat scenarios do not rewrite ordinary phrases into movie or product names because of trending packs.
-- Turning off automatic updates keeps the current valid pack; deleting it removes its candidates.
+- A failed background update keeps the current valid pack; without a valid pack, existing recognition continues unchanged.

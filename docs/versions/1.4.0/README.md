@@ -8,6 +8,7 @@ ReadyType 1.4.0 is scoped around Trending Vocabulary Packs: using the layered vo
 - [Implementation Plan](./PLAN.md)
 - [Pack Generation and AI Curation](./VOCABULARY_PIPELINE.md)
 - [Interaction Flow](./INTERACTION_FLOW.md)
+- [Black-box Acceptance](./BLACK_BOX_TESTS.md)
 - [UI Prototype](./ui/hot-vocabulary-packs.html): follows the current ReadyType sidebar and Speech Recognition page, with light/dark switching and status previews.
 
 ## Current Assessment
@@ -18,7 +19,7 @@ This should not be implemented as live hot-list scraping or by pushing a large t
 - Treat trending vocabulary as low-priority supplemental candidates.
 - Update in the background without blocking voice input.
 - Store source, category, weight, and expiration metadata for every term.
-- Make the experience silent by default while still allowing users to disable, delete, and inspect update time in Settings.
+- Keep the experience silent by default while exposing only status, source information, and manual refresh in Settings.
 - Add no new sidebar destination; expose one compact management section inside Speech Recognition.
 - Fix the first-release sources to Wikimedia Pageviews and Wikidata; do not use commercial data APIs with unclear redistribution boundaries.
 - Use AI only for offline pre-release curation; it cannot generate terms during user input or directly decide published entries.

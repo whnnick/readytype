@@ -12,6 +12,7 @@
 - Added the production Ed25519 public key, deterministic Wikimedia/Wikidata candidate generation, a standalone signer, and a GitHub Pages publishing workflow. The workflow verifies the real signed artifact with the app's own verifier before deployment, while the production private key remains only in the maintainer Keychain and GitHub Secret.
 - Integrated trending terms into the app's shared in-memory dictionary: load a valid local pack at startup, check after eight idle seconds and every 24 hours thereafter without networking on the recording path, expose user-facing status and a manual refresh in Settings, and keep the previous valid pack after failures.
 - Advanced the current 1.4.0 development build to `1.4.0 (88)` so it can load the live pack whose minimum compatible version is 1.4.0.
+- Completed real-voice acceptance for 1.4.0 trending terms: recent names and ordinary-expression false-positive controls passed; documented one transient long mixed-language technical-term degradation and its successful shorter retest without adding a word-specific replacement patch.
 
 ## 1.3.0 - 2026-07-16
 

@@ -3,7 +3,7 @@
 ## Design Principles
 
 1. Silent for users: background updates, quiet failures, no input waiting.
-2. User-controlled: Settings can disable, update now, and delete packs.
+2. Low configuration burden: Settings exposes only status, source information, and manual refresh.
 3. Local-first: voice input must work without network access.
 4. Layered vocabulary: user terms always win; trending terms are low-priority supplements.
 5. Small candidate sets: select relevant Top N terms, never pass whole packs to recognition.
@@ -147,7 +147,7 @@ Trending-term adjustments:
 5. Completed: add a compact section inside Speech Recognition without a new sidebar destination or technical version dates.
 6. Completed: the updater supports same-origin HTTPS downloads, ETag, one automatic check per day, forced manual checks, and last-valid-pack retention; production signing, deterministic generation, Pages deployment, and the app's in-memory dictionary integration are complete.
 7. Completed: add atomic replacement, rollback, offline, and performance tests; the live pack has been downloaded from the public endpoint and accepted by the app's own verifier.
-8. Run real voice regression: with trending terms, without trending terms, expired terms, and chat false-positive cases.
+8. Completed: real-voice regression covered trending names, ordinary-expression false positives, and mixed Chinese/English technical terms. Trending names and false-positive controls passed; one long mixed-language sentence degraded, then passed when retested with shorter context.
 
 ## Follow-Up Release
 
@@ -164,8 +164,7 @@ Trending-term adjustments:
 
 ## Real Acceptance
 
-- Voice input still works offline.
-- Update failures do not interrupt input.
+- Automated tests confirm that offline and failed updates do not interrupt input and retain the previous valid pack.
 - User vocabulary outranks same-name or near-sound trending terms.
 - Entertainment terms help in relevant contexts but do not pollute technical documents.
-- Deleting packs removes their candidates immediately.
+- Without a valid trending pack, existing recognition remains unchanged.

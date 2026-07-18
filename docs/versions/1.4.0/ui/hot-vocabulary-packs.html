@@ -13,7 +13,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: #080b09; }
     button { font: inherit; letter-spacing: 0; }
-    .theme-check, .details-check { position: fixed; opacity: 0; pointer-events: none; }
+    .theme-check { position: fixed; opacity: 0; pointer-events: none; }
     .stage {
       --canvas: #111311;
       --sidebar: #1b1d1b;
@@ -127,20 +127,9 @@
     .status-copy strong { display: block; font-size: 13px; font-weight: 620; }
     .status-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
     .pack-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-    .switch { width: 38px; height: 22px; flex: 0 0 auto; padding: 2px; border-radius: 11px; background: var(--accent); }
-    .switch::after { content: ""; display: block; width: 18px; height: 18px; margin-left: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
     .pack-status { margin-top: 14px; }
     .inline-action { color: var(--blue); font-size: 12px; font-weight: 600; white-space: nowrap; }
     .privacy { margin: 11px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .more-label { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 12px; cursor: pointer; }
-    .more-label::before { content: "›"; font-size: 16px; line-height: 1; transform: rotate(0); transition: transform 150ms ease; }
-    .details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-    #details:checked ~ .stage .more-label::before { transform: rotate(90deg); }
-    #details:checked ~ .stage .details { display: block; }
-    .details-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
-    .buttons { display: flex; gap: 8px; margin-top: 11px; }
-    .button { height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: var(--field); font-size: 12px; }
-    .button.danger { color: var(--danger); }
     .state-switcher {
       position: fixed; right: 18px; bottom: 18px; display: flex; gap: 6px;
       padding: 5px; border-radius: 9px; background: rgba(20, 22, 20, .86);
@@ -154,7 +143,6 @@
 </head>
 <body>
   <input class="theme-check" type="checkbox" id="theme">
-  <input class="details-check" type="checkbox" id="details">
   <div class="stage">
     <main class="window" aria-label="ReadyType 语音识别设置原型">
       <aside class="sidebar">
@@ -195,26 +183,19 @@
         <section class="panel">
           <div class="pack-head">
             <div><h2>热门词包</h2><p class="panel-sub">自动补充近期常用的电影、产品和赛事名称。</p></div>
-            <div class="switch" aria-label="自动更新已开启"></div>
           </div>
           <div class="pack-status">
             <span class="dot"></span>
             <div class="status-copy"><strong>热门词包已更新</strong><span>会在空闲时自动保持最新，不影响语音输入</span></div>
-            <span class="inline-action">检查更新</span>
+            <span class="inline-action">立即更新</span>
           </div>
           <p class="privacy">ReadyType 只下载公开词语，不会上传你的语音、输入内容或常用词。</p>
-          <label class="more-label" for="details">更多</label>
-          <div class="details">
-            <div class="details-row"><span>上次更新</span><span>今天 09:18</span></div>
-            <div class="buttons"><button class="button">立即更新</button><button class="button danger">删除本地词包</button></div>
-          </div>
         </section>
       </section>
     </main>
 
     <div class="state-switcher" aria-label="原型控制">
       <label for="theme">切换浅色 / 深色</label>
-      <label for="details">展开 / 收起更多</label>
     </div>
   </div>
 </body>

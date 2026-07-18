@@ -2,7 +2,7 @@
 
 ## 1. User-Visible Interaction
 
-Goal: enabled silently by default; users only see Trending Vocabulary Packs when they open Settings to inspect or manage them.
+Goal: enabled silently by default; users see Trending Vocabulary Packs only when checking status or requesting an update.
 
 ```mermaid
 flowchart TD
@@ -11,15 +11,11 @@ flowchart TD
     C -- "No" --> D["Background checks packs while idle"]
     D --> E["User continues double-press Option voice input"]
     C -- "Yes" --> F["Speech Recognition > Trending Vocabulary Packs"]
-    F --> G["Show status: Updated / Updating / Unable to update right now / Off"]
+    F --> G["Show status: Not updated / Updating / Automatically updated / Unable to update right now"]
     G --> H{"User action"}
-    H -- "Keep default" --> I["Auto-update stays on; background handles it"]
+    H -- "Keep default" --> I["Background keeps terms current"]
     H -- "Update now" --> J["Start background update without blocking input"]
-    H -- "Turn off auto-update" --> K["Stop future automatic checks; keep local packs"]
-    H -- "Delete packs" --> L["Delete local trending packs; candidates are removed immediately"]
     J --> G
-    K --> G
-    L --> G
 ```
 
 ## 2. Background Update Interaction
@@ -33,8 +29,7 @@ stateDiagram-v2
     Skipped --> WaitingIdle: Back to idle
     WaitingIdle --> CheckNeeded: Last check was more than one day ago
     WaitingIdle --> NoCheck: Already checked today
-    CheckNeeded --> Downloading: Auto-update is on
-    CheckNeeded --> Off: Auto-update is off
+    CheckNeeded --> Downloading: Update in background
     Downloading --> Updated: Hash and signature are valid; atomic replacement succeeds
     Downloading --> KeepOld: Download fails but old packs exist
     Downloading --> Unavailable: Download fails and no local pack exists
@@ -42,7 +37,6 @@ stateDiagram-v2
     KeepOld --> [*]: Keep old packs; Settings shows unable to update right now
     Unavailable --> [*]: No candidates; Settings shows unable to update right now
     NoCheck --> [*]
-    Off --> [*]
 ```
 
 ## 3. Candidate Decision During Voice Input
@@ -77,8 +71,8 @@ flowchart LR
     A["Sidebar: Speech Recognition"] --> B["Recognition mode"]
     A --> C["High-accuracy speech package"]
     A --> D["Trending Vocabulary Packs"]
-    D --> E["Default: status, explanation, auto-update toggle"]
-    D --> F["More: last update, update now, delete packs"]
+    D --> E["Show: status, source, and privacy explanation"]
+    D --> F["Action: Update now"]
     D --> G["Copy: your input content is not uploaded"]
 ```
 
@@ -87,5 +81,5 @@ flowchart LR
 - The normal voice input path adds no new popovers.
 - Trending pack updates must not block input after double-pressing `Option`.
 - Settings only shows user-readable states, not API, manifest, or hash details.
-- Deleting packs only affects trending candidates, not user common words.
-- Turning off auto-update keeps already downloaded packs; deleting them removes them from candidates.
+- Do not expose pack versions, category switches, file locations, or deletion controls.
+- Failed updates keep the previous valid pack; without one, existing recognition remains unchanged.
