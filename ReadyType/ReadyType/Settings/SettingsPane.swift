@@ -2,14 +2,14 @@ import SwiftUI
 
 enum SettingsPaneSection: Equatable {
     case vocabulary
-    case languageOutput
+    case general
     case shortcuts
     case speechRecognition
 
     var title: String {
         switch self {
         case .vocabulary: "常用词"
-        case .languageOutput: "语言与输出"
+        case .general: "通用"
         case .shortcuts: "快捷键"
         case .speechRecognition: "语音识别"
         }
@@ -18,7 +18,7 @@ enum SettingsPaneSection: Equatable {
     var subtitle: String {
         switch self {
         case .vocabulary: "添加容易识别错的人名、品牌和专业词，让下次输入更准确。"
-        case .languageOutput: "选择输出方式，并管理 DeepSeek 连接。"
+        case .general: "管理外观、默认输出和 AI 功能。"
         case .shortcuts: "设置开始、完成和取消语音输入的操作。"
         case .speechRecognition: "管理识别方式和高精度语音包。"
         }
@@ -31,6 +31,7 @@ struct SettingsPane: View {
     @State private var errorMessage: String?
     @State private var isShowingAdvancedConnection = false
     @State private var vocabularyEntryPendingSplit: UserVocabularyEntry?
+    @AppStorage("readyTypeAppearance") private var appearanceRawValue = ReadyTypeAppearance.system.rawValue
     private let section: SettingsPaneSection
 
     init(viewModel: SettingsViewModel, section: SettingsPaneSection = .speechRecognition) {
@@ -294,7 +295,18 @@ struct SettingsPane: View {
 
                 }
 
-                if section == .languageOutput {
+                if section == .general {
+                ReadyTypePanel("外观", subtitle: "选择 ReadyType 在这台 Mac 上的显示方式。") {
+                    Picker("外观", selection: $appearanceRawValue) {
+                        ForEach(ReadyTypeAppearance.allCases) { appearance in
+                            Text(appearance.displayName).tag(appearance.rawValue)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(maxWidth: 360)
+                }
+
                 ReadyTypePanel("默认输出", subtitle: "每次语音输入默认得到什么结果；也可以从菜单栏临时切换。") {
                     Picker("默认输出", selection: $viewModel.defaultMode) {
                         ForEach(OutputMode.allCases) { mode in

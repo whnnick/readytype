@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
     private lazy var highAccuracySpeechEngine = CoreMLHighAccuracySpeechEngine(modelManager: localSpeechModelManager)
     private lazy var hotVocabularyCoordinator: HotVocabularyCoordinator? = {
-        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.4.0"
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.5.0"
         guard let verifier = try? HotVocabularyProductionConfiguration.makeVerifier(
             currentAppVersion: appVersion
         ) else {

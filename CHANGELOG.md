@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Advanced the 1.5.0 development build to `1.5.0 (89)`.
+- Reduced primary navigation to Home, Usage Overview, Common Words, and Settings.
+- Added a unified Settings workspace for appearance, default output, AI features, speech recognition, shortcuts, permissions and privacy, and About; high-accuracy speech-package prompts now open the corresponding Settings category.
+- Updated the UI smoke gate and added navigation unit coverage so every moved feature remains reachable.
+
 ## 1.4.0 - 2026-07-18
 
 - Froze the ReadyType 1.4.0 Trending Vocabulary Packs source and publishing boundary around Wikimedia Pageviews and Wikidata, daily offline generation, and signed pack delivery, excluding TMDB and other sources without an obtained commercial license.

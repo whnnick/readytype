@@ -48,6 +48,16 @@ dump_page() {
     osascript -e 'tell application "System Events" to tell process "ReadyType" to get entire contents of scroll area 1 of group 1 of window "ReadyType"' > "$output"
 }
 
+dump_settings_page() {
+    local index="$1"
+    local output="$2"
+    osascript -e 'tell application "System Events" to tell process "ReadyType" to click button 4 of group 1 of window "ReadyType"' >/dev/null
+    sleep 0.2
+    osascript -e "tell application \"System Events\" to tell process \"ReadyType\" to click button $index of scroll area 1 of group 1 of window \"ReadyType\"" >/dev/null
+    sleep 0.25
+    osascript -e 'tell application "System Events" to tell process "ReadyType" to get entire contents of scroll area 2 of group 1 of window "ReadyType"' > "$output"
+}
+
 require_text() {
     local file="$1"
     local expected="$2"
@@ -96,29 +106,30 @@ require_text "$VOCABULARY_DUMP" "常用词有什么用？"
 require_text "$VOCABULARY_DUMP" "添加一个"
 require_text "$VOCABULARY_DUMP" "一次添加多个"
 
-dump_page 4 "$LANGUAGE_DUMP"
-require_text "$LANGUAGE_DUMP" "语言与输出"
+dump_settings_page 1 "$LANGUAGE_DUMP"
+require_text "$LANGUAGE_DUMP" "通用"
+require_text "$LANGUAGE_DUMP" "外观"
 require_text "$LANGUAGE_DUMP" "中文文字"
 require_text "$LANGUAGE_DUMP" "DeepSeek 密钥"
 require_text "$LANGUAGE_DUMP" "输入到当前 App"
 
-dump_page 5 "$SHORTCUTS_DUMP"
+dump_settings_page 3 "$SHORTCUTS_DUMP"
 require_text "$SHORTCUTS_DUMP" "开始说话快捷键"
 require_text "$SHORTCUTS_DUMP" "Esc 取消保持不变"
 require_text "$SHORTCUTS_DUMP" "输出体验"
 
-dump_page 6 "$SPEECH_DUMP"
+dump_settings_page 2 "$SPEECH_DUMP"
 require_text "$SPEECH_DUMP" "语音识别"
 require_text "$SPEECH_DUMP" "当前识别方式"
 require_text "$SPEECH_DUMP" "安装高精度语音包后"
 require_text "$SPEECH_DUMP" "高精度语音包约 626 MiB"
 
-dump_page 7 "$PERMISSIONS_DUMP"
+dump_settings_page 4 "$PERMISSIONS_DUMP"
 require_text "$PERMISSIONS_DUMP" "授权状态"
 require_text "$PERMISSIONS_DUMP" "隐私说明"
 require_text "$PERMISSIONS_DUMP" "不会发送语音、文字内容"
 
-dump_page 8 "$ABOUT_DUMP"
+dump_settings_page 5 "$ABOUT_DUMP"
 require_text "$ABOUT_DUMP" "关于 ReadyType"
 require_text "$ABOUT_DUMP" "版本 $APP_VERSION"
 require_text "$ABOUT_DUMP" "构建 $APP_BUILD"

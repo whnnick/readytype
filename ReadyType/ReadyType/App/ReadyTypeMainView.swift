@@ -3,6 +3,7 @@ import SwiftUI
 struct ReadyTypeMainView: View {
     @EnvironmentObject private var appState: AppState
     @State private var selection: ReadyTypeSection = .home
+    @State private var settingsSelection: ReadyTypeSettingsSection = .general
     @StateObject private var onboardingViewModel = OnboardingViewModel()
     @StateObject private var settingsViewModel: SettingsViewModel
     @State private var shouldShowPostFirstUsePrompt = false
@@ -72,45 +73,17 @@ struct ReadyTypeMainView: View {
             .padding(.bottom, 18)
 
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(ReadyTypeSection.allCases) { section in
-                    Button {
-                        withAnimation(MotionTokens.popoverSelectionAnimation()) {
-                            selection = section
-                        }
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: section.systemImage)
-                                .font(.system(size: 15, weight: .medium))
-                                .frame(width: 20, alignment: .center)
-
-                            Text(section.title)
-                                .font(.callout.weight(selection == section ? .semibold : .regular))
-                        }
-                            .foregroundStyle(selection == section ? ReadyTypeTheme.accentStrong : ReadyTypeTheme.ink)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                selection == section ? ReadyTypeTheme.accentSoft : Color.clear,
-                                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            )
-                    }
-                    .buttonStyle(.plain)
+                ForEach(ReadyTypeSection.primarySections) { section in
+                    sidebarButton(for: section)
                 }
             }
             .padding(.horizontal, 14)
 
             Spacer()
 
-            Picker("外观", selection: appearanceSelection) {
-                ForEach(ReadyTypeAppearance.allCases) { appearance in
-                    Text(appearance.displayName).tag(appearance.rawValue)
-                }
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .controlSize(.small)
-            .padding(14)
+            sidebarButton(for: .settings)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
         }
         .frame(width: 210)
         .background(ReadyTypeTheme.sidebar)
@@ -131,7 +104,7 @@ struct ReadyTypeMainView: View {
                 },
                 onEnableLocalSpeechModel: {
                     onboardingViewModel.enableLocalSpeechModel()
-                    selection = .speechRecognition
+                    openSettings(.speechRecognition)
                     syncAppStateRecognitionSettings()
                 },
                 onDismiss: {
@@ -143,7 +116,7 @@ struct ReadyTypeMainView: View {
                 onEnableLocalSpeechModel: {
                     onboardingViewModel.enableLocalSpeechModel()
                     onboardingViewModel.markPostFirstUseModelPromptShown()
-                    selection = .speechRecognition
+                    openSettings(.speechRecognition)
                     shouldShowPostFirstUsePrompt = false
                     syncAppStateRecognitionSettings()
                 },
@@ -164,17 +137,40 @@ struct ReadyTypeMainView: View {
             ConsoleView()
         case .vocabulary:
             SettingsPane(viewModel: settingsViewModel, section: .vocabulary)
-        case .languageOutput:
-            SettingsPane(viewModel: settingsViewModel, section: .languageOutput)
-        case .shortcuts:
-            SettingsPane(viewModel: settingsViewModel, section: .shortcuts)
-        case .speechRecognition:
-            SettingsPane(viewModel: settingsViewModel, section: .speechRecognition)
-        case .permissions:
-            PermissionsPane(viewModel: settingsViewModel)
-        case .about:
-            AboutPane()
+        case .settings:
+            SettingsWorkspaceView(selection: $settingsSelection, viewModel: settingsViewModel)
         }
+    }
+
+    private func sidebarButton(for section: ReadyTypeSection) -> some View {
+        Button {
+            withAnimation(MotionTokens.popoverSelectionAnimation()) {
+                selection = section
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: section.systemImage)
+                    .font(.system(size: 15, weight: .medium))
+                    .frame(width: 20, alignment: .center)
+
+                Text(section.title)
+                    .font(.callout.weight(selection == section ? .semibold : .regular))
+            }
+            .foregroundStyle(selection == section ? ReadyTypeTheme.accentStrong : ReadyTypeTheme.ink)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                selection == section ? ReadyTypeTheme.accentSoft : Color.clear,
+                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func openSettings(_ destination: ReadyTypeSettingsSection) {
+        settingsSelection = destination
+        selection = .settings
     }
 
     private func syncAppStateRecognitionSettings() {
@@ -200,17 +196,6 @@ struct ReadyTypeMainView: View {
         appearance.colorScheme ?? systemColorScheme
     }
 
-    private var appearanceSelection: Binding<String> {
-        Binding(
-            get: { appearanceRawValue },
-            set: { newValue in
-                withAnimation(.easeInOut(duration: 0.22)) {
-                    appearanceRawValue = newValue
-                }
-            }
-        )
-    }
-
     private func applyAppearance() {
         switch appearance {
         case .system:
@@ -224,15 +209,13 @@ struct ReadyTypeMainView: View {
     }
 }
 
-private enum ReadyTypeSection: String, CaseIterable, Identifiable {
+enum ReadyTypeSection: String, CaseIterable, Identifiable {
     case home
     case dashboard
     case vocabulary
-    case languageOutput
-    case shortcuts
-    case speechRecognition
-    case permissions
-    case about
+    case settings
+
+    static let primarySections: [ReadyTypeSection] = [.home, .dashboard, .vocabulary]
 
     var id: String { rawValue }
 
@@ -241,13 +224,7 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
         case .dashboard: return "使用概览"
         case .home: return "首页"
         case .vocabulary: return "常用词"
-        case .languageOutput: return "语言与输出"
-        case .shortcuts: return "快捷键"
-        case .speechRecognition: return "语音识别"
-        case .permissions:
-            return "权限与隐私"
-        case .about:
-            return "关于"
+        case .settings: return "设置"
         }
     }
 
@@ -256,13 +233,90 @@ private enum ReadyTypeSection: String, CaseIterable, Identifiable {
         case .dashboard: return "chart.line.uptrend.xyaxis"
         case .home: return "house"
         case .vocabulary: return "text.book.closed"
-        case .languageOutput: return "character.bubble"
-        case .shortcuts: return "keyboard"
-        case .speechRecognition: return "waveform"
-        case .permissions:
-            return "checkmark.shield"
-        case .about:
-            return "info.circle"
+        case .settings: return "gearshape"
+        }
+    }
+}
+
+enum ReadyTypeSettingsSection: String, CaseIterable, Identifiable {
+    case general
+    case speechRecognition
+    case shortcuts
+    case permissions
+    case about
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .general: "通用"
+        case .speechRecognition: "语音识别"
+        case .shortcuts: "快捷键"
+        case .permissions: "权限与隐私"
+        case .about: "关于"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .general: "slider.horizontal.3"
+        case .speechRecognition: "waveform"
+        case .shortcuts: "keyboard"
+        case .permissions: "checkmark.shield"
+        case .about: "info.circle"
+        }
+    }
+}
+
+private struct SettingsWorkspaceView: View {
+    @Binding var selection: ReadyTypeSettingsSection
+    @ObservedObject var viewModel: SettingsViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(ReadyTypeSettingsSection.allCases) { section in
+                        Button {
+                            withAnimation(MotionTokens.popoverSelectionAnimation()) {
+                                selection = section
+                            }
+                        } label: {
+                            Label(section.title, systemImage: section.systemImage)
+                                .font(.callout.weight(selection == section ? .semibold : .regular))
+                                .foregroundStyle(selection == section ? ReadyTypeTheme.accentStrong : ReadyTypeTheme.ink)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    selection == section ? ReadyTypeTheme.accentSoft : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 26)
+                .padding(.vertical, 12)
+            }
+            .background(ReadyTypeTheme.pageBackground)
+
+            Divider()
+
+            Group {
+                switch selection {
+                case .general:
+                    SettingsPane(viewModel: viewModel, section: .general)
+                case .speechRecognition:
+                    SettingsPane(viewModel: viewModel, section: .speechRecognition)
+                case .shortcuts:
+                    SettingsPane(viewModel: viewModel, section: .shortcuts)
+                case .permissions:
+                    PermissionsPane(viewModel: viewModel)
+                case .about:
+                    AboutPane()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
