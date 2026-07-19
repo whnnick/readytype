@@ -5,3 +5,4 @@
 3. Move appearance selection into General settings and preserve the current theme transition.
 4. Update high-accuracy speech-package routing and UI automation.
 5. Run navigation tests, the full test suite, app build, and real-app UI smoke verification.
+6. Create fast-recognition system dictation requests through one factory, enable automatic punctuation, and add request-configuration regression coverage.

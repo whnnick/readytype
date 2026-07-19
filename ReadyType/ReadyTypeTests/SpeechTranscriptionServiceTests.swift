@@ -1,4 +1,5 @@
 import XCTest
+import Speech
 @testable import ReadyType
 
 @MainActor
@@ -278,6 +279,19 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
         let backend = SFSpeechRecognitionBackend()
 
         XCTAssertEqual(backend.localeIdentifiers, ["zh-CN"])
+    }
+
+    func testSystemSpeechRequestEnablesAutomaticPunctuation() {
+        let url = URL(fileURLWithPath: "/tmp/test.m4a")
+        let request = SystemSpeechRecognitionRequestFactory.make(
+            fileURL: url,
+            contextualTerms: ["ReadyType", "GitHub"]
+        )
+
+        XCTAssertTrue(request.addsPunctuation)
+        XCTAssertTrue(request.shouldReportPartialResults)
+        XCTAssertEqual(request.taskHint, .dictation)
+        XCTAssertEqual(request.contextualStrings, ["ReadyType", "GitHub"])
     }
 
     func testFastSystemBackendWrapsSystemSpeechBackend() async throws {

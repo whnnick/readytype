@@ -404,6 +404,17 @@ enum SpeechTranscriptValidator {
     }
 }
 
+enum SystemSpeechRecognitionRequestFactory {
+    static func make(fileURL: URL, contextualTerms: [String]) -> SFSpeechURLRecognitionRequest {
+        let request = SFSpeechURLRecognitionRequest(url: fileURL)
+        request.shouldReportPartialResults = true
+        request.taskHint = .dictation
+        request.contextualStrings = contextualTerms
+        request.addsPunctuation = true
+        return request
+    }
+}
+
 final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
     private let recognizers: [(localeIdentifier: String, recognizer: SFSpeechRecognizer?)]
     private let recognitionTimeout: TimeInterval
@@ -480,10 +491,10 @@ final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
         localeIdentifier: String,
         contextualTerms: [String]
     ) async throws -> RecognizedSpeech {
-        let request = SFSpeechURLRecognitionRequest(url: fileURL)
-        request.shouldReportPartialResults = true
-        request.taskHint = .dictation
-        request.contextualStrings = contextualTerms
+        let request = SystemSpeechRecognitionRequestFactory.make(
+            fileURL: fileURL,
+            contextualTerms: contextualTerms
+        )
 
         return try await withCheckedThrowingContinuation { continuation in
             let gate = RecognitionResumeGate()

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Enabled system automatic punctuation for fast macOS recognition so Chinese dictation can recover sentence-internal and sentence-ending punctuation; the existing output normalizer continues to use full-width punctuation for Chinese and ASCII punctuation for English.
+- Advanced the 1.5.0 development build to `1.5.0 (90)`.
 - Advanced the 1.5.0 development build to `1.5.0 (89)`.
 - Reduced primary navigation to Home, Usage Overview, Common Words, and Settings.
 - Added a unified Settings workspace for appearance, default output, AI features, speech recognition, shortcuts, permissions and privacy, and About; high-accuracy speech-package prompts now open the corresponding Settings category.
