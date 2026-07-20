@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-导航收敛、系统自动标点配置和“整理成文”并列事项断句已通过自动化与真实界面验收。
+导航收敛、系统自动标点配置和“整理成文”并列事项断句已通过自动化与真实界面验收，`v1.5.0` 已公开发布。
 
 | 需求 | 状态 | 验证证据 |
 | --- | --- | --- |
@@ -19,6 +19,12 @@
 - 版本：`1.5.0 (91)`
 - UI 门禁：主导航三页及设置五个分类均可打开，核心文案可见。
 
-## 发布前阻塞项
+## 发布验证
 
-- 创建并验证公开 `v1.5.0` Release，确认包含 `ReadyType.app.zip`、`ReadyType.dmg` 和 `SHA256SUMS.txt`。
+- GitHub Release 工作流 [29711818341](https://github.com/whnnick/readytype/actions/runs/29711818341) 已通过测试、正式统计配置、构建、敏感信息扫描、打包和发布。
+- 公开 [v1.5.0](https://github.com/whnnick/readytype/releases/tag/v1.5.0) 已成为 latest，且不是草稿或预发布；包含 `ReadyType.app.zip`、`ReadyType.dmg` 和 `SHA256SUMS.txt`。
+- 重新下载的 ZIP 与 DMG 均通过 `SHA256SUMS.txt`；ZIP 内应用为 `1.5.0 (91)`，DMG 通过 `hdiutil verify`。
+
+## 发布阻塞项
+
+- 无。

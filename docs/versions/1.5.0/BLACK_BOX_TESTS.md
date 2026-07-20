@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Navigation simplification, system automatic-punctuation configuration, and parallel-item punctuation in Polished Writing passed automated and real-interface acceptance.
+Navigation simplification, system automatic-punctuation configuration, and parallel-item punctuation in Polished Writing passed automated and real-interface acceptance. `v1.5.0` is publicly released.
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
@@ -19,6 +19,12 @@ Navigation simplification, system automatic-punctuation configuration, and paral
 - Version: `1.5.0 (91)`
 - UI gate: all three primary destinations and all five Settings categories open with their core copy visible.
 
-## Release Blocker
+## Release Verification
 
-- Publish and verify the public `v1.5.0` Release, including `ReadyType.app.zip`, `ReadyType.dmg`, and `SHA256SUMS.txt`.
+- GitHub Release workflow [29711818341](https://github.com/whnnick/readytype/actions/runs/29711818341) passed tests, official analytics configuration, build, sensitive-information scanning, packaging, and publishing.
+- Public [v1.5.0](https://github.com/whnnick/readytype/releases/tag/v1.5.0) is latest, neither draft nor prerelease, and contains `ReadyType.app.zip`, `ReadyType.dmg`, and `SHA256SUMS.txt`.
+- Freshly downloaded ZIP and DMG passed `SHA256SUMS.txt`; the ZIP contains `1.5.0 (91)` and the DMG passed `hdiutil verify`.
+
+## Release Blockers
+
+- None.

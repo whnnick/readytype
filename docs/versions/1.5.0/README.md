@@ -1,6 +1,6 @@
 # ReadyType 1.5.0
 
-ReadyType 1.5.0 is the current release candidate. It simplifies the main-window information architecture, consolidates low-frequency configuration under Settings, and improves automatic punctuation for natural Chinese dictation.
+ReadyType 1.5.0 is the current public release. It simplifies the main-window information architecture, consolidates low-frequency configuration under Settings, and improves automatic punctuation for natural Chinese dictation.
 
 ## Documents
 
