@@ -14,6 +14,7 @@ The existing sidebar mixes frequent product destinations with low-frequency conf
 6. System, Light, and Dark appearances remain available.
 7. This milestone changes navigation and page ownership only; it removes no feature and changes no user data.
 8. Fast recognition enables macOS system automatic punctuation; Chinese and mixed Chinese-English output remains full-width while fully English output remains ASCII.
+9. Polished Writing restores enumeration commas, commas, or line breaks for semantically clear parallel items without splitting possible compound terms.
 
 ## Acceptance Criteria
 

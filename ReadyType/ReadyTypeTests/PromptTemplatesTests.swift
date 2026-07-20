@@ -130,6 +130,15 @@ final class PromptTemplatesTests: XCTestCase {
         XCTAssertTrue(prompt.contains("就这样"))
     }
 
+    func testCleanupPromptRestoresPunctuationForClearParallelItemsWithoutSplittingCompoundTerms() {
+        let prompt = PromptTemplates.systemPrompt(for: .aiCleanup, scenario: .generic)
+
+        XCTAssertTrue(prompt.contains("parallel items"))
+        XCTAssertTrue(prompt.contains("list punctuation or line breaks"))
+        XCTAssertTrue(prompt.contains("Do not split a compound term"))
+        XCTAssertTrue(prompt.contains("grammar and context"))
+    }
+
     func testTranslationPromptTreatsTranslationRequestAsInstruction() {
         let prompt = PromptTemplates.systemPrompt(for: .translationToEnglish, scenario: .generic)
 

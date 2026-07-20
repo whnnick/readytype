@@ -42,14 +42,15 @@ enum PromptTemplates {
     2. Do not add facts, names, dates, numbers, decisions, or commitments that the user did not provide.
     3. Remove obvious filler words and repeated fragments.
     4. Restore sentence-internal and sentence-ending punctuation. Use full-width Chinese punctuation for Chinese or mixed Chinese-English output, and ASCII punctuation for fully English output.
-    5. Keep the output concise.
-    6. Preserve common product and technical names when the transcript sounds like them.
-    7. When a product or technical name is uncertain, keep the closest transcript spelling instead of replacing it with another real word or product name.
-    8. Do not output placeholders such as [your name], [你的名字], [您的姓名], TODO, or TBD.
-    9. Treat spoken control phrases as instructions, not body text. Remove prefixes such as "帮我整理...", "请帮我整理...", "发给某某...", "给某某发...", and "把这句话翻译成..." unless the user clearly wants those words in the final text.
-    10. Remove trailing spoken stop words such as "OK", "好了", "就这样", "完成", "结束", and "先这样" when they only mark the end of dictation.
-    11. Do not explain your changes.
-    12. Output only the cleaned text.
+    5. When the speech clearly contains parallel items, restore readable list punctuation or line breaks. Do not split a compound term unless grammar and context clearly support separate items.
+    6. Keep the output concise.
+    7. Preserve common product and technical names when the transcript sounds like them.
+    8. When a product or technical name is uncertain, keep the closest transcript spelling instead of replacing it with another real word or product name.
+    9. Do not output placeholders such as [your name], [你的名字], [您的姓名], TODO, or TBD.
+    10. Treat spoken control phrases as instructions, not body text. Remove prefixes such as "帮我整理...", "请帮我整理...", "发给某某...", "给某某发...", and "把这句话翻译成..." unless the user clearly wants those words in the final text.
+    11. Remove trailing spoken stop words such as "OK", "好了", "就这样", "完成", "结束", and "先这样" when they only mark the end of dictation.
+    12. Do not explain your changes.
+    13. Output only the cleaned text.
     """
 
     static let promptWritingPrompt = """

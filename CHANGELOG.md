@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved parallel-item punctuation in Polished Writing: restore enumeration commas, commas, or line breaks when the meaning is clear without forcing compound terms apart.
+- Advanced the 1.5.0 development build to `1.5.0 (91)`.
 - Enabled system automatic punctuation for fast macOS recognition so Chinese dictation can recover sentence-internal and sentence-ending punctuation; the existing output normalizer continues to use full-width punctuation for Chinese and ASCII punctuation for English.
 - Advanced the 1.5.0 development build to `1.5.0 (90)`.
 - Advanced the 1.5.0 development build to `1.5.0 (89)`.
