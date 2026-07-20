@@ -18,3 +18,7 @@ Navigation simplification, system automatic-punctuation configuration, and paral
 - App: `dist/ReadyType.app`
 - Version: `1.5.0 (91)`
 - UI gate: all three primary destinations and all five Settings categories open with their core copy visible.
+
+## Release Blocker
+
+- Publish and verify the public `v1.5.0` Release, including `ReadyType.app.zip`, `ReadyType.dmg`, and `SHA256SUMS.txt`.

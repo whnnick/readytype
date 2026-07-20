@@ -15,7 +15,7 @@
 <p align="center">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%2014%2B-blue">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.4.0-green">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.5.0-green">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
@@ -47,7 +47,7 @@ Please report install, permission, shortcut, paste, recognition-quality, and out
 
 If ReadyType does not open, record, paste, or connect to DeepSeek as expected, see [Troubleshooting](./docs/TROUBLESHOOTING.md).
 
-First-time testers can follow the [Testing Guide](./docs/TESTING.md). Release details are in [ReadyType 1.4.0](./docs/versions/1.4.0/README.md), and upcoming work is tracked in the [Roadmap](./docs/ROADMAP.md).
+First-time testers can follow the [Testing Guide](./docs/TESTING.md). Release details are in [ReadyType 1.5.0](./docs/versions/1.5.0/README.md), and upcoming work is tracked in the [Roadmap](./docs/ROADMAP.md).
 
 ## Requirements
 

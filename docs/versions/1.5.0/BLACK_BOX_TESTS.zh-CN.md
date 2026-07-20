@@ -18,3 +18,7 @@
 - App：`dist/ReadyType.app`
 - 版本：`1.5.0 (91)`
 - UI 门禁：主导航三页及设置五个分类均可打开，核心文案可见。
+
+## 发布前阻塞项
+
+- 创建并验证公开 `v1.5.0` Release，确认包含 `ReadyType.app.zip`、`ReadyType.dmg` 和 `SHA256SUMS.txt`。
