@@ -3,6 +3,7 @@ tmp/
 .DS_Store
 .build/
 dist/
+videos/
 /ReadyType.app.zip
 /ReadyType.dmg
 /SHA256SUMS.txt
