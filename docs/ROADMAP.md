@@ -1,6 +1,6 @@
 # Roadmap
 
-ReadyType 1.3.0 establishes privacy-first anonymous product analytics. The next goal is to use real usage evidence to improve recognition quality, response time, and context awareness.
+ReadyType 1.5.0 completes navigation consolidation and natural Chinese automatic punctuation. The next goal is to use real usage evidence to improve context understanding, reduce manual mode choices, and enable spoken actions on selected text.
 
 ## Current Version
 
@@ -20,6 +20,10 @@ Version 1.3.0 is tracked in [ReadyType 1.3.0](./versions/1.3.0/README.md): estab
 
 Version 1.4.0 is tracked in [ReadyType 1.4.0](./versions/1.4.0/README.md): generate and sign Trending Vocabulary Packs from Wikimedia Pageviews and Wikidata so recent movies, technology products, and sports terms can participate as low-priority recognition candidates. AI only assists offline curation before publishing.
 
+Version 1.5.0 is tracked in [ReadyType 1.5.0](./versions/1.5.0/README.md): consolidate primary navigation and Settings, and enable system automatic punctuation for fast recognition.
+
+Version 1.6.0 is tracked in [ReadyType 1.6.0](./versions/1.6.0/README.md): unify the Context Engine around the current app, selected text, explicit commands, and semantics; support spoken shorten, naturalize, translate, and reply actions with safe clipboard fallback after target changes.
+
 ### UI and Interaction Refresh
 
 Automatically understand the current app and intent by default, reducing the number of output-mode, writing-scenario, and recognition choices shown together. The voice HUD provides stable, low-distraction, and explainable state feedback.
@@ -32,7 +36,7 @@ Let users maintain their own words, such as names, projects, products, technical
 
 After user confirmation, repeatedly corrected terms can be added to common words. This must stay explicit and controllable, without silently collecting private content or polluting the word list with bad corrections.
 
-Personal correction memory and cross-session learning remain a 1.5.0 candidate and are outside the 1.4.0 Trending Vocabulary Packs release scope.
+Personal correction memory and cross-session learning remain a 1.7.0 candidate. Version 1.6.0 establishes testable context and selection safety without monitoring later user edits.
 
 ### Context-Aware Tone
 

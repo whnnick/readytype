@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added bilingual ReadyType 1.6.0 requirements, interaction and technical architecture, implementation plan, and black-box release contract for a unified Context Engine, spoken selected-text actions, safe replacement, and privacy boundaries; confirm-first correction learning moves to 1.7.0.
+
 ## 1.5.0 - 2026-07-20
 
 - Improved parallel-item punctuation in Polished Writing: restore enumeration commas, commas, or line breaks when the meaning is clear without forcing compound terms apart.
