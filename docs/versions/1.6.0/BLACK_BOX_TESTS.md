@@ -2,17 +2,17 @@
 
 ## Current Status
 
-Planning is complete and implementation has not started. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
+Planning is complete and Phase 1 Context Engine implementation is finished. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
 
 | Requirement | Status | Release Evidence |
 | --- | --- | --- |
-| Single Context Engine | Not started | Priority, compatibility, and performance evidence pending. |
+| Single Context Engine | Complete | 18 focused and 409 full-suite tests pass; classification P95 is 0.062ms; production build passes. |
 | Personal/work chat tone | Not started | Positive, negative, and real-app output pending. |
 | Email, notes, documents, and AI-tool structure | Not started | No-invention and formatting evidence pending. |
 | Spoken selected-text actions | Not started | Shorten, naturalize, translate, and reply pending. |
 | Safe fallback after target changes | Not started | Selection, focus, and app-switch evidence pending. |
 | Privacy and anonymous analytics | Not started | Allowlist and network inspection pending. |
-| Automated and release gates | Not started | Tests, build, UI, sensitive scan, and artifacts pending. |
+| Automated and release gates | Partial | Tests and build pass for the current scope; final UI, sensitive scan, and release artifacts remain pending. |
 
 ## Fixed Real-app Matrix
 
@@ -36,4 +36,4 @@ Planning is complete and implementation has not started. This file is the releas
 
 ## Release Blockers
 
-All P0 items remain unimplemented, so 1.6.0 is not releasable.
+Selection capture, safe replacement, selected-text actions, and real-app acceptance remain incomplete, so 1.6.0 is not releasable.

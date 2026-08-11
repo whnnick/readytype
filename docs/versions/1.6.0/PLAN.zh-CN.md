@@ -12,6 +12,8 @@
 
 验证结果：形成一份不含用户内容的基线快照，并确定本版本主要指标。
 
+当前证据：匿名字段口径与固定 App 验收矩阵已冻结；当前生产样本不足，不输出无统计依据的采用率结论，待形成首批真实样本后补齐快照。
+
 ## 第 1 阶段：统一 Context Engine
 
 1. 新增 `AppProfile`、`InputIntent`、`OutputTone`、`ContextReason` 和 `ContextDecision`。
@@ -21,6 +23,8 @@
 5. 删除仅由本次迁移产生的重复判断，不顺手重构 Prompt 或识别器。
 
 验证：决策优先级、Profile 映射、语义降级和旧行为兼容测试；分类 P95 < 10ms。
+
+状态：已完成。`ContextEngineTests` 与旧 `OutputScenarioTests` 共 18 项聚焦测试通过；全量 409 项测试无失败，分类基准 P95 为 0.062ms，生产 `.app` 构建通过。
 
 ## 第 2 阶段：选区捕获与安全替换
 

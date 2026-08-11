@@ -12,6 +12,8 @@ Success is not measured by adding controls. It is measured by fewer manual scena
 
 Evidence: a content-free baseline snapshot and agreed primary metrics.
 
+Current evidence: the anonymous field contract and fixed app acceptance matrix are frozen. Production volume is still insufficient for defensible adoption conclusions, so the snapshot remains pending real cohort data.
+
 ## Phase 1: Unified Context Engine
 
 1. Add `AppProfile`, `InputIntent`, `OutputTone`, `ContextReason`, and `ContextDecision`.
@@ -21,6 +23,8 @@ Evidence: a content-free baseline snapshot and agreed primary metrics.
 5. Remove only duplicate inference created by this migration.
 
 Verification: priority, mapping, semantic fallback, compatibility, and P95 < 10ms tests.
+
+Status: complete. The new `ContextEngineTests` and legacy `OutputScenarioTests` pass 18 focused cases; the full 409-test suite has no failures, classification P95 is 0.062ms, and the production `.app` build succeeds.
 
 ## Phase 2: Selection Capture and Safe Replacement
 

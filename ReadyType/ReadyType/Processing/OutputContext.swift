@@ -10,14 +10,16 @@ struct OutputContext: Equatable {
     }
 
     static func infer(bundleIdentifier: String?, windowTitle: String?, transcript: String? = nil) -> OutputContext {
-        let scenario = OutputScenario.infer(
-            bundleIdentifier: bundleIdentifier,
-            windowTitle: windowTitle,
-            transcript: transcript
+        let decision = ContextEngine().resolve(
+            ContextRequest(
+                bundleIdentifier: bundleIdentifier,
+                windowTitle: windowTitle,
+                transcript: transcript
+            )
         )
         return OutputContext(
-            scenario: scenario,
-            chatTone: ChatTone.infer(bundleIdentifier: bundleIdentifier, windowTitle: windowTitle)
+            scenario: decision.scenario,
+            chatTone: decision.chatTone
         )
     }
 }
@@ -28,27 +30,6 @@ enum ChatTone: Equatable {
     case work
 
     static func infer(bundleIdentifier: String?, windowTitle: String?) -> ChatTone {
-        let bundle = (bundleIdentifier ?? "").lowercased()
-        let title = (windowTitle ?? "").lowercased()
-
-        if bundle.contains("wechat") ||
-            bundle.contains("xinwechat") ||
-            bundle.contains("qq") ||
-            bundle.contains("telegram") ||
-            bundle.contains("whatsapp") ||
-            bundle.contains("messages") ||
-            title.contains("微信") {
-            return .personal
-        }
-
-        if bundle.contains("feishu") ||
-            bundle.contains("larksuite") ||
-            bundle.contains("slack") ||
-            bundle.contains("teams") ||
-            bundle.contains("discord") {
-            return .work
-        }
-
-        return .default
+        AppProfileCatalog().chatTone(bundleIdentifier: bundleIdentifier, windowTitle: windowTitle)
     }
 }

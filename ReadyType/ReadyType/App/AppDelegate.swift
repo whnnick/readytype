@@ -257,18 +257,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             textDelivery: textDelivery,
             outputContextProvider: { [appState] transcript in
                 let context = ForegroundContextService().currentContext()
-                let scenario = appState.scenarioSelection.manualScenario
-                    ?? OutputScenario.infer(
+                let decision = ContextEngine().resolve(
+                    ContextRequest(
                         bundleIdentifier: context.bundleIdentifier,
                         windowTitle: context.windowTitle,
-                        transcript: transcript
+                        transcript: transcript,
+                        manualScenario: appState.scenarioSelection.manualScenario
                     )
+                )
                 return OutputContext(
-                    scenario: scenario,
-                    chatTone: ChatTone.infer(
-                        bundleIdentifier: context.bundleIdentifier,
-                        windowTitle: context.windowTitle
-                    )
+                    scenario: decision.scenario,
+                    chatTone: decision.chatTone
                 )
             },
             vocabularySuggestionProvider: { [weak self] transcript, output, outputContext in
@@ -313,11 +312,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func speechRecognitionRouteContext(for recording: AudioRecording) -> SpeechRecognitionRouteContext {
         let settings = settingsStore.load()
         let foregroundContext = ForegroundContextService().currentContext()
-        let scenario = appState.scenarioSelection.manualScenario
-            ?? OutputScenario.infer(
+        let scenario = ContextEngine().resolve(
+            ContextRequest(
                 bundleIdentifier: foregroundContext.bundleIdentifier,
-                windowTitle: foregroundContext.windowTitle
+                windowTitle: foregroundContext.windowTitle,
+                manualScenario: appState.scenarioSelection.manualScenario
             )
+        ).scenario
         let localModelState = currentLocalSpeechModelState(isHighAccuracyEnabled: settings.isHighAccuracyRecognitionEnabled)
         let contextualVocabularyProvider = ContextualVocabularyProvider(dictionary: currentSmartTermDictionary())
         let contextualTerms = contextualVocabularyProvider.termsImmediately(
