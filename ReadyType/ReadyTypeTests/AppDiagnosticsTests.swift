@@ -16,6 +16,34 @@ final class AppDiagnosticsTests: XCTestCase {
         ]))
     }
 
+    func testDebugSelectionIsDisabledByDefault() {
+        XCTAssertFalse(AppDiagnostics.isDebugSelectionEnabled(environment: [:]))
+    }
+
+    func testDebugSelectionRequiresExplicitEnvironmentOptIn() {
+        XCTAssertTrue(AppDiagnostics.isDebugSelectionEnabled(environment: [
+            AppDiagnostics.debugSelectionEnvironmentKey: "1"
+        ]))
+        XCTAssertFalse(AppDiagnostics.isDebugSelectionEnabled(environment: [
+            AppDiagnostics.debugSelectionEnvironmentKey: "true"
+        ]))
+    }
+
+    func testDebugSelectionResultPathIsRestrictedToNamedTemporaryFile() {
+        XCTAssertTrue(AppDiagnostics.isValidDebugSelectionResultPath(
+            "/private/tmp/readytype-selection-result-123"
+        ))
+        XCTAssertTrue(AppDiagnostics.isValidDebugSelectionResultPath(
+            "/tmp/readytype-selection-result-123"
+        ))
+        XCTAssertFalse(AppDiagnostics.isValidDebugSelectionResultPath(
+            "/private/tmp/readytype-selection-result-/../../../etc/readytype-result"
+        ))
+        XCTAssertFalse(AppDiagnostics.isValidDebugSelectionResultPath(
+            "/private/tmp/unrelated-result"
+        ))
+    }
+
     func testDebugHUDIsDisabledByDefault() {
         XCTAssertFalse(AppDiagnostics.isDebugHUDEnabled(environment: [:]))
     }

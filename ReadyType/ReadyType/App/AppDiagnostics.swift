@@ -2,6 +2,7 @@ import Foundation
 
 enum AppDiagnostics {
     static let debugInsertEnvironmentKey = "READYTYPE_ENABLE_DEBUG_INSERT"
+    static let debugSelectionEnvironmentKey = "READYTYPE_ENABLE_DEBUG_SELECTION"
     static let debugHUDEnvironmentKey = "READYTYPE_ENABLE_DEBUG_HUD"
     static let debugVocabularyEnvironmentKey = "READYTYPE_ENABLE_DEBUG_VOCABULARY"
     static let debugVocabularyFileEnvironmentKey = "READYTYPE_DEBUG_VOCABULARY_FILE"
@@ -13,6 +14,19 @@ enum AppDiagnostics {
         environment: [String: String] = ProcessInfo.processInfo.environment
     ) -> Bool {
         environment[debugInsertEnvironmentKey] == "1"
+    }
+
+    static func isDebugSelectionEnabled(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> Bool {
+        environment[debugSelectionEnvironmentKey] == "1"
+    }
+
+    static func isValidDebugSelectionResultPath(_ path: String) -> Bool {
+        let url = URL(fileURLWithPath: path).standardizedFileURL
+        let parentPath = url.deletingLastPathComponent().path
+        return ["/tmp", "/private/tmp"].contains(parentPath)
+            && url.lastPathComponent.hasPrefix("readytype-selection-result-")
     }
 
     static func isDebugHUDEnabled(

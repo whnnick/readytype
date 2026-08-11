@@ -31,22 +31,29 @@ protocol TextDelivering: AnyObject {
     func deliver(_ text: String, pasteAutomatically: Bool) throws -> PasteDeliveryResult
 }
 
+@MainActor
 final class PasteService: TextDelivering {
     private let clipboard: ClipboardWriting
     private let directTextInserter: DirectTextInserting
     private let pasteInvoker: PasteInvoking
     private let pasteTargetActivator: PasteTargetActivating
+    private let selectionReplacementGuard: SelectionReplacementGuard
 
     init(
         clipboard: ClipboardWriting = SystemClipboard(),
         directTextInserter: DirectTextInserting = SystemFocusedTextInserter(),
         pasteInvoker: PasteInvoking = SystemPasteInvoker(),
-        pasteTargetActivator: PasteTargetActivating = SystemPasteTargetActivator()
+        pasteTargetActivator: PasteTargetActivating = SystemPasteTargetActivator(),
+        activeTextContextProvider: ActiveTextContextProviding = SystemActiveTextContextProvider()
     ) {
         self.clipboard = clipboard
         self.directTextInserter = directTextInserter
         self.pasteInvoker = pasteInvoker
         self.pasteTargetActivator = pasteTargetActivator
+        selectionReplacementGuard = SelectionReplacementGuard(
+            clipboard: clipboard,
+            activeTextContextProvider: activeTextContextProvider
+        )
     }
 
     func deliver(_ text: String, pasteAutomatically: Bool) throws -> PasteDeliveryResult {
@@ -77,6 +84,22 @@ final class PasteService: TextDelivering {
         InjectionDiagnostics.log("direct insertion failed; writing clipboard and invoking paste")
         try clipboard.writeString(finalText)
         return pasteInvoker.invokePaste() ? .pasted : .copiedFallback
+    }
+
+    func captureActiveTextContext(maximumCharacterCount: Int = 8_000) -> ActiveTextContextCaptureResult {
+        selectionReplacementGuard.capture(maximumCharacterCount: maximumCharacterCount)
+    }
+
+    func deliver(
+        _ text: String,
+        replacing context: ActiveTextContext,
+        replaceAutomatically: Bool
+    ) throws -> SelectionDeliveryResult {
+        try selectionReplacementGuard.deliver(
+            text,
+            replacing: context,
+            replaceAutomatically: replaceAutomatically
+        )
     }
 }
 

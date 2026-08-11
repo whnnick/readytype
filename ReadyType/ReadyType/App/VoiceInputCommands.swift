@@ -7,6 +7,7 @@ extension Notification.Name {
     static let readyTypeAddVocabularySuggestionRequested = Notification.Name("readyTypeAddVocabularySuggestionRequested")
     static let readyTypeIgnoreVocabularySuggestionRequested = Notification.Name("readyTypeIgnoreVocabularySuggestionRequested")
     static let readyTypeDebugInsertRequested = Notification.Name("readyTypeDebugInsertRequested")
+    static let readyTypeDebugSelectionRequested = Notification.Name("readyTypeDebugSelectionRequested")
     static let readyTypeDebugHUDRequested = Notification.Name("readyTypeDebugHUDRequested")
     static let readyTypeDebugVocabularyRequested = Notification.Name("readyTypeDebugVocabularyRequested")
 }

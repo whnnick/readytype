@@ -16,7 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController?
     private var voiceInputController: VoiceInputController?
     private var shortcutService: GlobalShortcutService?
-    private var textDelivery: TextDelivering?
+    private var textDelivery: PasteService?
     private var escapeKeyCancelMonitor: EscapeKeyCancelMonitor?
     private var settingsWindow: NSWindow?
     private var commandObservers: [NSObjectProtocol] = []
@@ -77,6 +77,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeVoiceInputCommands()
         if AppDiagnostics.isDebugInsertEnabled() {
             observeDebugInsertCommand()
+        }
+        if AppDiagnostics.isDebugSelectionEnabled() {
+            observeDebugSelectionCommand()
         }
         if AppDiagnostics.isDebugHUDEnabled() {
             observeDebugHUDCommand()
@@ -422,6 +425,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
+    private func observeDebugSelectionCommand() {
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleDebugSelectionNotification(_:)),
+            name: .readyTypeDebugSelectionRequested,
+            object: nil,
+            suspensionBehavior: .deliverImmediately
+        )
+    }
+
     private func observeDebugVocabularyCommand() {
         DistributedNotificationCenter.default().addObserver(
             self,
@@ -466,6 +479,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             appState.runtimeState = .error(readyTypeError.userMessage)
             appState.lastMessage = readyTypeError.userMessage
         }
+    }
+
+    @objc private func handleDebugSelectionNotification(_ notification: Notification) {
+        guard let expected = notification.userInfo?["expected"] as? String,
+              let replacement = notification.userInfo?["replacement"] as? String,
+              let resultPath = notification.userInfo?["resultPath"] as? String,
+              AppDiagnostics.isValidDebugSelectionResultPath(resultPath)
+        else {
+            return
+        }
+
+        let result: String
+        guard let textDelivery else {
+            result = "delivery_unavailable"
+            writeDebugSelectionResult(result, to: resultPath)
+            return
+        }
+
+        switch textDelivery.captureActiveTextContext(maximumCharacterCount: 8_000) {
+        case let .available(context):
+            guard context.selectedText == expected else {
+                writeDebugSelectionResult("selection_mismatch", to: resultPath)
+                return
+            }
+            do {
+                switch try textDelivery.deliver(replacement, replacing: context, replaceAutomatically: true) {
+                case .replaced:
+                    result = "replaced"
+                case let .copiedFallback(failure):
+                    result = "copied_\(String(describing: failure))"
+                }
+            } catch {
+                result = "delivery_error"
+            }
+        case .noSelection:
+            result = "no_selection"
+        case .tooLong:
+            result = "selection_too_long"
+        case let .unavailable(reason):
+            result = "capture_\(String(describing: reason))"
+        }
+
+        writeDebugSelectionResult(result, to: resultPath)
+    }
+
+    private func writeDebugSelectionResult(_ result: String, to path: String) {
+        try? result.write(toFile: path, atomically: true, encoding: .utf8)
     }
 
     @objc private func handleDebugHUDNotification(_ notification: Notification) {

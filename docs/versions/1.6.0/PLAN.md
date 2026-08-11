@@ -36,6 +36,8 @@ Status: complete. The new `ContextEngineTests` and legacy `OutputScenarioTests` 
 
 Verification: unit tests, TextEdit integration, zero wrong-window writes, and P95 < 50ms selection overhead.
 
+Status: complete. Explicit selection capture, target/selection fingerprints, guarded replacement, and copy-only fallback are implemented. All 32 focused and 420 full-suite tests pass, fingerprint validation P95 is 0.000ms, the fixed-fixture TextEdit replacement acceptance passes, and the production `.app` builds. The diagnostic entry point requires an explicit environment opt-in and is inactive during normal launches.
+
 ## Phase 3: Spoken Selection Actions
 
 1. Add a bounded set: shorten, expand, naturalize, formalize, organize, translate to English, and reply.

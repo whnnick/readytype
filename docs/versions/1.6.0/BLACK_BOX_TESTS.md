@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Planning is complete and Phase 1 Context Engine implementation is finished. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
+Planning is complete and Phases 1 and 2 are implemented. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
 
 | Requirement | Status | Release Evidence |
 | --- | --- | --- |
@@ -10,9 +10,10 @@ Planning is complete and Phase 1 Context Engine implementation is finished. This
 | Personal/work chat tone | Not started | Positive, negative, and real-app output pending. |
 | Email, notes, documents, and AI-tool structure | Not started | No-invention and formatting evidence pending. |
 | Spoken selected-text actions | Not started | Shorten, naturalize, translate, and reply pending. |
-| Safe fallback after target changes | Not started | Selection, focus, and app-switch evidence pending. |
+| Selection capture and safe replacement | Complete | 32 focused tests cover capture limits, app, focus, range and text changes, and diagnostic path restrictions; fixed-fixture TextEdit replacement passes; fingerprint validation P95 is 0.000ms. |
+| Safe fallback after target changes | Partial | Automated app, focus, range, and text changes all copy without attempting a write; real cross-app change acceptance remains for Phase 5. |
 | Privacy and anonymous analytics | Not started | Allowlist and network inspection pending. |
-| Automated and release gates | Partial | Tests and build pass for the current scope; final UI, sensitive scan, and release artifacts remain pending. |
+| Automated and release gates | Partial | All 420 tests pass and the production `.app` builds; final UI, sensitive scan, and release artifacts remain pending. |
 
 ## Fixed Real-app Matrix
 
@@ -36,4 +37,4 @@ Planning is complete and Phase 1 Context Engine implementation is finished. This
 
 ## Release Blockers
 
-Selection capture, safe replacement, selected-text actions, and real-app acceptance remain incomplete, so 1.6.0 is not releasable.
+Spoken selected-text actions, context tone, the complete real-app matrix, and final release gates remain incomplete, so 1.6.0 is not releasable.
