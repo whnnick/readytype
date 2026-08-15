@@ -12,6 +12,11 @@ protocol ContextualSpeechRecognitionBackend: SpeechRecognitionBackend {
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String
 }
 
+@MainActor
+protocol SpeechRecognitionCandidateBackend: AnyObject {
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate
+}
+
 extension ContextualSpeechRecognitionBackend {
     func transcribeAudio(at fileURL: URL) async throws -> String {
         try await transcribeAudio(at: fileURL, contextualTerms: [])
@@ -92,6 +97,7 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
     private let contextProvider: ContextProvider
     private let onDecision: DecisionObserver?
     private let automaticHighAccuracyTimeout: Duration
+    private let candidateSelector = SpeechRecognitionCandidateSelector()
 
     init(
         router: SpeechRecognitionRouter = SpeechRecognitionRouter(),
@@ -126,11 +132,11 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
             }
 
             do {
-                return try await transcribe(
+                return try await recognize(
                     with: highAccuracyBackend,
                     fileURL: recording.fileURL,
                     contextualTerms: context.contextualTerms
-                )
+                ).transcript
             } catch {
                 onDecision?(
                     SpeechRecognitionRouteDecision(
@@ -152,12 +158,13 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
 
         let highAccuracyTask = Task { @MainActor in
             do {
-                let transcript = try await transcribe(
+                let candidate = try await recognize(
                     with: highAccuracyBackend,
                     fileURL: recording.fileURL,
                     contextualTerms: contextualTerms
                 )
-                continuation.yield(.highAccuracySucceeded(transcript))
+                guard !Task.isCancelled else { return }
+                continuation.yield(.highAccuracySucceeded(candidate))
             } catch is CancellationError {
                 return
             } catch {
@@ -167,11 +174,12 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
 
         let fastSystemTask = Task { @MainActor in
             do {
-                let transcript = try await transcribeWithFastSystem(
+                let candidate = try await recognizeWithFastSystem(
                     recording: recording,
                     contextualTerms: contextualTerms
                 )
-                continuation.yield(.fastSystemSucceeded(transcript))
+                guard !Task.isCancelled else { return }
+                continuation.yield(.fastSystemSucceeded(candidate))
             } catch is CancellationError {
                 return
             } catch {
@@ -194,33 +202,70 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
             timeoutTask.cancel()
         }
 
-        var fastSystemResult: Result<String, Error>?
-        var fallbackReason: String?
+        var fastSystemResult: Result<SpeechRecognitionCandidate, Error>?
+        var highAccuracyResult: Result<SpeechRecognitionCandidate, Error>?
+        var didReachTimeout = false
 
         for await event in stream {
             switch event {
-            case let .highAccuracySucceeded(transcript):
-                return transcript
-            case .highAccuracyFailed:
-                fallbackReason = "高精度识别失败，已使用极速识别。"
-            case .highAccuracyTimedOut:
-                if fallbackReason == nil {
-                    fallbackReason = "高精度识别等待过久，已使用极速识别。"
+            case let .highAccuracySucceeded(candidate):
+                if !didReachTimeout {
+                    highAccuracyResult = .success(candidate)
                 }
-            case let .fastSystemSucceeded(transcript):
-                fastSystemResult = .success(transcript)
+            case let .highAccuracyFailed(error):
+                highAccuracyResult = .failure(error)
+            case .highAccuracyTimedOut:
+                didReachTimeout = true
+                highAccuracyTask.cancel()
+            case let .fastSystemSucceeded(candidate):
+                fastSystemResult = .success(candidate)
             case let .fastSystemFailed(error):
                 fastSystemResult = .failure(error)
             }
 
-            if let fallbackReason, let fastSystemResult {
-                onDecision?(
-                    SpeechRecognitionRouteDecision(
-                        backend: .fastSystem,
-                        fallbackReason: fallbackReason
-                    )
-                )
-                return try fastSystemResult.get()
+            let fastCandidate = fastSystemResult?.successValue
+            let highCandidate = highAccuracyResult?.successValue
+
+            if let selection = candidateSelector.select(
+                fastSystem: fastCandidate,
+                highAccuracy: highCandidate,
+                deadlineReached: didReachTimeout
+                    || highAccuracyResult?.isFailure == true
+                    || fastSystemResult?.isFailure == true
+            ) {
+                if selection.backend == .fastSystem {
+                    let reason: String
+                    if highAccuracyResult?.isFailure == true {
+                        reason = "高精度识别失败，已使用极速识别。"
+                    } else if didReachTimeout, highCandidate == nil {
+                        reason = "高精度识别等待过久，已使用极速识别。"
+                    } else {
+                        reason = "已采用更稳定的识别结果。"
+                    }
+                    onDecision?(SpeechRecognitionRouteDecision(backend: .fastSystem, fallbackReason: reason))
+                }
+                return selection.candidate.transcript
+            }
+
+            if let fastSystemResult, let highAccuracyResult,
+               fastSystemResult.isFailure, highAccuracyResult.isFailure {
+                return try highAccuracyResult.get().transcript
+            }
+
+            if fastSystemResult != nil, highAccuracyResult != nil {
+                throw ReadyTypeError.transcriptionEmpty
+            }
+
+            if didReachTimeout, let fastSystemResult {
+                switch fastSystemResult {
+                case let .success(candidate):
+                    guard !SpeechTranscriptValidator.isLikelyHallucination(candidate.transcript) else {
+                        throw ReadyTypeError.transcriptionEmpty
+                    }
+                    return candidate.transcript
+                case let .failure(error):
+                    throw error
+                }
             }
         }
 
@@ -228,25 +273,38 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
     }
 
     private func transcribeWithFastSystem(recording: AudioRecording, contextualTerms: [String]) async throws -> String {
-        try await transcribe(
+        try await recognizeWithFastSystem(recording: recording, contextualTerms: contextualTerms).transcript
+    }
+
+    private func recognizeWithFastSystem(
+        recording: AudioRecording,
+        contextualTerms: [String]
+    ) async throws -> SpeechRecognitionCandidate {
+        try await recognize(
             with: fastSystemBackend,
             fileURL: recording.fileURL,
             contextualTerms: contextualTerms
         )
     }
 
-    private func transcribe(
+    private func recognize(
         with backend: SpeechRecognitionBackend,
         fileURL: URL,
         contextualTerms: [String]
-    ) async throws -> String {
+    ) async throws -> SpeechRecognitionCandidate {
         let cappedTerms = Array(contextualTerms.prefix(100))
 
-        if let contextualBackend = backend as? ContextualSpeechRecognitionBackend {
-            return try await contextualBackend.transcribeAudio(at: fileURL, contextualTerms: cappedTerms)
+        if let candidateBackend = backend as? SpeechRecognitionCandidateBackend {
+            return try await candidateBackend.recognizeAudio(at: fileURL, contextualTerms: cappedTerms)
         }
 
-        return try await backend.transcribeAudio(at: fileURL)
+        if let contextualBackend = backend as? ContextualSpeechRecognitionBackend {
+            let transcript = try await contextualBackend.transcribeAudio(at: fileURL, contextualTerms: cappedTerms)
+            return SpeechRecognitionCandidate(transcript: transcript)
+        }
+
+        let transcript = try await backend.transcribeAudio(at: fileURL)
+        return SpeechRecognitionCandidate(transcript: transcript)
     }
 
     static func defaultContext(for recording: AudioRecording) -> SpeechRecognitionRouteContext {
@@ -264,15 +322,31 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
     }
 }
 
+private extension Result {
+    var successValue: Success? {
+        guard case let .success(value) = self else {
+            return nil
+        }
+        return value
+    }
+
+    var isFailure: Bool {
+        if case .failure = self {
+            return true
+        }
+        return false
+    }
+}
+
 private enum AutomaticRecognitionEvent {
-    case highAccuracySucceeded(String)
+    case highAccuracySucceeded(SpeechRecognitionCandidate)
     case highAccuracyFailed(Error)
     case highAccuracyTimedOut
-    case fastSystemSucceeded(String)
+    case fastSystemSucceeded(SpeechRecognitionCandidate)
     case fastSystemFailed(Error)
 }
 
-final class FastSystemSpeechBackend: ContextualSpeechRecognitionBackend {
+final class FastSystemSpeechBackend: ContextualSpeechRecognitionBackend, SpeechRecognitionCandidateBackend {
     private let systemSpeechBackend: SpeechRecognitionBackend
 
     init(systemSpeechBackend: SpeechRecognitionBackend = SFSpeechRecognitionBackend()) {
@@ -280,11 +354,21 @@ final class FastSystemSpeechBackend: ContextualSpeechRecognitionBackend {
     }
 
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
-        if let contextualBackend = systemSpeechBackend as? ContextualSpeechRecognitionBackend {
-            return try await contextualBackend.transcribeAudio(at: fileURL, contextualTerms: contextualTerms)
+        try await recognizeAudio(at: fileURL, contextualTerms: contextualTerms).transcript
+    }
+
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate {
+        if let candidateBackend = systemSpeechBackend as? SpeechRecognitionCandidateBackend {
+            return try await candidateBackend.recognizeAudio(at: fileURL, contextualTerms: contextualTerms)
         }
 
-        return try await systemSpeechBackend.transcribeAudio(at: fileURL)
+        if let contextualBackend = systemSpeechBackend as? ContextualSpeechRecognitionBackend {
+            let transcript = try await contextualBackend.transcribeAudio(at: fileURL, contextualTerms: contextualTerms)
+            return SpeechRecognitionCandidate(transcript: transcript)
+        }
+
+        let transcript = try await systemSpeechBackend.transcribeAudio(at: fileURL)
+        return SpeechRecognitionCandidate(transcript: transcript)
     }
 }
 
@@ -299,13 +383,18 @@ protocol LocalHighAccuracySpeechEngine: AnyObject {
     func prewarm() async throws
 }
 
+@MainActor
+protocol LocalHighAccuracySpeechCandidateEngine: AnyObject {
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate
+}
+
 extension LocalHighAccuracySpeechEngine {
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
         try await transcribeAudio(at: fileURL)
     }
 }
 
-final class LocalHighAccuracySpeechBackend: ContextualSpeechRecognitionBackend {
+final class LocalHighAccuracySpeechBackend: ContextualSpeechRecognitionBackend, SpeechRecognitionCandidateBackend {
     let engineKind: LocalHighAccuracySpeechEngineKind
 
     private let engine: LocalHighAccuracySpeechEngine
@@ -325,9 +414,18 @@ final class LocalHighAccuracySpeechBackend: ContextualSpeechRecognitionBackend {
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
         try await engine.transcribeAudio(at: fileURL, contextualTerms: contextualTerms)
     }
+
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate {
+        if let candidateEngine = engine as? LocalHighAccuracySpeechCandidateEngine {
+            return try await candidateEngine.recognizeAudio(at: fileURL, contextualTerms: contextualTerms)
+        }
+
+        let transcript = try await engine.transcribeAudio(at: fileURL, contextualTerms: contextualTerms)
+        return SpeechRecognitionCandidate(transcript: transcript)
+    }
 }
 
-final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
+final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine, LocalHighAccuracySpeechCandidateEngine {
     private let modelManager: LocalSpeechModelManager
     private let modelName: String
     private var pipeline: WhisperKit?
@@ -345,6 +443,10 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
     }
 
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
+        try await recognizeAudio(at: fileURL, contextualTerms: contextualTerms).transcript
+    }
+
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate {
         let pipe = try await pipeline(load: true, prewarm: false)
         var decodeOptions = DecodingOptions(language: "zh", chunkingStrategy: .vad)
         if let tokenizer = pipe.tokenizer,
@@ -364,7 +466,23 @@ final class CoreMLHighAccuracySpeechEngine: LocalHighAccuracySpeechEngine {
             throw ReadyTypeError.transcriptionEmpty
         }
 
-        return transcript
+        return SpeechRecognitionCandidate(
+            transcript: transcript,
+            quality: Self.qualityEvidence(from: results.flatMap(\.segments))
+        )
+    }
+
+    private static func qualityEvidence(from segments: [TranscriptionSegment]) -> SpeechRecognitionQualityEvidence {
+        SpeechRecognitionQualityEvidenceFactory.whisper(
+            segments: segments.map {
+                WhisperSegmentQuality(
+                    duration: Double($0.duration),
+                    averageLogProbability: Double($0.avgLogprob),
+                    noSpeechProbability: Double($0.noSpeechProb),
+                    compressionRatio: Double($0.compressionRatio)
+                )
+            }
+        )
     }
 
     private static func contextPrompt(from terms: [String]) -> String? {
@@ -439,7 +557,7 @@ enum SystemSpeechRecognitionRequestFactory {
     }
 }
 
-final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
+final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend, SpeechRecognitionCandidateBackend {
     private let recognizers: [(localeIdentifier: String, recognizer: SFSpeechRecognizer?)]
     private let recognitionTimeout: TimeInterval
     let localeIdentifiers: [String]
@@ -456,6 +574,10 @@ final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
     }
 
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
+        try await recognizeAudio(at: fileURL, contextualTerms: contextualTerms).transcript
+    }
+
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate {
         let contextualTerms = Array(contextualTerms.prefix(100))
         var bestRecognition: RecognizedSpeech?
         var failureMessages: [String] = []
@@ -499,7 +621,13 @@ final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
         }
 
         if let bestRecognition {
-            return bestRecognition.text
+            let quality: SpeechRecognitionQualityEvidence
+            if let confidence = bestRecognition.confidence {
+                quality = .system(averageSegmentConfidence: confidence)
+            } else {
+                quality = .unavailable
+            }
+            return SpeechRecognitionCandidate(transcript: bestRecognition.text, quality: quality)
         }
 
         if failureMessages.isEmpty {
@@ -573,17 +701,10 @@ final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
         }
     }
 
-    private static func averageConfidence(for transcription: SFTranscription) -> Double {
-        let confidenceValues = transcription.segments
-            .map(\.confidence)
-            .filter { $0 > 0 }
-
-        guard !confidenceValues.isEmpty else {
-            return 0
-        }
-
-        let total = confidenceValues.reduce(Float(0), +)
-        return Double(total / Float(confidenceValues.count))
+    private static func averageConfidence(for transcription: SFTranscription) -> Double? {
+        SpeechRecognitionQualityEvidenceFactory.systemAverageConfidence(
+            transcription.segments.map { Double($0.confidence) }
+        )
     }
 
     private static func stableErrorDescription(for error: Error) -> String {
@@ -594,11 +715,11 @@ final class SFSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
 
 private struct RecognizedSpeech {
     let text: String
-    let confidence: Double
+    let confidence: Double?
     let localeIdentifier: String
 
     var score: Double {
-        confidence + min(Double(text.count) / 200, 0.2)
+        (confidence ?? 0) + min(Double(text.count) / 200, 0.2)
     }
 }
 

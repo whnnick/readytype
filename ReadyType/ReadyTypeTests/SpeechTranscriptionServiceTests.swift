@@ -104,8 +104,15 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
 
     func testRoutedBackendStartsFastAndHighAccuracyTogetherButPrefersHighAccuracyWithinBudget() async throws {
         let fastBackend = MockSpeechRecognitionBackend(result: "fast text")
-        let highAccuracyBackend = MockContextualSpeechRecognitionBackend(
-            result: "high accuracy text",
+        let highAccuracyBackend = MockCandidateSpeechRecognitionBackend(
+            candidate: SpeechRecognitionCandidate(
+                transcript: "high accuracy text",
+                quality: .whisper(
+                    averageLogProbability: -0.2,
+                    maximumNoSpeechProbability: 0.1,
+                    maximumCompressionRatio: 1.2
+                )
+            ),
             delay: .milliseconds(20)
         )
         var routeDecisions: [SpeechRecognitionRouteDecision] = []
@@ -138,6 +145,147 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
         XCTAssertEqual(highAccuracyBackend.requestedContextualTerms, [["ReadyType"]])
         XCTAssertEqual(fastBackend.requestedURLs, [url])
         XCTAssertEqual(routeDecisions, [SpeechRecognitionRouteDecision(backend: .highAccuracyLocal, fallbackReason: nil)])
+    }
+
+    func testCandidateSelectorPrefersFastWhenHighAccuracyHasNoQualityAdvantage() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let fast = SpeechRecognitionCandidate(transcript: "fast text")
+        let high = SpeechRecognitionCandidate(transcript: "high text")
+
+        let selection = selector.select(fastSystem: fast, highAccuracy: high, deadlineReached: false)
+
+        XCTAssertEqual(
+            selection,
+            SpeechRecognitionCandidateSelection(backend: .fastSystem, candidate: fast)
+        )
+    }
+
+    func testCandidateSelectorRejectsRepeatedHighAccuracyHallucination() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let fast = SpeechRecognitionCandidate(
+            transcript: "这是正常的识别结果。",
+            quality: .system(averageSegmentConfidence: 0.8)
+        )
+        let phrase = "请不吝点赞、订阅、转发、打赏支持明镜与点点栏目。"
+        let high = SpeechRecognitionCandidate(
+            transcript: phrase + phrase,
+            quality: .whisper(
+                averageLogProbability: -0.2,
+                maximumNoSpeechProbability: 0.1,
+                maximumCompressionRatio: 1.2
+            )
+        )
+
+        let selection = selector.select(fastSystem: fast, highAccuracy: high, deadlineReached: false)
+
+        XCTAssertEqual(
+            selection,
+            SpeechRecognitionCandidateSelection(backend: .fastSystem, candidate: fast)
+        )
+    }
+
+    func testCandidateSelectorPrefersHighAccuracyWhenSystemConfidenceIsLow() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let fast = SpeechRecognitionCandidate(
+            transcript: "fast text",
+            quality: .system(averageSegmentConfidence: 0.45)
+        )
+        let high = SpeechRecognitionCandidate(
+            transcript: "high text",
+            quality: .whisper(
+                averageLogProbability: -0.7,
+                maximumNoSpeechProbability: 0.2,
+                maximumCompressionRatio: 1.5
+            )
+        )
+
+        let selection = selector.select(fastSystem: fast, highAccuracy: high, deadlineReached: false)
+
+        XCTAssertEqual(
+            selection,
+            SpeechRecognitionCandidateSelection(backend: .highAccuracyLocal, candidate: high)
+        )
+    }
+
+    func testCandidateSelectorWaitsForSecondCandidateUntilDeadline() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let fast = SpeechRecognitionCandidate(transcript: "fast text")
+
+        XCTAssertNil(selector.select(fastSystem: fast, highAccuracy: nil, deadlineReached: false))
+        XCTAssertEqual(
+            selector.select(fastSystem: fast, highAccuracy: nil, deadlineReached: true),
+            SpeechRecognitionCandidateSelection(backend: .fastSystem, candidate: fast)
+        )
+    }
+
+    func testCandidateSelectorRejectsLowQualityWhisperCandidate() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let fast = SpeechRecognitionCandidate(
+            transcript: "fast text",
+            quality: .system(averageSegmentConfidence: 0.8)
+        )
+        let high = SpeechRecognitionCandidate(
+            transcript: "high text",
+            quality: .whisper(
+                averageLogProbability: -1.2,
+                maximumNoSpeechProbability: 0.8,
+                maximumCompressionRatio: 2.8
+            )
+        )
+
+        let selection = selector.select(fastSystem: fast, highAccuracy: high, deadlineReached: false)
+
+        XCTAssertEqual(
+            selection,
+            SpeechRecognitionCandidateSelection(backend: .fastSystem, candidate: fast)
+        )
+    }
+
+    func testQualityEvidenceFactoryAggregatesEngineNativeSignals() {
+        XCTAssertEqual(
+            SpeechRecognitionQualityEvidenceFactory.systemAverageConfidence([0, 0.6, 0.8]) ?? -1,
+            0.7,
+            accuracy: 0.0001
+        )
+        XCTAssertNil(SpeechRecognitionQualityEvidenceFactory.systemAverageConfidence([0, 0]))
+
+        let quality = SpeechRecognitionQualityEvidenceFactory.whisper(
+            segments: [
+                WhisperSegmentQuality(
+                    duration: 1,
+                    averageLogProbability: -0.2,
+                    noSpeechProbability: 0.1,
+                    compressionRatio: 1.2
+                ),
+                WhisperSegmentQuality(
+                    duration: 3,
+                    averageLogProbability: -0.6,
+                    noSpeechProbability: 0.4,
+                    compressionRatio: 1.7
+                )
+            ]
+        )
+
+        guard case let .whisper(averageLogProbability, noSpeechProbability, compressionRatio) = quality else {
+            return XCTFail("Expected Whisper quality evidence")
+        }
+        XCTAssertEqual(averageLogProbability, -0.5, accuracy: 0.0001)
+        XCTAssertEqual(noSpeechProbability, 0.4, accuracy: 0.0001)
+        XCTAssertEqual(compressionRatio, 1.7, accuracy: 0.0001)
+        XCTAssertEqual(SpeechRecognitionQualityEvidenceFactory.whisper(segments: []), .unavailable)
+    }
+
+    func testCandidateSelectorUsesStructurallyValidFastResultAtDeadline() {
+        let selector = SpeechRecognitionCandidateSelector()
+        let lowConfidenceFast = SpeechRecognitionCandidate(
+            transcript: "仍然可用的极速结果",
+            quality: .system(averageSegmentConfidence: 0.2)
+        )
+
+        XCTAssertEqual(
+            selector.select(fastSystem: lowConfidenceFast, highAccuracy: nil, deadlineReached: true),
+            SpeechRecognitionCandidateSelection(backend: .fastSystem, candidate: lowConfidenceFast)
+        )
     }
 
     func testRoutedBackendFallsBackToFastSystemWhenSelectedHighAccuracyFails() async throws {
@@ -400,6 +548,33 @@ private final class MockContextualSpeechRecognitionBackend: ContextualSpeechReco
         }
 
         return result
+    }
+}
+
+private final class MockCandidateSpeechRecognitionBackend: SpeechRecognitionBackend, SpeechRecognitionCandidateBackend {
+    private let candidate: SpeechRecognitionCandidate
+    private let delay: Duration?
+    private(set) var requestedURLs: [URL] = []
+    private(set) var requestedContextualTerms: [[String]] = []
+
+    init(candidate: SpeechRecognitionCandidate, delay: Duration? = nil) {
+        self.candidate = candidate
+        self.delay = delay
+    }
+
+    func transcribeAudio(at fileURL: URL) async throws -> String {
+        try await recognizeAudio(at: fileURL, contextualTerms: []).transcript
+    }
+
+    func recognizeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> SpeechRecognitionCandidate {
+        requestedURLs.append(fileURL)
+        requestedContextualTerms.append(contextualTerms)
+
+        if let delay {
+            try await Task.sleep(for: delay)
+        }
+
+        return candidate
     }
 }
 

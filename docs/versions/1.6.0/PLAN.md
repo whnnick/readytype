@@ -49,6 +49,17 @@ Verification: routing boundary, concurrent start, no duplicate recognition after
 
 Status: concurrent routing, non-thinking requests, and segmented timing pass the 421-test full suite and production build. A fixed 35.9-second diagnostic measured 4,445ms for fast recognition, 5,240ms for warm local high-accuracy decoding, and 7,036ms for DeepSeek processing/delivery. Both ASR paths contained proper-name errors, so fast remains preferred while the current contextual vocabulary is forwarded to AI for bounded canonical-spelling decisions. A same-audio regression comparison remains before release.
 
+## Phase 2.2: Bounded Recognition Quality Selection
+
+1. Introduce a common recognition candidate containing text and engine-native quality evidence while preserving text-only backend compatibility.
+2. Use segment confidence for Apple Speech and average log probability, no-speech probability, and compression ratio for WhisperKit. Never compare raw scores directly across engines.
+3. A pure selector rejects empty, repeated-hallucination, and clearly low-quality candidates. Prefer local high accuracy only when its own evidence shows a clear quality advantage; otherwise preserve fast response.
+4. Automatic mode keeps the three-second total budget. Waiting for another candidate must never become unbounded, and the selector must not rewrite words or maintain phrase-specific corrections.
+
+Verification: quality extraction, hallucination rejection, low-quality fallback, no-evidence compatibility, concurrent completion, and timeout tests. Internal quality values never enter user-facing UI or anonymous analytics.
+
+Status: the compatibility layer, engine-native quality evidence, and pure selector are implemented. All 24 focused and 430 full-suite tests pass. Same-audio real-microphone A/B remains a pre-release acceptance item; automated success is not treated as evidence of improved recognition accuracy.
+
 ## Phase 3: Spoken Selection Actions
 
 1. Add a bounded set: shorten, expand, naturalize, formalize, organize, translate to English, and reply.

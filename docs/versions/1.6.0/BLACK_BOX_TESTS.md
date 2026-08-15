@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Planning is complete and Phases 1, 2, and 2.1 are implemented. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
+Planning is complete and Phases 1, 2, 2.1, and 2.2 are implemented. This file is the release contract; implementation may update status and evidence but must not weaken acceptance targets.
 
 | Requirement | Status | Release Evidence |
 | --- | --- | --- |
@@ -12,9 +12,9 @@ Planning is complete and Phases 1, 2, and 2.1 are implemented. This file is the 
 | Spoken selected-text actions | Not started | Shorten, naturalize, translate, and reply pending. |
 | Selection capture and safe replacement | Complete | 32 focused tests cover capture limits, app, focus, range and text changes, and diagnostic path restrictions; fixed-fixture TextEdit replacement passes; fingerprint validation P95 is 0.000ms. |
 | Safe fallback after target changes | Partial | Automated app, focus, range, and text changes all copy without attempting a write; real cross-app change acceptance remains for Phase 5. |
-| Long-form recognition and output latency | Partial | The eight-second route boundary, concurrent engines, three-second budget, non-thinking DeepSeek request, 20 canonical-spelling candidates, and segmented timing pass. A fixed 35.9-second recording measured 4,445ms for fast recognition, 5,240ms for warm local high-accuracy decoding, and 7,036ms for processing/delivery. Both ASR paths contained proper-name errors, so the accuracy gate is not complete. A second acoustic run contained excessive silence and is retained only as a pipeline check, not A/B performance evidence. |
+| Long-form recognition and output latency | Partial | The eight-second route boundary, concurrent engines, three-second budget, engine-native quality evidence, bounded candidate selection, non-thinking DeepSeek request, 20 canonical-spelling candidates, and segmented timing pass. A fixed 35.9-second recording measured 4,445ms for fast recognition, 5,240ms for warm local high-accuracy decoding, and 7,036ms for processing/delivery. Both ASR paths contained proper-name errors, so the accuracy gate is not complete. A second acoustic run contained excessive silence and is retained only as a pipeline check, not A/B performance evidence. |
 | Privacy and anonymous analytics | Not started | Allowlist and network inspection pending. |
-| Automated and release gates | Partial | All 423 tests pass and the production `.app` builds; final UI, sensitive scan, and release artifacts remain pending. |
+| Automated and release gates | Partial | All 430 tests pass. The `1.5.0 (94)` production `.app`, strict verification at the delivery path, and sensitive-data scan succeed; final UI, real-speech, and release artifacts remain pending. |
 
 ## Fixed Real-app Matrix
 
