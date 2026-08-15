@@ -8,6 +8,7 @@
 - Improved long-form recognition latency: automatic mode starts fast and high-accuracy recognition concurrently from eight seconds onward, prefers high accuracy within a three-second budget, and reuses the in-flight fast result instead of starting a serial retry.
 - Explicitly disabled DeepSeek thinking and bounded each output; recent results now report recognition separately from processing and delivery latency.
 - Advanced the current 1.6.0 development-stage test build to `1.5.0 (92)`. The public stable release remains `1.5.0 (91)` and 1.6.0 is not yet released.
+- Forwarded the recording-time contextual vocabulary to DeepSeek as a bounded canonical-spelling list and replaced the static misrecognition catalog with concise general rules; advanced the development test build to `1.5.0 (93)`.
 
 ## 1.5.0 - 2026-07-20
 

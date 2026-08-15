@@ -66,6 +66,7 @@ Typeless publicly emphasizes selection-aware voice editing, per-app tone, and a 
 - Local context classification P95 is below 10ms and selection capture/revalidation P95 below 50ms. Network AI latency is observed but is not a local performance gate.
 - Automatic recognition prefers local high accuracy for speech of at least eight seconds. Fast and high-accuracy backends run concurrently, with no more than a three-second high-accuracy budget and no serial fast retry after timeout.
 - Cleanup, translation, and AI-prompt output use DeepSeek non-thinking mode with a bounded output length. Recent results expose recognition and processing/delivery timing separately.
+- Contextual terms selected for recognition continue into AI processing as at most 20 canonical-spelling candidates. They remain hints rather than body content and replace an ever-growing static misrecognition catalog.
 - Full tests, build, UI smoke, sensitive-data scan, ZIP/DMG checks, and real-app black-box acceptance must pass before release.
 
 ## Non-goals

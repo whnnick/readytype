@@ -3,6 +3,42 @@ import XCTest
 
 final class RealLocalSpeechModelAcceptanceTests: XCTestCase {
     @MainActor
+    func testExplicitAudioFixtureReportsWarmHighAccuracyLatency() async throws {
+        let environment = ProcessInfo.processInfo.environment
+        try XCTSkipUnless(
+            environment["READYTYPE_SPEECH_AUDIO_FIXTURE"] != nil,
+            "Set READYTYPE_SPEECH_AUDIO_FIXTURE to a local audio file for an explicit diagnostic run."
+        )
+        let fixturePath = try XCTUnwrap(
+            environment["READYTYPE_SPEECH_AUDIO_FIXTURE"]
+        )
+        try XCTSkipUnless(
+            environment["RUN_LOCAL_SPEECH_MODEL"] == "1",
+            "Set RUN_LOCAL_SPEECH_MODEL=1 to run the real high-accuracy speech diagnostic."
+        )
+
+        let fixtureURL = URL(fileURLWithPath: fixturePath)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixtureURL.path))
+
+        let engine = CoreMLHighAccuracySpeechEngine()
+        let warmupStartedAt = Date()
+        try await engine.prewarm()
+        let warmupMilliseconds = Int(Date().timeIntervalSince(warmupStartedAt) * 1_000)
+
+        let transcriptionStartedAt = Date()
+        let transcript = try await engine.transcribeAudio(
+            at: fixtureURL,
+            contextualTerms: ["ReadyType", "GitHub", "DeepSeek"]
+        )
+        let transcriptionMilliseconds = Int(Date().timeIntervalSince(transcriptionStartedAt) * 1_000)
+
+        XCTAssertFalse(transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        print("Real high-accuracy warmup: \(warmupMilliseconds)ms")
+        print("Real high-accuracy transcription: \(transcriptionMilliseconds)ms")
+        print("Real high-accuracy transcript: \(transcript)")
+    }
+
+    @MainActor
     func testDefaultSpeechPackageCanDownloadAndPrewarm() async throws {
         try XCTSkipUnless(
             ProcessInfo.processInfo.environment["RUN_LOCAL_SPEECH_MODEL"] == "1",

@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var autoFinishRecordingTask: Task<Void, Never>?
     private var idlePrewarmController: IdlePrewarmController?
     private var hotVocabularyUpdateTask: Task<Void, Never>?
+    private var latestSpeechContextualTerms: [String] = []
     private let maximumRecordingDuration = RecordingPolicy.defaultMaximumDuration
     private let pasteTargetActivator = SystemPasteTargetActivator()
     private let localSpeechModelManager = LocalSpeechModelManager()
@@ -246,8 +247,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let dictionary = self?.currentSmartTermDictionary() ?? .readyTypeDefault
                 return DirectDictationNormalizer(dictionary: dictionary)
             },
-            userVocabularyTermsProvider: { [weak self] in
-                ((try? self?.userVocabularyStore.load()) ?? []).map(\.value)
+            canonicalTermsProvider: { [weak self] in
+                guard let self else {
+                    return []
+                }
+                let userTerms = ((try? self.userVocabularyStore.load()) ?? []).map(\.value)
+                return userTerms + self.latestSpeechContextualTerms
             }
         )
         let textDelivery = PasteService(pasteTargetActivator: pasteTargetActivator)
@@ -334,6 +339,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 timeoutMilliseconds: 80
             )
         )
+        latestSpeechContextualTerms = contextualTerms
 
         appState.speechRecognitionMode = settings.speechRecognitionMode
         appState.isHighAccuracyRecognitionEnabled = settings.isHighAccuracyRecognitionEnabled

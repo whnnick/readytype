@@ -47,7 +47,7 @@ Status: complete. Explicit selection capture, target/selection fingerprints, gua
 
 Verification: routing boundary, concurrent start, no duplicate recognition after timeout, request-body, and timing-copy tests; real long-form acceptance records raw recognition, actual backend, and stage timings.
 
-Status: implementation, focused coverage, the 421-test full suite, production build, and sensitive-information scan pass. One real long-utterance segmented-latency acceptance remains before release.
+Status: concurrent routing, non-thinking requests, and segmented timing pass the 421-test full suite and production build. A fixed 35.9-second diagnostic measured 4,445ms for fast recognition, 5,240ms for warm local high-accuracy decoding, and 7,036ms for DeepSeek processing/delivery. Both ASR paths contained proper-name errors, so fast remains preferred while the current contextual vocabulary is forwarded to AI for bounded canonical-spelling decisions. A same-audio regression comparison remains before release.
 
 ## Phase 3: Spoken Selection Actions
 

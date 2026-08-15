@@ -97,10 +97,9 @@ enum PromptTemplates {
     static let sharedTermPreservationPrompt = """
 
     Term and name preservation:
-    - Preserve common product, technical, and work terms when the transcript sounds like them, including ReadyType, GitHub, GitHub Actions, README, Docker Compose, Kubernetes, Redis, Nextcloud, DeepSeek, Cursor, Xcode, API, CoreML, WhisperKit, Option, Esc, Command, Control, high-accuracy speech package, fast recognition, budget sheet, quotation sheet, todo items, capitalization, voice package, gray release, and ASR.
-    - Use the supplied ASR term candidates only when the surrounding context clearly supports them.
-    - Do not change an uncertain term into another real product or word just because it is common. For example, do not turn Redis into Reddit, ReadyType into ReadyTap/Ready Tape/Reddit Type/Redis Type, DeepSeek into DeepSeq, README into Redmi, quotation sheet into report sheet, high-accuracy voice package into high-accuracy language/silver package, fast recognition into urgent recognition, todo items into agency items, capitalization into big message, or gray release into return release.
-    - If the candidate is unsupported by context, preserve the user's closest wording rather than inventing a correction.
+    - Preserve names and use supplied canonical spellings only when there is a close phonetic or orthographic match and the surrounding context supports it.
+    - Do not insert a supplied term merely because it is familiar or appears in the hint list.
+    - If a correction is uncertain, preserve the closest transcript wording instead of inventing a different name, product, or fact.
     """
 
     private static func scenarioCleanupInstructions(for scenario: OutputScenario) -> String {

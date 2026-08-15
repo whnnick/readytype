@@ -100,22 +100,14 @@ final class PromptTemplatesTests: XCTestCase {
         XCTAssertTrue(PromptTemplates.systemPrompt(for: .promptOutput, scenario: .generic).contains("AI assistant"))
     }
 
-    func testCleanupPromptPreservesCommonTechnicalTerms() {
+    func testCleanupPromptUsesGeneralCanonicalTermProtection() {
         let prompt = PromptTemplates.systemPrompt(for: .aiCleanup, scenario: .generic)
 
-        XCTAssertTrue(prompt.contains("ReadyType"))
-        XCTAssertTrue(prompt.contains("GitHub"))
-        XCTAssertTrue(prompt.contains("GitHub Actions"))
-        XCTAssertTrue(prompt.contains("README"))
-        XCTAssertTrue(prompt.contains("Kubernetes"))
-        XCTAssertTrue(prompt.contains("Redis"))
-        XCTAssertTrue(prompt.contains("Docker Compose"))
-        XCTAssertTrue(prompt.contains("Option"))
-        XCTAssertTrue(prompt.contains("Esc"))
-        XCTAssertTrue(prompt.contains("do not turn Redis into Reddit"))
-        XCTAssertTrue(prompt.contains("ReadyType into ReadyTap/Ready Tape/Reddit Type/Redis Type"))
-        XCTAssertTrue(prompt.contains("README into Redmi"))
-        XCTAssertTrue(prompt.contains("fast recognition into urgent recognition"))
+        XCTAssertTrue(prompt.contains("canonical spellings"))
+        XCTAssertTrue(prompt.contains("phonetic or orthographic match"))
+        XCTAssertTrue(prompt.contains("surrounding context"))
+        XCTAssertFalse(prompt.contains("ReadyType into ReadyTap"))
+        XCTAssertLessThan(prompt.utf8.count, 4_000)
     }
 
     func testCleanupPromptSeparatesInstructionsAndFiltersSpokenStopWords() {
@@ -150,13 +142,9 @@ final class PromptTemplatesTests: XCTestCase {
         for mode in [OutputMode.aiCleanup, .translationToEnglish, .promptOutput] {
             let prompt = PromptTemplates.systemPrompt(for: mode, scenario: .aiTool)
 
-            XCTAssertTrue(prompt.contains("ReadyType"))
-            XCTAssertTrue(prompt.contains("DeepSeek"))
-            XCTAssertTrue(prompt.contains("Redis"))
-            XCTAssertTrue(prompt.contains("ReadyTap"))
-            XCTAssertTrue(prompt.contains("DeepSeq"))
-            XCTAssertTrue(prompt.contains("quotation sheet"))
-            XCTAssertTrue(prompt.contains("Use the supplied ASR term candidates only when the surrounding context clearly supports them"))
+            XCTAssertTrue(prompt.contains("supplied canonical spellings"))
+            XCTAssertTrue(prompt.contains("surrounding context"))
+            XCTAssertTrue(prompt.contains("Do not insert a supplied term"))
         }
     }
 

@@ -58,7 +58,7 @@ final class OutputProcessorTests: XCTestCase {
         XCTAssertEqual(provider.requests[0].userText, "um clean this up")
     }
 
-    func testAICleanupIncludesBoundedUserVocabularyHints() async throws {
+    func testAICleanupIncludesBoundedCanonicalTermHints() async throws {
         let provider = MockChatCompletionProvider(result: "我平时用 Typeless，也会看 Reddit。")
         let processor = OutputProcessor(
             providerFactory: { provider },
@@ -68,7 +68,7 @@ final class OutputProcessorTests: XCTestCase {
             directDictationNormalizerProvider: {
                 DirectDictationNormalizer(dictionary: .readyTypeDefault)
             },
-            userVocabularyTermsProvider: {
+            canonicalTermsProvider: {
                 ["Typeless", "Reddit", "Typeless"] + (0..<30).map { "Term\($0)" }
             }
         )
@@ -80,12 +80,40 @@ final class OutputProcessorTests: XCTestCase {
         )
 
         let userText = try XCTUnwrap(provider.requests.first?.userText)
-        XCTAssertTrue(userText.contains("User-saved canonical spellings:"))
+        XCTAssertTrue(userText.contains("Canonical spellings for this input:"))
         XCTAssertTrue(userText.contains("\"Typeless\""))
         XCTAssertTrue(userText.contains("\"Reddit\""))
         XCTAssertEqual(userText.components(separatedBy: "\"Typeless\"").count - 1, 1)
         XCTAssertFalse(userText.contains("\"Term20\""))
         XCTAssertTrue(userText.contains("not required content"))
+    }
+
+    func testAICleanupForwardsCurrentRecognitionContextTerms() async throws {
+        let provider = MockChatCompletionProvider(result: "ReadyType 会调用 DeepSeek。")
+        let processor = OutputProcessor(
+            providerFactory: { provider },
+            termCorrectionServiceProvider: {
+                TermCorrectionService(dictionary: .readyTypeDefault)
+            },
+            directDictationNormalizerProvider: {
+                DirectDictationNormalizer(dictionary: .readyTypeDefault)
+            },
+            canonicalTermsProvider: {
+                ["ReadyType", "DeepSeek", "GitHub"]
+            }
+        )
+
+        _ = try await processor.process(
+            "READY TARG 会调用 DIPC",
+            mode: .aiCleanup,
+            scenario: .aiTool
+        )
+
+        let userText = try XCTUnwrap(provider.requests.first?.userText)
+        XCTAssertTrue(userText.contains("\"ReadyType\""))
+        XCTAssertTrue(userText.contains("\"DeepSeek\""))
+        XCTAssertTrue(userText.contains("\"GitHub\""))
+        XCTAssertTrue(userText.contains("Use a canonical spelling only when the transcript sounds close"))
     }
 
     func testAICleanupUsesChatToneContextInPrompt() async throws {

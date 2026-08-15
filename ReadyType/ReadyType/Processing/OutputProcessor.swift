@@ -19,7 +19,7 @@ final class OutputProcessor: OutputProcessing {
     private let providerFactory: () -> ChatCompletionProvider
     private let termCorrectionServiceProvider: () -> TermCorrectionService
     private let directDictationNormalizerProvider: () -> DirectDictationNormalizer
-    private let userVocabularyTermsProvider: () -> [String]
+    private let canonicalTermsProvider: () -> [String]
 
     init(provider: ChatCompletionProvider) {
         self.providerFactory = { provider }
@@ -29,7 +29,7 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
-        self.userVocabularyTermsProvider = { [] }
+        self.canonicalTermsProvider = { [] }
     }
 
     init(
@@ -43,7 +43,7 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
-        self.userVocabularyTermsProvider = { [] }
+        self.canonicalTermsProvider = { [] }
     }
 
     init(
@@ -55,19 +55,19 @@ final class OutputProcessor: OutputProcessing {
         self.directDictationNormalizerProvider = {
             DirectDictationNormalizer(dictionary: .readyTypeDefault)
         }
-        self.userVocabularyTermsProvider = { [] }
+        self.canonicalTermsProvider = { [] }
     }
 
     init(
         providerFactory: @escaping () -> ChatCompletionProvider,
         termCorrectionServiceProvider: @escaping () -> TermCorrectionService,
         directDictationNormalizerProvider: @escaping () -> DirectDictationNormalizer,
-        userVocabularyTermsProvider: @escaping () -> [String] = { [] }
+        canonicalTermsProvider: @escaping () -> [String] = { [] }
     ) {
         self.providerFactory = providerFactory
         self.termCorrectionServiceProvider = termCorrectionServiceProvider
         self.directDictationNormalizerProvider = directDictationNormalizerProvider
-        self.userVocabularyTermsProvider = userVocabularyTermsProvider
+        self.canonicalTermsProvider = canonicalTermsProvider
     }
 
     func process(_ transcript: String, mode: OutputMode) async throws -> ProcessedOutput {
@@ -274,7 +274,7 @@ final class OutputProcessor: OutputProcessing {
                 .filter { Self.isTermCandidate($0, supportedBy: context.scenario) }
                 .prefix(10)
         )
-        let canonicalTerms = Self.canonicalTerms(userVocabularyTermsProvider())
+        let canonicalTerms = Self.canonicalTerms(canonicalTermsProvider())
         guard !suggestions.isEmpty || !canonicalTerms.isEmpty else {
             return rawTranscript
         }
@@ -285,10 +285,10 @@ final class OutputProcessor: OutputProcessing {
 
         let canonicalSection = canonicalTerms.isEmpty ? "" : """
 
-        User-saved canonical spellings:
+        Canonical spellings for this input:
         \(canonicalTerms.map { "- \"\($0)\"" }.joined(separator: "\n"))
 
-        These are vocabulary hints, not required content. Use a spelling only when the transcript sounds close and the surrounding context supports it.
+        These are vocabulary hints, not required content. Use a canonical spelling only when the transcript sounds close and the surrounding context supports it.
         """
 
         let candidateSection = suggestions.isEmpty ? "" : """
