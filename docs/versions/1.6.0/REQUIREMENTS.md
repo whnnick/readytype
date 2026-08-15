@@ -40,6 +40,7 @@ Typeless publicly emphasizes selection-aware voice editing, per-app tone, and a 
 - Replace in place only when the target is unchanged.
 - If the target changed or cannot be verified, overwrite nothing; copy the result and show “Target changed. Result copied.”
 - Never infer selected text from the clipboard or poll text in other apps.
+- Enter selection processing only when a valid selection exists and speech contains one explicit action. Descriptive language, multiple actions, and instructions over 240 characters remain ordinary input and never send selected text.
 
 ### P1: Context Feedback and Manual Fallback
 

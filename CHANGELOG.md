@@ -10,6 +10,7 @@
 - Advanced the current 1.6.0 development-stage test build to `1.5.0 (92)`. The public stable release remains `1.5.0 (91)` and 1.6.0 is not yet released.
 - Forwarded the recording-time contextual vocabulary to DeepSeek as a bounded canonical-spelling list and replaced the static misrecognition catalog with concise general rules; advanced the development test build to `1.5.0 (93)`.
 - Added bounded recognition-quality selection. Apple Speech contributes segment confidence while WhisperKit contributes average log probability, no-speech probability, and compression ratio. Automatic mode selects complete candidates only within the existing three-second budget, without cross-engine raw-score comparison or phrase-specific replacement. Advanced the development test build to `1.5.0 (94)`.
+- Added a bounded selected-text voice-intent resolver for shorten, expand, naturalize, formalize, organize, translate to English, and reply. Missing selections, descriptive speech, multiple actions, and overlong instructions remain ordinary input and never enter selection processing. Advanced the development test build to `1.5.0 (95)`; DeepSeek processing and guarded replacement integration remain pending.
 
 ## 1.5.0 - 2026-07-20
 

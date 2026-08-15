@@ -70,6 +70,10 @@ Status: the compatibility layer, engine-native quality evidence, and pure select
 
 Verification: contract tests, original-preservation tests, 8,000-character cap, and API-failure coverage.
 
+Resolver boundary: accept only instructions that explicitly point to “this text / this message / selected text,” or standalone action commands no longer than 24 characters. The complete instruction is capped at 240 characters. Multiple requested actions, descriptive language, and uncertainty always remain ordinary input. This milestone implements the pure resolver only; it does not read a selection, call the network, or modify text.
+
+Status: the pure `SelectionIntentResolver` and seven bounded actions are complete; all 9 focused and 439 full-suite tests pass. The DeepSeek processor, selection capture at recording start, and guarded replacement integration remain pending, so the feature is not yet user-available.
+
 ## Phase 4: Context Tone and HUD
 
 1. Add positive and negative fixtures for personal chat, work chat, email, notes, documents, and AI tools.
