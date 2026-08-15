@@ -15,7 +15,7 @@
 <p align="center">
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%2014%2B-blue">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.5.0-green">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.5.1-green">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
@@ -47,7 +47,7 @@ ReadyType 的 AI 输出默认调用 `deepseek-v4-flash`。DeepSeek 当前官方�
 
 如果 ReadyType 无法打开、无法开始听写、无法粘贴或无法连接 DeepSeek，请先查看 [故障排查](./docs/TROUBLESHOOTING.zh-CN.md)。
 
-第一次试用可以参考 [测试说明](./docs/TESTING.zh-CN.md)，也可以直接使用 [测试邀请文案](./docs/TESTER_INVITE.zh-CN.md)。本次发布详情见 [ReadyType 1.5.0](./docs/versions/1.5.0/README.zh-CN.md)，后续功能计划见 [Roadmap](./docs/ROADMAP.zh-CN.md)。
+第一次试用可以参考 [测试说明](./docs/TESTING.zh-CN.md)，也可以直接使用 [测试邀请文案](./docs/TESTER_INVITE.zh-CN.md)。本次发布详情见 [ReadyType 1.5.1](./docs/versions/1.5.1/README.zh-CN.md)，后续功能计划见 [Roadmap](./docs/ROADMAP.zh-CN.md)。
 
 ## 使用要求
 
