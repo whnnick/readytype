@@ -29,6 +29,9 @@ final class DeepSeekProviderTests: XCTestCase {
             XCTAssertEqual(payload.model, "deepseek-chat")
             XCTAssertEqual(payload.messages.map(\.role), ["system", "user"])
             XCTAssertEqual(payload.messages.map(\.content), ["system prompt", "raw text"])
+            XCTAssertEqual(payload.temperature, 0.2)
+            XCTAssertEqual(payload.thinking.type, "disabled")
+            XCTAssertEqual(payload.maxTokens, 1_024)
 
             let response = HTTPURLResponse(
                 url: try XCTUnwrap(request.url),
@@ -182,10 +185,25 @@ final class DeepSeekProviderTests: XCTestCase {
 private struct ChatRequestPayload: Decodable {
     let model: String
     let messages: [Message]
+    let temperature: Double
+    let thinking: Thinking
+    let maxTokens: Int
+
+    enum CodingKeys: String, CodingKey {
+        case model
+        case messages
+        case temperature
+        case thinking
+        case maxTokens = "max_tokens"
+    }
 
     struct Message: Decodable {
         let role: String
         let content: String
+    }
+
+    struct Thinking: Decodable {
+        let type: String
     }
 }
 

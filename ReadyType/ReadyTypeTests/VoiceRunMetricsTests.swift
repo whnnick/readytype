@@ -14,8 +14,9 @@ final class VoiceRunMetricsTests: XCTestCase {
 
         XCTAssertEqual(metrics.inputFeedbackLatencyMilliseconds, 200)
         XCTAssertEqual(metrics.transcriptionLatencyMilliseconds, 1_500)
+        XCTAssertEqual(metrics.processingAndPasteLatencyMilliseconds, 1_500)
         XCTAssertEqual(metrics.stopToOutputLatencyMilliseconds, 3_000)
         XCTAssertEqual(metrics.totalCompletionLatencyMilliseconds, 9_000)
-        XCTAssertEqual(metrics.summaryLine, "耗时：反馈 200ms / 识别 1500ms / 停止到输出 3000ms / 总计 9000ms")
+        XCTAssertEqual(metrics.summaryLine, "耗时：反馈 200ms / 识别 1500ms / 整理与输入 1500ms / 总计 9000ms")
     }
 }

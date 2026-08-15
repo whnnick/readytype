@@ -65,6 +65,27 @@ final class SpeechRecognitionRouterTests: XCTestCase {
         XCTAssertNil(decision.fallbackReason)
     }
 
+    func testAutomaticModeUsesEightSecondsAsLongInputBoundary() {
+        let router = SpeechRecognitionRouter()
+        let baseContext = SpeechRecognitionRouteContext(
+            mode: .automatic,
+            scenario: .generic,
+            frontmostAppBundleIdentifier: "com.apple.TextEdit",
+            recordingDuration: 7.9,
+            hasLowConfidenceSignal: false,
+            hasChineseMisclassifiedAsEnglishSignal: false,
+            isLowPowerModeEnabled: false,
+            localModelState: .warm,
+            contextualTerms: []
+        )
+
+        XCTAssertEqual(router.route(context: baseContext).backend, .fastSystem)
+
+        var longInputContext = baseContext
+        longInputContext.recordingDuration = 8
+        XCTAssertEqual(router.route(context: longInputContext).backend, .highAccuracyLocal)
+    }
+
     func testAutomaticModeUsesFastSystemForLongDocumentWhenHighAccuracyIsDownloadedButCold() {
         let router = SpeechRecognitionRouter()
 

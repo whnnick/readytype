@@ -33,7 +33,9 @@ final class DeepSeekProvider: ChatCompletionProvider {
                     .init(role: "system", content: systemPrompt),
                     .init(role: "user", content: userText)
                 ],
-                temperature: 0.2
+                temperature: 0.2,
+                thinking: .init(type: "disabled"),
+                maxTokens: 1_024
             )
         )
 
@@ -93,10 +95,24 @@ private struct DeepSeekChatRequest: Encodable {
     let model: String
     let messages: [Message]
     let temperature: Double
+    let thinking: Thinking
+    let maxTokens: Int
+
+    enum CodingKeys: String, CodingKey {
+        case model
+        case messages
+        case temperature
+        case thinking
+        case maxTokens = "max_tokens"
+    }
 
     struct Message: Encodable {
         let role: String
         let content: String
+    }
+
+    struct Thinking: Encodable {
+        let type: String
     }
 }
 

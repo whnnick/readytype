@@ -36,7 +36,7 @@ struct VoiceRunMetrics: Equatable {
         let parts: [String] = [
             formatted("反馈", inputFeedbackLatencyMilliseconds),
             formatted("识别", transcriptionLatencyMilliseconds),
-            formatted("停止到输出", stopToOutputLatencyMilliseconds),
+            formatted("整理与输入", processingAndPasteLatencyMilliseconds),
             formatted("总计", totalCompletionLatencyMilliseconds)
         ].compactMap { $0 }
 

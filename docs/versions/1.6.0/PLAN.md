@@ -38,6 +38,17 @@ Verification: unit tests, TextEdit integration, zero wrong-window writes, and P9
 
 Status: complete. Explicit selection capture, target/selection fingerprints, guarded replacement, and copy-only fallback are implemented. All 32 focused and 420 full-suite tests pass, fingerprint validation P95 is 0.000ms, the fixed-fixture TextEdit replacement acceptance passes, and the production `.app` builds. The diagnostic entry point requires an explicit environment opt-in and is inactive during normal launches.
 
+## Phase 2.1: Long-form Accuracy and Responsiveness
+
+1. Move the automatic high-accuracy boundary from 12 to 8 seconds.
+2. Run fast and high-accuracy recognition concurrently in automatic mode; prefer high accuracy within three seconds and otherwise reuse the concurrent fast result.
+3. Explicitly disable DeepSeek thinking for rewrite requests and cap output at 1,024 tokens.
+4. Show recognition and processing/delivery timing separately instead of hiding the slow stage inside total latency.
+
+Verification: routing boundary, concurrent start, no duplicate recognition after timeout, request-body, and timing-copy tests; real long-form acceptance records raw recognition, actual backend, and stage timings.
+
+Status: implementation, focused coverage, the 421-test full suite, production build, and sensitive-information scan pass. One real long-utterance segmented-latency acceptance remains before release.
+
 ## Phase 3: Spoken Selection Actions
 
 1. Add a bounded set: shorten, expand, naturalize, formalize, organize, translate to English, and reply.

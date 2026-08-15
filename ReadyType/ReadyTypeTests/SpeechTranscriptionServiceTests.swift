@@ -102,9 +102,12 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
         XCTAssertTrue(highAccuracyBackend.requestedURLs.isEmpty)
     }
 
-    func testRoutedBackendUsesHighAccuracyOnlyWhenRouterSelectsIt() async throws {
+    func testRoutedBackendStartsFastAndHighAccuracyTogetherButPrefersHighAccuracyWithinBudget() async throws {
         let fastBackend = MockSpeechRecognitionBackend(result: "fast text")
-        let highAccuracyBackend = MockContextualSpeechRecognitionBackend(result: "high accuracy text")
+        let highAccuracyBackend = MockContextualSpeechRecognitionBackend(
+            result: "high accuracy text",
+            delay: .milliseconds(20)
+        )
         var routeDecisions: [SpeechRecognitionRouteDecision] = []
         let backend = RoutedSpeechRecognitionBackend(
             fastSystemBackend: fastBackend,
@@ -133,7 +136,7 @@ final class SpeechTranscriptionServiceTests: XCTestCase {
         XCTAssertEqual(transcript, "high accuracy text")
         XCTAssertEqual(highAccuracyBackend.requestedURLs, [url])
         XCTAssertEqual(highAccuracyBackend.requestedContextualTerms, [["ReadyType"]])
-        XCTAssertTrue(fastBackend.requestedURLs.isEmpty)
+        XCTAssertEqual(fastBackend.requestedURLs, [url])
         XCTAssertEqual(routeDecisions, [SpeechRecognitionRouteDecision(backend: .highAccuracyLocal, fallbackReason: nil)])
     }
 
@@ -379,16 +382,23 @@ private final class MockSpeechRecognitionBackend: SpeechRecognitionBackend {
 
 private final class MockContextualSpeechRecognitionBackend: ContextualSpeechRecognitionBackend {
     private let result: String
+    private let delay: Duration?
     private(set) var requestedURLs: [URL] = []
     private(set) var requestedContextualTerms: [[String]] = []
 
-    init(result: String) {
+    init(result: String, delay: Duration? = nil) {
         self.result = result
+        self.delay = delay
     }
 
     func transcribeAudio(at fileURL: URL, contextualTerms: [String]) async throws -> String {
         requestedURLs.append(fileURL)
         requestedContextualTerms.append(contextualTerms)
+
+        if let delay {
+            try await Task.sleep(for: delay)
+        }
+
         return result
     }
 }

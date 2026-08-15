@@ -99,7 +99,7 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
         highAccuracyBackend: SpeechRecognitionBackend = LocalHighAccuracySpeechBackend(),
         contextProvider: @escaping ContextProvider = RoutedSpeechRecognitionBackend.defaultContext,
         onDecision: DecisionObserver? = nil,
-        automaticHighAccuracyTimeout: Duration = .seconds(6)
+        automaticHighAccuracyTimeout: Duration = .seconds(3)
     ) {
         self.router = router
         self.fastSystemBackend = fastSystemBackend
@@ -118,20 +118,19 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
         case .fastSystem:
             return try await transcribeWithFastSystem(recording: recording, contextualTerms: context.contextualTerms)
         case .highAccuracyLocal:
-            do {
-                return try await transcribeWithHighAccuracy(
+            if context.mode == .automatic {
+                return try await transcribeAutomaticHighAccuracy(
                     recording: recording,
-                    mode: context.mode,
                     contextualTerms: context.contextualTerms
                 )
-            } catch AutomaticHighAccuracyTimeoutError.timedOut {
-                onDecision?(
-                    SpeechRecognitionRouteDecision(
-                        backend: .fastSystem,
-                        fallbackReason: "高精度识别等待过久，已使用极速识别。"
-                    )
+            }
+
+            do {
+                return try await transcribe(
+                    with: highAccuracyBackend,
+                    fileURL: recording.fileURL,
+                    contextualTerms: context.contextualTerms
                 )
-                return try await transcribeWithFastSystem(recording: recording, contextualTerms: context.contextualTerms)
             } catch {
                 onDecision?(
                     SpeechRecognitionRouteDecision(
@@ -144,67 +143,88 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
         }
     }
 
-    private func transcribeWithHighAccuracy(
-        recording: AudioRecording,
-        mode: SpeechRecognitionMode,
-        contextualTerms: [String]
-    ) async throws -> String {
-        guard mode == .automatic else {
-            return try await transcribe(
-                with: highAccuracyBackend,
-                fileURL: recording.fileURL,
-                contextualTerms: contextualTerms
-            )
-        }
-
-        return try await transcribeAutomaticHighAccuracy(
-            recording: recording,
-            contextualTerms: contextualTerms
-        )
-    }
-
     private func transcribeAutomaticHighAccuracy(
         recording: AudioRecording,
         contextualTerms: [String]
     ) async throws -> String {
-        let stream = AsyncStream<Result<String, Error>> { continuation in
-            let recognitionTask = Task { @MainActor in
-                do {
-                    let transcript = try await transcribe(
-                        with: highAccuracyBackend,
-                        fileURL: recording.fileURL,
-                        contextualTerms: contextualTerms
+        let (stream, continuation) = AsyncStream<AutomaticRecognitionEvent>.makeStream()
+        defer { continuation.finish() }
+
+        let highAccuracyTask = Task { @MainActor in
+            do {
+                let transcript = try await transcribe(
+                    with: highAccuracyBackend,
+                    fileURL: recording.fileURL,
+                    contextualTerms: contextualTerms
+                )
+                continuation.yield(.highAccuracySucceeded(transcript))
+            } catch is CancellationError {
+                return
+            } catch {
+                continuation.yield(.highAccuracyFailed(error))
+            }
+        }
+
+        let fastSystemTask = Task { @MainActor in
+            do {
+                let transcript = try await transcribeWithFastSystem(
+                    recording: recording,
+                    contextualTerms: contextualTerms
+                )
+                continuation.yield(.fastSystemSucceeded(transcript))
+            } catch is CancellationError {
+                return
+            } catch {
+                continuation.yield(.fastSystemFailed(error))
+            }
+        }
+
+        let timeoutTask = Task {
+            do {
+                try await Task.sleep(for: automaticHighAccuracyTimeout)
+                continuation.yield(.highAccuracyTimedOut)
+            } catch {
+                return
+            }
+        }
+
+        continuation.onTermination = { _ in
+            highAccuracyTask.cancel()
+            fastSystemTask.cancel()
+            timeoutTask.cancel()
+        }
+
+        var fastSystemResult: Result<String, Error>?
+        var fallbackReason: String?
+
+        for await event in stream {
+            switch event {
+            case let .highAccuracySucceeded(transcript):
+                return transcript
+            case .highAccuracyFailed:
+                fallbackReason = "高精度识别失败，已使用极速识别。"
+            case .highAccuracyTimedOut:
+                if fallbackReason == nil {
+                    fallbackReason = "高精度识别等待过久，已使用极速识别。"
+                }
+            case let .fastSystemSucceeded(transcript):
+                fastSystemResult = .success(transcript)
+            case let .fastSystemFailed(error):
+                fastSystemResult = .failure(error)
+            }
+
+            if let fallbackReason, let fastSystemResult {
+                onDecision?(
+                    SpeechRecognitionRouteDecision(
+                        backend: .fastSystem,
+                        fallbackReason: fallbackReason
                     )
-                    continuation.yield(.success(transcript))
-                } catch is CancellationError {
-                    return
-                } catch {
-                    continuation.yield(.failure(error))
-                }
-                continuation.finish()
-            }
-
-            let timeoutTask = Task {
-                do {
-                    try await Task.sleep(for: automaticHighAccuracyTimeout)
-                    continuation.yield(.failure(AutomaticHighAccuracyTimeoutError.timedOut))
-                    continuation.finish()
-                } catch {
-                    return
-                }
-            }
-
-            continuation.onTermination = { _ in
-                recognitionTask.cancel()
-                timeoutTask.cancel()
+                )
+                return try fastSystemResult.get()
             }
         }
 
-        for await result in stream {
-            return try result.get()
-        }
-
-        throw ReadyTypeError.transcriptionFailed("高精度识别未返回结果")
+        throw ReadyTypeError.transcriptionFailed("语音识别未返回结果")
     }
 
     private func transcribeWithFastSystem(recording: AudioRecording, contextualTerms: [String]) async throws -> String {
@@ -244,8 +264,12 @@ final class RoutedSpeechRecognitionBackend: RecordingSpeechRecognitionBackend {
     }
 }
 
-private enum AutomaticHighAccuracyTimeoutError: Error {
-    case timedOut
+private enum AutomaticRecognitionEvent {
+    case highAccuracySucceeded(String)
+    case highAccuracyFailed(Error)
+    case highAccuracyTimedOut
+    case fastSystemSucceeded(String)
+    case fastSystemFailed(Error)
 }
 
 final class FastSystemSpeechBackend: ContextualSpeechRecognitionBackend {

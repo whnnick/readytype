@@ -5,6 +5,9 @@
 - Added bilingual ReadyType 1.6.0 requirements, interaction and technical architecture, implementation plan, and black-box release contract for a unified Context Engine, spoken selected-text actions, safe replacement, and privacy boundaries; confirm-first correction learning moves to 1.7.0.
 - Added a unified Context Engine for app, window, transcript semantics, manual scenario, chat tone, and output intent while preserving legacy entry points and adding priority and performance regression coverage.
 - Added explicit selection capture, target and selection fingerprints, guarded replacement, and copy-only fallback. Replacement is blocked when the app, focus, range, or text changes, with isolated TextEdit acceptance coverage.
+- Improved long-form recognition latency: automatic mode starts fast and high-accuracy recognition concurrently from eight seconds onward, prefers high accuracy within a three-second budget, and reuses the in-flight fast result instead of starting a serial retry.
+- Explicitly disabled DeepSeek thinking and bounded each output; recent results now report recognition separately from processing and delivery latency.
+- Advanced the current 1.6.0 development-stage test build to `1.5.0 (92)`. The public stable release remains `1.5.0 (91)` and 1.6.0 is not yet released.
 
 ## 1.5.0 - 2026-07-20
 

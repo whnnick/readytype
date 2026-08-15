@@ -74,7 +74,7 @@ private extension SpeechRecognitionRouteContext {
             return true
         }
 
-        if recordingDuration >= 12 {
+        if recordingDuration >= 8 {
             return true
         }
 

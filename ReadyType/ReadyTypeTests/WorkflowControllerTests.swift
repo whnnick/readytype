@@ -289,7 +289,7 @@ final class WorkflowControllerTests: XCTestCase {
         XCTAssertEqual(appState.lastVoiceRunMetrics?.totalCompletionLatencyMilliseconds, 5_500)
         XCTAssertEqual(
             appState.lastProcessingSummary,
-            "直接转文字：未调用 DeepSeek\n耗时：识别 1000ms / 停止到输出 2500ms / 总计 5500ms"
+            "直接转文字：未调用 DeepSeek\n耗时：识别 1000ms / 整理与输入 1500ms / 总计 5500ms"
         )
     }
 
